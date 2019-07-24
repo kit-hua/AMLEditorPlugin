@@ -4,16 +4,16 @@
 winexe
 C#
 .cs
-D:\Daten\inpro\GitHub\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\obj\Debug\
+D:\repositories\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\obj\Debug\
 Aml.Editor.Plugin.Sandbox
 none
 false
-DEBUG;TRACE
-D:\Daten\inpro\GitHub\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\App.xaml
+CODE_ANALYSIS;DEBUG;TRACE
+D:\repositories\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\App.xaml
 11151548125
 
 8-1775575255
-781654245300
+78-325262723
 MainWindow.xaml;
 
 False

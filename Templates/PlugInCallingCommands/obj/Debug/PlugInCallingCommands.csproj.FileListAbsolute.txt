@@ -11,3 +11,16 @@ D:\Daten\inpro\GitHub\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\
 D:\Daten\inpro\GitHub\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.dll
 D:\Daten\inpro\GitHub\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.pdb
 D:\Daten\inpro\GitHub\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.csprojAssemblyReference.cache
+D:\repositories\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\CallCommands\PlugInCallingCommands.dll.config
+D:\repositories\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\CallCommands\PlugInCallingCommands.dll
+D:\repositories\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\CallCommands\PlugInCallingCommands.pdb
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.csprojAssemblyReference.cache
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugIn.g.cs
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands_MarkupCompile.cache
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands_MarkupCompile.lref
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugIn.baml
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.g.resources
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.csproj.CoreCompileInputs.cache
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.csproj.CopyComplete
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.dll
+D:\repositories\AMLEditorPlugin\Templates\PlugInCallingCommands\obj\Debug\PlugInCallingCommands.pdb

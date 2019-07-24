@@ -4,7 +4,7 @@
 library
 C#
 .cs
-D:\Daten\inpro\GitHub\AMLEditorPlugin\Templates\PluginWithToolBar\obj\Debug\
+D:\repositories\AMLEditorPlugin\Templates\PluginWithToolBar\obj\Debug\
 Aml.Editor.PlugIn.WithToolBar
 none
 false
@@ -13,7 +13,7 @@ DEBUG;TRACE
 1-1175495381
 
 3-77693928
-17204403901
+171422073747
 PlugIn.xaml;
 
 False

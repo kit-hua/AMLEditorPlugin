@@ -43,7 +43,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-**/bin
-.vs
-*/bin/*
 **/bin/
+**/.vs/

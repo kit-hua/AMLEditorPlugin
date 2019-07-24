@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmlEditorPlugInSandbox", "AmlEditorPlugInSandbox.csproj", "{B05D5441-9A3B-4D34-8A4D-42B11E4E36A4}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -23,6 +23,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlugInWithToolBar", "..\PluginWithToolBar\PlugInWithToolBar.csproj", "{77D78700-1FFF-49FE-838A-CFA3198EE782}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlugInCallingCommands", "..\PlugInCallingCommands\PlugInCallingCommands.csproj", "{52AAA374-987C-416E-8F06-2C1EBD4DB94B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "..\TestPlugin\TestPlugin.csproj", "{04338C48-8F20-4020-BE65-121986119213}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +82,14 @@ Global
 		{52AAA374-987C-416E-8F06-2C1EBD4DB94B}.Release4.0|Any CPU.Build.0 = Release|Any CPU
 		{52AAA374-987C-416E-8F06-2C1EBD4DB94B}.Release4.5|Any CPU.ActiveCfg = Release|Any CPU
 		{52AAA374-987C-416E-8F06-2C1EBD4DB94B}.Release4.5|Any CPU.Build.0 = Release|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Release4.0|Any CPU.ActiveCfg = Release|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Release4.0|Any CPU.Build.0 = Release|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Release4.5|Any CPU.ActiveCfg = Release|Any CPU
+		{04338C48-8F20-4020-BE65-121986119213}.Release4.5|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +100,7 @@ Global
 		{D617EC39-894B-4685-92C9-315CD69CA4B1} = {E3682634-5582-4B1D-A825-6AF21A18C86C}
 		{77D78700-1FFF-49FE-838A-CFA3198EE782} = {E3682634-5582-4B1D-A825-6AF21A18C86C}
 		{52AAA374-987C-416E-8F06-2C1EBD4DB94B} = {E3682634-5582-4B1D-A825-6AF21A18C86C}
+		{04338C48-8F20-4020-BE65-121986119213} = {E3682634-5582-4B1D-A825-6AF21A18C86C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {340C2EF6-405B-48D1-95DD-C652F11C41EC}
