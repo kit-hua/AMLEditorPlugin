@@ -288,17 +288,28 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         public void ChangeAMLFilePath(string amlFilePath)
         {
-            throw new NotImplementedException();
+            this.HelloText.Text = "Hello " + System.IO.Path.GetFileName(amlFilePath);
         }
 
         public void ChangeSelectedObject(CAEXBasicObject selectedObject)
         {
-            throw new NotImplementedException();
+            if (selectedObject != null)
+            {
+                this.HelloText.Text = "Hello " + "\"" + ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName) + "\"";
+            }
         }
 
         public void PublishAutomationMLFileAndObject(string amlFilePath, CAEXBasicObject selectedObject)
         {
-            throw new NotImplementedException();
+            if (!string.IsNullOrEmpty(amlFilePath))
+                this.HelloText.Text = "Hello " + System.IO.Path.GetFileName(amlFilePath);
+            else
+                this.HelloText.Text = "Nobody to say hello to!";
+
+            if (selectedObject != null)
+            {
+                ChangeSelectedObject(selectedObject);
+            }
         }
     }
 }
