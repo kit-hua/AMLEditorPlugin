@@ -7,16 +7,32 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" 
              d:DesignWidth="800">
-    <Grid>
-        <TextBlock
-            x:Name="HelloText"
-            Margin="50"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            FontSize="20"
-            FontWeight="Bold"
-            Foreground="Black"
-            Text="Hello AML" />
-            
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Simple Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid MouseMove="Grid_MouseMove">
+        <ListBox HorizontalAlignment="Left" Height="88.666" Margin="0,58.667,0,0" Style="{DynamicResource SimpleListBox}" VerticalAlignment="Top" Width="200"/>
+        <StackPanel Margin="0,0,459.493,423.4" Orientation="Horizontal">
+            <TextBlock
+                x:Name="HelloText"
+                FontSize="20"
+                FontWeight="Bold"
+                Foreground="Black"
+                Text="Hello InternalElement ABC" HorizontalAlignment="Left" Width="262.841" />
+            <MenuItem Header="add to list" HorizontalAlignment="Left" Style="{DynamicResource SimpleMenuItem}" VerticalAlignment="Top" Height="21.96" Width="85.982" Click="MenuItem_Click">
+                <MenuItem Header="positives" HorizontalAlignment="Left" Style="{DynamicResource SimpleMenuItem}"/>
+                <MenuItem Header="negatives" HorizontalAlignment="Left" Style="{DynamicResource SimpleMenuItem}"/>
+            </MenuItem>
+
+        </StackPanel>
+        <ScrollViewer HorizontalAlignment="Left" Height="250" Margin="0,178,0,0" VerticalAlignment="Top" Width="405">
+            <TextBox Style="{DynamicResource SimpleTextBox}" TextWrapping="Wrap" Text="TextBox" Height="250" Width="405"/>
+
+        </ScrollViewer>
+
     </Grid>
 </UserControl>

@@ -267,7 +267,7 @@ namespace Aml.Editor.Plugin.HelloAML
         /// <param name="amlFilePath">The Path to the current AML File in the AML Editor.</param>
         public void ChangeAMLFilePath(string amlFilePath)
         {
-            this.HelloText.Text = "Hello " + System.IO.Path.GetFileName(amlFilePath);
+            this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
         }
 
 
@@ -281,7 +281,7 @@ namespace Aml.Editor.Plugin.HelloAML
         {
             if (selectedObject != null)
             {
-                this.HelloText.Text = "Hello " + "\"" + ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName) + "\"";
+                this.HelloText.Text = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
             }
         }
 
