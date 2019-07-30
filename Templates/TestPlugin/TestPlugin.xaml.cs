@@ -1,9 +1,16 @@
 ﻿using Aml.Editor.Plugin;
 using Aml.Editor.Plugin.Contracts;
+using Aml.Editor.PlugIn.TestPlugin.ViewModel;
 using Aml.Engine.CAEX;
+using Aml.Engine.CAEX.Extensions;
+using Aml.Toolkit.ViewModel;
+using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel.Composition;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -28,6 +35,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         {
 
             InitializeComponent();
+            DataContext = TestViewModel.Instance;
 
             // Defines the Command list, which will contain user commands, which a user can select
             // via the PlugIn Menu.
@@ -66,6 +74,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 Command = AboutCommand,
                 CommandToolTip = "Information about this PlugIn"
             });
+            
 
             this.IsActive = false;
         }
@@ -284,20 +293,35 @@ namespace Aml.Editor.PlugIn.TestPlugin
         {
             this.IsActive = false;
             PluginTerminated?.Invoke(this, EventArgs.Empty);
-        }
+        }        
 
         public void ChangeAMLFilePath(string amlFilePath)
         {
             this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
         }
 
+        private CAEXObject _selectedObj;
+
         public void ChangeSelectedObject(CAEXBasicObject selectedObject)
         {
             if (selectedObject != null)
-            {
-                this.HelloText.Text = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
+            {                
+                String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
+                if(selectedObject is CAEXObject)
+                    this._selectedObj = (CAEXObject) selectedObject;
+                this.HelloText.Text = s;
+
+                if (TestViewModel.Instance.containsPositiveExample(this._selectedObj))
+                    btnPos.IsEnabled = false;
+                else if (TestViewModel.Instance.containsNegativeExample(this._selectedObj))
+                    btnNeg.IsEnabled = false;
+                else
+                {
+                    btnPos.IsEnabled = true;
+                    btnNeg.IsEnabled = true;
+                }                
             }
-        }
+        }       
 
         public void PublishAutomationMLFileAndObject(string amlFilePath, CAEXBasicObject selectedObject)
         {
@@ -312,18 +336,23 @@ namespace Aml.Editor.PlugIn.TestPlugin
             }
         }
 
-        private void MenuItem_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void BtnPos_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem item = e.OriginalSource as MenuItem;
-            if (item == Parent)
-            {
-                // Handle Parent
-            }
+            btnNeg.IsEnabled = true;
+            btnPos.IsEnabled = false;
+            // add selected to positive 
+            TestViewModel.Instance.addPositive(this._selectedObj);          
         }
 
-        private void Grid_MouseMove(object sender, MouseEventArgs e)
+        private void BtnNeg_Click(object sender, RoutedEventArgs e)
         {
-            this.HelloText.Text = e.GetPosition(this).ToString();
+            btnNeg.IsEnabled = false;
+            btnPos.IsEnabled = true;
+
+            TestViewModel.Instance.addNegative(this._selectedObj);
+
         }
+
+        
     }
 }

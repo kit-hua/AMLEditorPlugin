@@ -288,14 +288,14 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         public void ChangeAMLFilePath(string amlFilePath)
         {
-            this.HelloText.Text = "Hello " + System.IO.Path.GetFileName(amlFilePath);
+            this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
         }
 
         public void ChangeSelectedObject(CAEXBasicObject selectedObject)
         {
             if (selectedObject != null)
             {
-                this.HelloText.Text = "Hello " + "\"" + ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName) + "\"";
+                this.HelloText.Text = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
             }
         }
 
@@ -310,6 +310,20 @@ namespace Aml.Editor.PlugIn.TestPlugin
             {
                 ChangeSelectedObject(selectedObject);
             }
+        }
+
+        private void MenuItem_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            MenuItem item = e.OriginalSource as MenuItem;
+            if (item == Parent)
+            {
+                // Handle Parent
+            }
+        }
+
+        private void Grid_MouseMove(object sender, MouseEventArgs e)
+        {
+            this.HelloText.Text = e.GetPosition(this).ToString();
         }
     }
 }

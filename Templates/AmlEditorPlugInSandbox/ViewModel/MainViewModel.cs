@@ -413,7 +413,8 @@ namespace Aml.Editor.Plugin.Sandbox.ViewModel
 
                 FilePath = ofd.FileName;
                 Document = CAEXDocument.LoadFromFile(ofd.FileName);
-                AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, template);
+                //AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, template);
+                AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
                 PropagateFileOpenEventToPlugins(FilePath);
             }
         }
