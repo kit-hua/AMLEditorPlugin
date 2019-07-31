@@ -15990,6 +15990,15 @@
             <param name="typeCode">Source</param>
             <returns>CLR-Type</returns>
         </member>
+        <member name="M:Aml.Engine.Schema.XmlTypeCodeExtensions.XmlTypeCodeFromSchemaType(System.String)">
+            <summary>
+            Gets the <see cref="T:System.Xml.Schema.XmlTypeCode"/> from the W3C XSD schematype string.
+            </summary>
+            <param name="schemaType">W3C XSD schematype, defined as xs:..., like xs:double and others.</param>
+            <returns>the XmlTypeCode. If the schemaType is not recognized, 
+            <see cref="F:System.Xml.Schema.XmlTypeCode.AnyAtomicType"/> is returned.
+            </returns>
+        </member>
         <member name="M:Aml.Engine.Schema.XmlTypeCodeExtensions.Default(System.Xml.Schema.XmlTypeCode)">
             <summary>
             Returns the default value for XmlTypeCode

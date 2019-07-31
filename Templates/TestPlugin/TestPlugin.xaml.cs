@@ -1,14 +1,17 @@
 ﻿using Aml.Editor.Plugin;
 using Aml.Editor.Plugin.Contracts;
+using Aml.Editor.PlugIn.TestPlugin.json;
 using Aml.Editor.PlugIn.TestPlugin.ViewModel;
 using Aml.Engine.CAEX;
 using Aml.Engine.CAEX.Extensions;
 using Aml.Toolkit.ViewModel;
 using GalaSoft.MvvmLight;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,6 +39,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
             InitializeComponent();
             DataContext = TestViewModel.Instance;
+            TestViewModel.Instance.Plugin = this;
 
             // Defines the Command list, which will contain user commands, which a user can select
             // via the PlugIn Menu.
@@ -302,25 +306,47 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         private CAEXObject _selectedObj;
 
-        public void ChangeSelectedObject(CAEXBasicObject selectedObject)
+        public void ChangeSelectedObjectWithPrefix(CAEXBasicObject selectedObject, String prefix)
         {
             if (selectedObject != null)
-            {                
+            {
                 String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
-                if(selectedObject is CAEXObject)
-                    this._selectedObj = (CAEXObject) selectedObject;
-                this.HelloText.Text = s;
+                if (selectedObject is CAEXObject)
+                    this._selectedObj = (CAEXObject)selectedObject;
+                this.HelloText.Text = prefix + ": " + s;
 
-                if (TestViewModel.Instance.containsPositiveExample(this._selectedObj))
+                if (this._selectedObj.Name.Equals("PlaceHolder"))
+                {
                     btnPos.IsEnabled = false;
-                else if (TestViewModel.Instance.containsNegativeExample(this._selectedObj))
                     btnNeg.IsEnabled = false;
+                    btnRm.IsEnabled = false;
+                }
+
+                else if (TestViewModel.Instance.containsPositiveExample(this._selectedObj))
+                {
+                    btnPos.IsEnabled = false;
+                    btnNeg.IsEnabled = true;
+                    btnRm.IsEnabled = true;
+                }
+                else if (TestViewModel.Instance.containsNegativeExample(this._selectedObj))
+                {
+                    btnNeg.IsEnabled = false;
+                    btnPos.IsEnabled = true;
+                    btnRm.IsEnabled = true;
+                }
                 else
                 {
                     btnPos.IsEnabled = true;
                     btnNeg.IsEnabled = true;
-                }                
+                    btnRm.IsEnabled = true;
+                }
+                
             }
+        }
+
+        public void ChangeSelectedObject(CAEXBasicObject selectedObject)
+        {
+            ChangeSelectedObjectWithPrefix(selectedObject, "editor");
         }       
 
         public void PublishAutomationMLFileAndObject(string amlFilePath, CAEXBasicObject selectedObject)
@@ -341,7 +367,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnNeg.IsEnabled = true;
             btnPos.IsEnabled = false;
             // add selected to positive 
-            TestViewModel.Instance.addPositive(this._selectedObj);          
+            TestViewModel.Instance.addPositive(this._selectedObj);
+            Clear();
         }
 
         private void BtnNeg_Click(object sender, RoutedEventArgs e)
@@ -350,9 +377,56 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnPos.IsEnabled = true;
 
             TestViewModel.Instance.addNegative(this._selectedObj);
+            Clear();
+        }
+
+        private void BtnConfig_Click(object sender, RoutedEventArgs e)
+        {
+            String aml = "D:/repositories/aml/aml_framework/src/main/resources/test/data_src_3.0.aml";
+            AMLLearnerExamplesConfig examples = new AMLLearnerExamplesConfig();
+
+            List<String> positives = new List<String>();
+            List<String> negatives = new List<String>();
+            foreach (CAEXObject obj in TestViewModel.Instance.Positives)
+            {
+                positives.Add("ie_" + obj.Name + "_" + obj.ID);
+            }
+            foreach (CAEXObject obj in TestViewModel.Instance.Negatives)
+            {
+                negatives.Add("ie_" + obj.Name + "_" + obj.ID);
+            }
+            examples.Positives = positives.ToArray();
+            examples.Negatives = negatives.ToArray();
+
+            AMLLearnerConfig config = new AMLLearnerConfig(aml, TestViewModel.Instance.ObjType, examples);
+            using (StreamWriter file = File.CreateText(@"D:/repositories/aml/aml_framework/src/main/resources/test/aml.json"))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.NullValueHandling = NullValueHandling.Ignore;
+                serializer.Formatting = Formatting.Indented;
+                //serialize object directly into file stream
+                serializer.Serialize(file, config);
+            }
+        }
+
+        private void BtnRun_Click(object sender, RoutedEventArgs e)
+        {
 
         }
 
-        
+        private void BtnRm_Click(object sender, RoutedEventArgs e)
+        {
+            TestViewModel.Instance.removeObj(this._selectedObj);
+            Clear();
+        }
+
+        private void Clear()
+        {
+            this._selectedObj = null;
+            this.HelloText.Text = "";
+            btnNeg.IsEnabled = false;
+            btnPos.IsEnabled = false;
+            btnRm.IsEnabled = false;
+        }
     }
 }
