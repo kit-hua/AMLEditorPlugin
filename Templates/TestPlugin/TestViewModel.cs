@@ -28,8 +28,8 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
         public List<CAEXObject> Positives { get; private set; }
         public List<CAEXObject> Negatives { get; private set; }
 
-        private InstanceHierarchyType IhPos;
-        private InstanceHierarchyType IhNeg;
+        //private InstanceHierarchyType IhPos;
+        //private InstanceHierarchyType IhNeg;
 
         static TestViewModel()
         {
@@ -43,8 +43,8 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             DocumentPos = CAEXDocument.New_CAEXDocument();
             DocumentNeg = CAEXDocument.New_CAEXDocument();
 
-            IhPos = DocumentPos.CAEXFile.InstanceHierarchy.Append("positives");
-            IhNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("negatives");
+            DocumentPos.CAEXFile.InstanceHierarchy.Append("positives");
+            DocumentNeg.CAEXFile.InstanceHierarchy.Append("negatives");
             BuildTreeViewModel();
             //GenerateSomeAutomationMLTestData("test");
             //BuildTreeViewModel();
@@ -122,36 +122,31 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
         public void addPositive(CAEXObject obj)
         {
-
+            InstanceHierarchyType ihPos = DocumentPos.CAEXFile.InstanceHierarchy.First;
+            InstanceHierarchyType ihNeg = DocumentNeg.CAEXFile.InstanceHierarchy.First;
             if (obj is InternalElementType)
             {
-                if (IhPos.InternalElement.Exists && IhPos.InternalElement.First.Name.Equals("PlaceHolder"))
+                if (ihPos.InternalElement.Exists && ihPos.InternalElement.First.Name.Equals("PlaceHolder"))
                 {
                     MessageBox.Show("can not mixing EI and IE in one list!");
                 }
                 else
                 {
-                    IhPos.InternalElement.Insert((InternalElementType)obj);
+                    ihPos.InternalElement.Insert((InternalElementType)obj);                    
                     Positives.Add(obj);
-                    //if (IhNeg.InternalElement.Exists && contains(IhNeg.InternalElement, (InternalElementType)obj))
-                    if (contains(Negatives, obj))
-                    {
-                        remove(IhNeg.InternalElement, (InternalElementType)obj);
-                        Negatives.Remove(obj);
-                    }
-                        
+                    removeNegative(obj);                        
                 }                    
             }                
 
             if (obj is ExternalInterfaceType)
             {
-                if (!IhPos.InternalElement.Exists)
+                if (!ihPos.InternalElement.Exists)
                 {
-                    IhPos.InternalElement.Append("PlaceHolder");
+                    ihPos.InternalElement.Append("PlaceHolder");
                 }
-                else if (IhPos.InternalElement.First.Name.Equals("PlaceHolder"))
+                else if (ihPos.InternalElement.First.Name.Equals("PlaceHolder"))
                 {
-                    IhPos.InternalElement.First.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                    ihPos.InternalElement.First.ExternalInterface.Insert((ExternalInterfaceType)obj);
                 }
                 else
                 {
@@ -164,35 +159,31 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
         public void addNegative(CAEXObject obj)
         {
+            InstanceHierarchyType ihPos = DocumentPos.CAEXFile.InstanceHierarchy.First;
+            InstanceHierarchyType ihNeg = DocumentNeg.CAEXFile.InstanceHierarchy.First;
             if (obj is InternalElementType)
             {
-                if (IhNeg.InternalElement.Exists && IhNeg.InternalElement.First.Name.Equals("PlaceHolder"))
+                if (ihNeg.InternalElement.Exists && ihNeg.InternalElement.First.Name.Equals("PlaceHolder"))
                 {
                     MessageBox.Show("can not mixing EI and IE in one list!");
                 }
                 else
                 {
-                    IhNeg.InternalElement.Insert((InternalElementType)obj);
-                    Negatives.Add(obj);
-                    //if (IhPos.InternalElement.Exists && contains(IhPos.InternalElement, (InternalElementType)obj))
-                    if (contains(Positives, obj))
-                    {
-                        remove(IhPos.InternalElement, (InternalElementType)obj);
-                        Positives.Remove(obj);
-                    }
-                        
+                    ihNeg.InternalElement.Insert((InternalElementType)obj);
+                    Negatives.Add(obj);                    
+                    removePositive(obj);
                 }
             }
 
             if (obj is ExternalInterfaceType)
             {
-                if (!IhNeg.InternalElement.Exists)
+                if (!ihNeg.InternalElement.Exists)
                 {
-                    IhNeg.InternalElement.Append("PlaceHolder");
+                    ihNeg.InternalElement.Append("PlaceHolder");
                 }
-                else if (IhNeg.InternalElement.First.Name.Equals("PlaceHolder"))
+                else if (ihNeg.InternalElement.First.Name.Equals("PlaceHolder"))
                 {
-                    IhNeg.InternalElement.First.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                    ihNeg.InternalElement.First.ExternalInterface.Insert((ExternalInterfaceType)obj);
                 }
                 else
                 {
@@ -203,105 +194,37 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             updateTreeViewModel();
         }
 
-        private void remove(InternalElementSequence ieSeq, InternalElementType ie)
+        private void removePositive(CAEXObject obj)
         {
-            foreach (InternalElementType ieInSeq in ieSeq)
+            var caexObj = DocumentPos.FindByID(obj.ID);
+            if (!(caexObj is null))
             {
-                if (equals(ieInSeq, ie))
-                    ieSeq.RemoveElement(ieInSeq);
+                Positives.Remove(obj);
+                caexObj.Remove();
+            }                
+        }
+
+        private void removeNegative(CAEXObject obj)
+        {
+            var caexObj = DocumentNeg.FindByID(obj.ID);
+            if (!(caexObj is null))
+            {
+                Negatives.Remove(obj);
+                caexObj.Remove();
             }
         }
 
         public bool containsPositiveExample(CAEXObject obj)
         {
-            if (obj is InternalElementType)
-            {
-                return contains(IhPos.InternalElement, (InternalElementType)obj) && contains(Positives, obj);
-            }
-
-            if (obj is ExternalInterfaceType)
-            {
-                if (IhPos.InternalElement.First.Name.Equals("PlaceHolder"))
-                {
-                    return contains(IhPos.InternalElement.First.ExternalInterface, (ExternalInterfaceType)obj);             
-                }
-            }
-
-            return false;            
+            var caexObj = DocumentPos.FindByID(obj.ID);
+            return (caexObj == null) ? false : true;  
         }
 
         public bool containsNegativeExample(CAEXObject obj)
         {
-            if (obj is InternalElementType)
-            {
-                return contains(IhNeg.InternalElement, (InternalElementType)obj) && contains(Negatives,obj);
-            }
-
-            if (obj is ExternalInterfaceType)
-            {
-                if (IhNeg.InternalElement.First.Name.Equals("PlaceHolder"))
-                {
-                    return contains(IhNeg.InternalElement.First.ExternalInterface, (ExternalInterfaceType)obj);
-                }
-            }
-
-            return false;
-        }
-
-        private bool contains(List<CAEXObject> seq, CAEXObject obj)
-        {
-            foreach (CAEXObject o in seq)
-            {
-                if (equals(o, obj))
-                    return true;
-            }
-            return false;
-        }
-
-        private bool contains(CAEXSequence<CAEXObject> seq, CAEXObject obj)
-        {
-            foreach (CAEXObject o in seq)
-            {
-                if (equals(o, obj))
-                    return true;
-            }
-            return false;
-        }
-
-        private bool contains(ExternalInterfaceSequence eiSeq, ExternalInterfaceType ei)
-        {
-            foreach (ExternalInterfaceType eiInSeq in eiSeq)
-            {
-                if (equals(eiInSeq, ei))
-                    return true;
-            }
-            return false;
-        }
-
-        private bool contains(InternalElementSequence ieSeq, InternalElementType ie)
-        {
-            foreach (InternalElementType ieInSeq in ieSeq)
-            {
-                if (equals(ieInSeq, ie))
-                    return true;
-            }
-            return false;
-        }
-
-        private bool equals(CAEXObject obj1, CAEXObject obj2)
-        {
-            return obj1.ID.Equals(obj2.ID);
-        }
-
-        private bool equals(InternalElementType ie1, InternalElementType ie2)
-        {
-            return ie1.ID.Equals(ie2.ID);
-        }
-
-        private bool equals(ExternalInterfaceType ei1, ExternalInterfaceType ei2)
-        {
-            return ei1.ID.Equals(ei2.ID);
-        }
+            var caexObj = DocumentNeg.FindByID(obj.ID);
+            return (caexObj == null) ? false : true;
+        }       
 
 
         private void updateTreeViewModel()

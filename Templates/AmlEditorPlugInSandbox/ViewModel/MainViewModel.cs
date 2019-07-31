@@ -65,7 +65,8 @@ namespace Aml.Editor.Plugin.Sandbox.ViewModel
         {
             Plugins = new ObservableCollection<IAMLEditorPlugin>();
 
-            GenerateSomeAutomationMLTestData("My test hierarchy");
+            //GenerateSomeAutomationMLTestData("My test hierarchy");
+            Open("D:/repositories/aml/aml_framework/src/test/resources/data.aml");
             BuildTreeViewModel();
         }
 
@@ -273,7 +274,7 @@ namespace Aml.Editor.Plugin.Sandbox.ViewModel
 
             FilePath = filePath;
             Document = CAEXDocument.LoadFromFile(filePath);
-            AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, template);
+            AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
             PropagateFileOpenEventToPlugins(FilePath);
         }
 
