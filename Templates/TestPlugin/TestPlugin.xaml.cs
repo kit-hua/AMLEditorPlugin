@@ -13,6 +13,8 @@ using System.Collections.Specialized;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -411,7 +413,41 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
+            string toSend = "Hello!\nHello!\nHello!\nHello!\nHello!\nHello!\n";
 
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            String address = "";
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    address = ip.ToString();
+                }
+            }
+
+            IPEndPoint serverAddress = new IPEndPoint(IPAddress.Parse(address), 4343);
+
+            Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            clientSocket.Connect(serverAddress);
+
+            // Sending
+            int toSendLen = System.Text.Encoding.ASCII.GetByteCount(toSend);
+            byte[] toSendBytes = System.Text.Encoding.ASCII.GetBytes(toSend);
+            byte[] toSendLenBytes = System.BitConverter.GetBytes(toSendLen);
+            clientSocket.Send(toSendLenBytes);
+            clientSocket.Send(toSendBytes);
+
+            // Receiving
+            byte[] rcvLenBytes = new byte[4];
+            clientSocket.Receive(rcvLenBytes);
+            int rcvLen = System.BitConverter.ToInt32(rcvLenBytes, 0);
+            byte[] rcvBytes = new byte[rcvLen];
+            clientSocket.Receive(rcvBytes);
+            String rcv = System.Text.Encoding.ASCII.GetString(rcvBytes);
+
+            Console.WriteLine("Client received: " + rcv);
+
+            clientSocket.Close();
         }
 
         private void BtnRm_Click(object sender, RoutedEventArgs e)

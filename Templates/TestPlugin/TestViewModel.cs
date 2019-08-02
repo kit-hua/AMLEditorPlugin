@@ -318,7 +318,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             // use the InstanceHierarchy template for the created tree view because our document contains an IH only.
             AMLDocumentTreeViewModelPos = new AMLTreeViewModel(DocumentPos.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
             AMLDocumentTreeViewModelNeg = new AMLTreeViewModel(DocumentNeg.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
-
+            
             // expands the first level
             AMLDocumentTreeViewModelPos.Root.Children[0].IsExpanded = true;
             AMLDocumentTreeViewModelNeg.Root.Children[0].IsExpanded = true;
