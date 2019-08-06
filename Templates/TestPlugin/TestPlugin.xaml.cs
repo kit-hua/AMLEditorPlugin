@@ -8,6 +8,7 @@ using Aml.Toolkit.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel.Composition;
@@ -15,10 +16,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace Aml.Editor.PlugIn.TestPlugin
 {
@@ -382,9 +386,14 @@ namespace Aml.Editor.PlugIn.TestPlugin
             Clear();
         }
 
+        private readonly String home = "D:/repositories/aml/aml_framework/src/main/resources/test";
+        private readonly String aml = "data_src_3.0.aml";
+        private readonly String json = "aml.json";
+
+        private ConcurrentQueue<String> inputQueue = new ConcurrentQueue<String>();
+
         private void BtnConfig_Click(object sender, RoutedEventArgs e)
-        {
-            String aml = "D:/repositories/aml/aml_framework/src/main/resources/test/data_src_3.0.aml";
+        {            
             AMLLearnerExamplesConfig examples = new AMLLearnerExamplesConfig();
 
             List<String> positives = new List<String>();
@@ -400,8 +409,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
             examples.Positives = positives.ToArray();
             examples.Negatives = negatives.ToArray();
 
-            AMLLearnerConfig config = new AMLLearnerConfig(aml, TestViewModel.Instance.ObjType, examples);
-            using (StreamWriter file = File.CreateText(@"D:/repositories/aml/aml_framework/src/main/resources/test/aml.json"))
+            AMLLearnerConfig config = new AMLLearnerConfig(home, aml, TestViewModel.Instance.ObjType, examples);
+            using (StreamWriter file = File.CreateText(home + "/" + json))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.NullValueHandling = NullValueHandling.Ignore;
@@ -411,9 +420,37 @@ namespace Aml.Editor.PlugIn.TestPlugin
             }
         }
 
+        public class ListenerThread
+        {
+
+            public ListenerThread(Socket socket)
+            {
+                this.ClientSocket = socket;
+            }
+
+            public Socket ClientSocket { get; set; }
+
+            public void Run()
+            {
+                while (true)
+                {
+                    byte[] rcvLenBytes = new byte[4];
+                    ClientSocket.Receive(rcvLenBytes);
+                    int rcvLen = System.BitConverter.ToInt32(rcvLenBytes, 0);
+                    byte[] rcvBytes = new byte[rcvLen];
+                    ClientSocket.Receive(rcvBytes);
+                    String rcv = System.Text.Encoding.ASCII.GetString(rcvBytes);
+
+                    Console.WriteLine(rcv);
+                }
+            }
+        }
+
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
-            string toSend = "Hello!\nHello!\nHello!\nHello!\nHello!\nHello!\n";
+            //String toSend = "Hello!\nHello!\nHello!\nHello!\nHello!\nHello!\n";
+            //AMLLearnerProtocol protocol = new AMLLearnerProtocol();
+            String toSend = AMLLearnerProtocol.MakeStartRequest(home + "/" + json, 5);
 
             var host = Dns.GetHostEntry(Dns.GetHostName());
             String address = "";
@@ -438,16 +475,32 @@ namespace Aml.Editor.PlugIn.TestPlugin
             clientSocket.Send(toSendBytes);
 
             // Receiving
-            byte[] rcvLenBytes = new byte[4];
-            clientSocket.Receive(rcvLenBytes);
-            int rcvLen = System.BitConverter.ToInt32(rcvLenBytes, 0);
-            byte[] rcvBytes = new byte[rcvLen];
-            clientSocket.Receive(rcvBytes);
-            String rcv = System.Text.Encoding.ASCII.GetString(rcvBytes);
+            ListenerThread listener = new ListenerThread(clientSocket);
+            Thread listen = new Thread(new ThreadStart(listener.Run));
+            listen.Start();
 
-            Console.WriteLine("Client received: " + rcv);
+            // Logging
+            //LoggerThread logger = new LoggerThread(home + "/" + "rrhc");
+            //Thread logging = new Thread(new ThreadStart(logger.run));
+            //logging.Start();
 
+            while (SocketConnected(clientSocket))
+            {
+            }
+
+            listen.Abort();
             clientSocket.Close();
+
+        }
+
+        private bool SocketConnected(Socket s)
+        {
+            bool part1 = s.Poll(1000, SelectMode.SelectRead);
+            bool part2 = (s.Available == 0);
+            if (part1 && part2)
+                return false;
+            else
+                return true;
         }
 
         private void BtnRm_Click(object sender, RoutedEventArgs e)

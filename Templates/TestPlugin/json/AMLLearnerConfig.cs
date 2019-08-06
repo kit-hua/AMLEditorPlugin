@@ -78,7 +78,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         public AMLLearnerTreeConfig()
         {
             this.Write = false;
-            this.File = "D:/repositories/aml/aml_framework/src/test/resources/tree";
+            this.File = "tmp/rrhc";
         }
     }
 
@@ -115,7 +115,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         public AMLLearnerAlgConfig()
         {
             this.Type = "rrhc";
-            this.Time = 10;
+            this.Time = 3;
             this.Size = 10;
             this.Tree = new AMLLearnerTreeConfig();
         }
@@ -152,6 +152,10 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
 
     class AMLLearnerConfig
     {
+
+        [JsonProperty("home")]
+        public String Home { get; set; }
+
         [JsonProperty("aml")]
         public String Aml { get; set; }
 
@@ -173,8 +177,9 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         [JsonProperty("examples")]
         public AMLLearnerExamplesConfig Examples { get; set; }
 
-        public AMLLearnerConfig(String aml, String type, AMLLearnerExamplesConfig examples)
+        public AMLLearnerConfig(String home, String aml, String type, AMLLearnerExamplesConfig examples)
         {
+            this.Home = home;
             this.Aml = aml;
             this.Reasoner = "closed world reasoner";
             this.Type = type;
