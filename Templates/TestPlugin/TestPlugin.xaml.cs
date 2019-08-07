@@ -388,7 +388,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             Clear();
         }
 
-        private readonly String home = "D:/repositories/aml/aml_framework/src/main/resources/test";
+        private readonly String home = "H:/workspace/aml/aml_framework/src/main/resources/test";
         private readonly String aml = "data_src_3.0.aml";
         private readonly String json = "aml.json";
 
@@ -449,6 +449,16 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
                     //InputQueue.Enqueue(rcv);
                     Console.WriteLine(rcv);
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        Logger.Focus();
+                        Logger.AppendText(Environment.NewLine + rcv);
+                        Logger.CaretIndex = Logger.Text.Length;
+                        Logger.ScrollToEnd();
+                        //var rect = Logger.GetRectFromCharacterIndex(Logger.CaretIndex);
+                        //Logger.ScrollToHorizontalOffset(rect.Right);
+                    });                    
                 }
                 catch (ThreadAbortException e)
                 {
