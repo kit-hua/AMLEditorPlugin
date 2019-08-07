@@ -18,6 +18,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -68,7 +69,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 Command = new RelayCommand<object>(this.StopCommandExecute, this.StopCommandCanExecute),
                 CommandName = "Stop",
                 CommandToolTip = "Stop the PlugIn"
-            };            
+            };
 
 
             // Add the StartCommand (should exist in any PlugIn)
@@ -84,8 +85,9 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 Command = AboutCommand,
                 CommandToolTip = "Information about this PlugIn"
             });
-            
 
+            InputQueue = new ConcurrentQueue<string>();
+            OutputQueue = new ConcurrentQueue<string>();
             this.IsActive = false;
         }
 
@@ -303,7 +305,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         {
             this.IsActive = false;
             PluginTerminated?.Invoke(this, EventArgs.Empty);
-        }        
+        }
 
         public void ChangeAMLFilePath(string amlFilePath)
         {
@@ -346,14 +348,14 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
                 }
-                
+
             }
         }
 
         public void ChangeSelectedObject(CAEXBasicObject selectedObject)
         {
             ChangeSelectedObjectWithPrefix(selectedObject, "editor");
-        }       
+        }
 
         public void PublishAutomationMLFileAndObject(string amlFilePath, CAEXBasicObject selectedObject)
         {
@@ -390,10 +392,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private readonly String aml = "data_src_3.0.aml";
         private readonly String json = "aml.json";
 
-        private ConcurrentQueue<String> inputQueue = new ConcurrentQueue<String>();
-
         private void BtnConfig_Click(object sender, RoutedEventArgs e)
-        {            
+        {
             AMLLearnerExamplesConfig examples = new AMLLearnerExamplesConfig();
 
             List<String> positives = new List<String>();
@@ -420,38 +420,143 @@ namespace Aml.Editor.PlugIn.TestPlugin
             }
         }
 
-        public class ListenerThread
+        private ConcurrentQueue<String> InputQueue { get; set; }
+        private ConcurrentQueue<String> OutputQueue { get; set; }
+
+        private readonly String MESSAGE_END = "transmission finished";
+        private readonly int MESSAGE_LEN = 4;
+        private Socket ClientSocket { get; set; }
+        private Boolean IsRunning { get; set; }
+
+        private void Listen()
         {
-
-            public ListenerThread(Socket socket)
-            {
-                this.ClientSocket = socket;
-            }
-
-            public Socket ClientSocket { get; set; }
-
-            public void Run()
-            {
-                while (true)
+            Boolean receiving = true;
+            while (receiving) {
+                try
                 {
-                    byte[] rcvLenBytes = new byte[4];
+                    byte[] rcvLenBytes = new byte[MESSAGE_LEN];
                     ClientSocket.Receive(rcvLenBytes);
                     int rcvLen = System.BitConverter.ToInt32(rcvLenBytes, 0);
                     byte[] rcvBytes = new byte[rcvLen];
                     ClientSocket.Receive(rcvBytes);
-                    String rcv = System.Text.Encoding.ASCII.GetString(rcvBytes);
+                    String rcv = System.Text.Encoding.UTF8.GetString(rcvBytes);
 
+                    if (rcv.Contains(MESSAGE_END))
+                    {
+                        receiving = false;
+                        continue;
+                    }
+
+                    //InputQueue.Enqueue(rcv);
                     Console.WriteLine(rcv);
+                }
+                catch (ThreadAbortException e)
+                {
+                    Console.WriteLine("Thread Abort Exception");
                 }
             }
         }
 
+        private void Write()
+        {
+            Boolean sending = true;
+            while (sending)
+            {
+                try
+                {
+                    String toSend;
+                    OutputQueue.TryDequeue(out toSend);
+
+                    if (toSend is null) continue;
+                    
+                    int toSendLen = System.Text.Encoding.UTF8.GetByteCount(toSend);
+                    byte[] toSendBytes = System.Text.Encoding.UTF8.GetBytes(toSend);
+                    byte[] toSendLenBytes = System.BitConverter.GetBytes(toSendLen);
+
+                    ClientSocket.Send(toSendLenBytes);
+                    if (toSendLen != ClientSocket.Send(toSendBytes))
+                    {
+                        Console.WriteLine("writing to server failed");
+                    }
+
+                    if (toSend.Contains(MESSAGE_END))
+                    {
+                        sending = false;                        
+                    }
+                }
+                catch (ThreadAbortException e)
+                {
+                    Console.WriteLine("Thread Abort Exception");
+                }
+            }
+        }
+
+        private Boolean write(String toSend) {
+
+            Console.WriteLine("writing to server: " + toSend);
+
+            int toSendLen = System.Text.Encoding.UTF8.GetByteCount(toSend);            
+            byte[] toSendLenBytes = System.BitConverter.GetBytes(toSendLen);
+            byte[] toSendBytes = System.Text.Encoding.UTF8.GetBytes(toSend);
+
+            ClientSocket.Send(toSendLenBytes);
+           
+            if (toSendLen != ClientSocket.Send(toSendBytes))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private void Learn()
+        {
+            if (SocketConnected())
+            {                
+                try
+                {
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        btnRun.IsEnabled = false;
+                    });
+                    
+                    String start = AMLLearnerProtocol.MakeStartRequest(home + "/" + json, 5);
+                    OutputQueue.Enqueue(start);
+                    //if (!write(start)) {
+                    //    Console.WriteLine("failed to send start signal!");
+                    //    return;
+                    //}
+                    Console.WriteLine("waiting for the server");
+
+                    Listener.Join();
+
+                    OutputQueue.Enqueue(MESSAGE_END);
+                    //if (!write(MESSAGE_END))
+                    //{
+                    //    Console.WriteLine("failed to send end signal!");
+                    //    return;
+                    //}                        
+                    Console.WriteLine("Learning finished successively.");
+
+                    while (SocketConnected()) { }
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        btnRun.IsEnabled = true;
+                    });
+                }
+                catch (ThreadAbortException e)
+                {
+                    Console.WriteLine("Thread Abort Exception");
+                }
+            }
+        }
+
+        private Thread Listener { get; set; }
+        private Thread Writer { get; set; }
+        private Thread Learner { get; set; }
+
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
-            //String toSend = "Hello!\nHello!\nHello!\nHello!\nHello!\nHello!\n";
-            //AMLLearnerProtocol protocol = new AMLLearnerProtocol();
-            String toSend = AMLLearnerProtocol.MakeStartRequest(home + "/" + json, 5);
-
             var host = Dns.GetHostEntry(Dns.GetHostName());
             String address = "";
             foreach (var ip in host.AddressList)
@@ -464,39 +569,26 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
             IPEndPoint serverAddress = new IPEndPoint(IPAddress.Parse(address), 4343);
 
-            Socket clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            clientSocket.Connect(serverAddress);
+            ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            ClientSocket.Connect(serverAddress);            
 
-            // Sending
-            int toSendLen = System.Text.Encoding.ASCII.GetByteCount(toSend);
-            byte[] toSendBytes = System.Text.Encoding.ASCII.GetBytes(toSend);
-            byte[] toSendLenBytes = System.BitConverter.GetBytes(toSendLen);
-            clientSocket.Send(toSendLenBytes);
-            clientSocket.Send(toSendBytes);
+            ThreadStart listenerStart = new ThreadStart(Listen);
+            Listener = new Thread(listenerStart);
+            Listener.Start();
 
-            // Receiving
-            ListenerThread listener = new ListenerThread(clientSocket);
-            Thread listen = new Thread(new ThreadStart(listener.Run));
-            listen.Start();
+            ThreadStart writerStart = new ThreadStart(Write);
+            Writer = new Thread(writerStart);
+            Writer.Start();
 
-            // Logging
-            //LoggerThread logger = new LoggerThread(home + "/" + "rrhc");
-            //Thread logging = new Thread(new ThreadStart(logger.run));
-            //logging.Start();
-
-            while (SocketConnected(clientSocket))
-            {
-            }
-
-            listen.Abort();
-            clientSocket.Close();
-
+            ThreadStart learnerStart = new ThreadStart(Learn);
+            Learner = new Thread(learnerStart);
+            Learner.Start();            
         }
 
-        private bool SocketConnected(Socket s)
+        private bool SocketConnected()
         {
-            bool part1 = s.Poll(1000, SelectMode.SelectRead);
-            bool part2 = (s.Available == 0);
+            bool part1 = ClientSocket.Poll(1000, SelectMode.SelectRead);
+            bool part2 = (ClientSocket.Available == 0);
             if (part1 && part2)
                 return false;
             else
