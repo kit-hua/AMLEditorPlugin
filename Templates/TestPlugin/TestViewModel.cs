@@ -27,6 +27,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
         private AMLTreeViewModel _aMLDocumentTreeViewModelPos;
         private AMLTreeViewModel _aMLDocumentTreeViewModelNeg;
+        private AMLTreeViewModel _aMLDocumentTreeViewModelACM;
 
         /// <summary>
         /// Gets the singleton instance of the view model
@@ -35,6 +36,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
         public CAEXDocument DocumentPos { get; private set; }
         public CAEXDocument DocumentNeg { get; private set; }
+        public CAEXDocument DocumentACM { get; private set; }
 
         public List<CAEXObject> Positives { get; private set; }
         public List<CAEXObject> Negatives { get; private set; }
@@ -71,6 +73,12 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             IhSelectedNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("selectedNegatives");
 
             BuildTreeViewModel();
+        }
+
+        public void loadACM(String filename)
+        {
+            DocumentACM = CAEXDocument.LoadFromFile(filename);
+            AMLDocumentTreeViewModelACM = new AMLTreeViewModel(DocumentACM.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
         }
 
         /// <summary>
@@ -115,6 +123,29 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
                     // we need a handler to recognize a selection in the tree view. Every selection can be propagated to every plugIn.
                     if (AMLDocumentTreeViewModelNeg != null)
                         AMLDocumentTreeViewModelNeg.SelectedElements.CollectionChanged += SelectedElementsCollectionChanged;
+                }
+            }
+        }
+
+        /// <summary>
+        ///  Gets and sets the AMLDocumentTreeViewModel which holds the data for the AML document tree view
+        /// </summary>
+        public AMLTreeViewModel AMLDocumentTreeViewModelACM
+        {
+            get
+            {
+                return _aMLDocumentTreeViewModelACM;
+            }
+            set
+            {
+                if (_aMLDocumentTreeViewModelACM != value)
+                {
+                    _aMLDocumentTreeViewModelACM = value;
+                    RaisePropertyChanged(() => AMLDocumentTreeViewModelACM);
+
+                    // we need a handler to recognize a selection in the tree view. Every selection can be propagated to every plugIn.
+                    if (AMLDocumentTreeViewModelACM != null)
+                        AMLDocumentTreeViewModelACM.SelectedElements.CollectionChanged += SelectedElementsCollectionChanged;
                 }
             }
         }

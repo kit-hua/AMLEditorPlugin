@@ -115,7 +115,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         public AMLLearnerAlgConfig()
         {
             this.Type = "rrhc";
-            this.Time = 3;
+            this.Time = 10;
             this.Size = 10;
             this.Tree = new AMLLearnerTreeConfig();
         }

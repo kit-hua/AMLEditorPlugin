@@ -11,6 +11,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
@@ -21,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -34,13 +36,13 @@ namespace Aml.Editor.PlugIn.TestPlugin
     [ExportMetadata("DisplayName", "Test")]
     [ExportMetadata("Description", "Testing AML Editor Plugin")]
     [Export(typeof(IAMLEditorView))]
-    public partial class Test : UserControl, IAMLEditorView
+    public partial class Test : System.Windows.Controls.UserControl, IAMLEditorView, INotifyPropertyChanged, ISupportsSelection
     {
         /// <summary>
         /// <see cref="AboutCommand"/>
         /// </summary>
         private RelayCommand<object> aboutCommand;
-
+        
         public Test()
         {
 
@@ -101,6 +103,13 @@ namespace Aml.Editor.PlugIn.TestPlugin
         /// <see cref="StopCommand"/> ).
         /// </summary>
         public event EventHandler PluginTerminated;
+        public event EventHandler<SelectionEventArgs> Selected;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         /// <summary>
         /// The AboutCommand - Command
@@ -310,14 +319,14 @@ namespace Aml.Editor.PlugIn.TestPlugin
         public void ChangeAMLFilePath(string amlFilePath)
         {
             this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
-            Open(amlFilePath);
+            Document = Open(amlFilePath);
         }
 
         public CAEXDocument Document { get; private set; }
 
-        internal void Open(string filePath)
+        internal CAEXDocument Open(string filePath)
         {                        
-            Document = CAEXDocument.LoadFromFile(filePath);
+            return CAEXDocument.LoadFromFile(filePath);
         }
 
         private CAEXObject _selectedObj;
@@ -328,7 +337,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         }
 
         public void ChangeSelectedObjectWithPrefix(CAEXBasicObject selectedObject, String prefix)
-        {
+        {            
             if (selectedObject != null)
             {
                 String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
@@ -384,7 +393,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             if (!string.IsNullOrEmpty(amlFilePath))
             {
                 this.HelloText.Text = "Hello " + System.IO.Path.GetFileName(amlFilePath);
-                Open(amlFilePath);
+                Document = Open(amlFilePath);
             }
             else
                 this.HelloText.Text = "Nobody to say hello to!";
@@ -413,7 +422,22 @@ namespace Aml.Editor.PlugIn.TestPlugin
             Clear();
         }
 
-        private readonly String home = "D:/repositories/aml/aml_framework/src/main/resources/test";
+        private string _home;
+
+        public string Home
+        {
+            get { return _home; }
+            set
+            {
+                if (value != _home)
+                {
+                    _home = value;
+                    Console.WriteLine("setting home to: " + value);
+                    OnPropertyChanged("Home");
+                }
+            }
+        }
+
         private readonly String aml = "data_src_3.0.aml";
         private readonly String json = "aml.json";
 
@@ -441,8 +465,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 objType = "EI";
             else
                 return;
-            AMLLearnerConfig config = new AMLLearnerConfig(home, aml, objType, examples);
-            using (StreamWriter file = File.CreateText(home + "/" + json))
+            AMLLearnerConfig config = new AMLLearnerConfig(Home, aml, objType, examples);
+            using (StreamWriter file = File.CreateText(Home + "/" + json))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.NullValueHandling = NullValueHandling.Ignore;
@@ -572,7 +596,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                         btnLoadACM.IsEnabled = false;
                     });
                     
-                    String start = AMLLearnerProtocol.MakeStartRequest(home + "/" + json, 5);
+                    String start = AMLLearnerProtocol.MakeStartRequest(Home + "/" + json, 5);
                     OutputQueue.Enqueue(start);
                     //if (!write(start)) {
                     //    Console.WriteLine("failed to send start signal!");
@@ -744,9 +768,23 @@ namespace Aml.Editor.PlugIn.TestPlugin
         // for now, we load ACM by writing the ACMs into the original aml file
         private void BtnLoadACM_Click(object sender, RoutedEventArgs e)
         {
-            InstanceHierarchyType acmIh = Document.CAEXFile.InstanceHierarchy.Append("acms");
-            Document.SaveToFile("D:/repositories/aml/aml_framework/src/main/resources/test/data_src_3.0.aml", true);
-            ChangeAMLFilePath("D:/repositories/aml/aml_framework/src/main/resources/test/data_src_3.0.aml");
+            //InstanceHierarchyType acmIh = Document.CAEXFile.InstanceHierarchy.Append("acms");
+            TestViewModel.Instance.loadACM(Home + "/tmp/learned_acm.aml");
+        }
+
+        private void BtnHome_Click(object sender, RoutedEventArgs e)
+        {
+            using (var fbd = new FolderBrowserDialog())
+            {
+                fbd.SelectedPath = Home;
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                {
+                    Home = fbd.SelectedPath;
+                    textHome.Text = Home;
+                }
+            }
         }
     }
 }
