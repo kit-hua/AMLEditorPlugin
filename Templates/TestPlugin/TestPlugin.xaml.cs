@@ -310,13 +310,21 @@ namespace Aml.Editor.PlugIn.TestPlugin
         public void ChangeAMLFilePath(string amlFilePath)
         {
             this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
+            Open(amlFilePath);
+        }
+
+        public CAEXDocument Document { get; private set; }
+
+        internal void Open(string filePath)
+        {                        
+            Document = CAEXDocument.LoadFromFile(filePath);
         }
 
         private CAEXObject _selectedObj;
 
         private bool isPlaceHolder(CAEXBasicObject selectedObject)
         {
-            return selectedObject.Equals(TestViewModel.Instance.PlaceholderPos) || selectedObject.Equals(TestViewModel.Instance.PlaceholderNeg);
+            return selectedObject.Equals(TestViewModel.Instance.PlaceholderSelectedPos) || selectedObject.Equals(TestViewModel.Instance.PlaceholderSelectedNeg);
         }
 
         public void ChangeSelectedObjectWithPrefix(CAEXBasicObject selectedObject, String prefix)
@@ -341,14 +349,14 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnRm.IsEnabled = true;
                 }
 
-                else if (TestViewModel.Instance.containsPositiveExample(this._selectedObj))
+                else if (TestViewModel.Instance.ContainsPositiveExample(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnPos.IsEnabled = false;
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
                 }
-                else if (TestViewModel.Instance.containsNegativeExample(this._selectedObj))
+                else if (TestViewModel.Instance.ContainsNegativeExample(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnNeg.IsEnabled = false;
@@ -374,7 +382,10 @@ namespace Aml.Editor.PlugIn.TestPlugin
         public void PublishAutomationMLFileAndObject(string amlFilePath, CAEXBasicObject selectedObject)
         {
             if (!string.IsNullOrEmpty(amlFilePath))
+            {
                 this.HelloText.Text = "Hello " + System.IO.Path.GetFileName(amlFilePath);
+                Open(amlFilePath);
+            }
             else
                 this.HelloText.Text = "Nobody to say hello to!";
 
@@ -389,7 +400,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnNeg.IsEnabled = true;
             btnPos.IsEnabled = false;
             // add selected to positive 
-            TestViewModel.Instance.addPositive(this._selectedObj);
+            TestViewModel.Instance.AddPositive(this._selectedObj);
             Clear();
         }
 
@@ -398,7 +409,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnNeg.IsEnabled = false;
             btnPos.IsEnabled = true;
 
-            TestViewModel.Instance.addNegative(this._selectedObj);
+            TestViewModel.Instance.AddNegative(this._selectedObj);
             Clear();
         }
 
@@ -423,7 +434,14 @@ namespace Aml.Editor.PlugIn.TestPlugin
             examples.Positives = positives.ToArray();
             examples.Negatives = negatives.ToArray();
 
-            AMLLearnerConfig config = new AMLLearnerConfig(home, aml, TestViewModel.Instance.ObjType, examples);
+            String objType = "";
+            if (TestViewModel.Instance.ObjType.Equals(TestViewModel.ObjectType.IE))
+                objType = "IE";
+            else if (TestViewModel.Instance.ObjType.Equals(TestViewModel.ObjectType.EI))
+                objType = "EI";
+            else
+                return;
+            AMLLearnerConfig config = new AMLLearnerConfig(home, aml, objType, examples);
             using (StreamWriter file = File.CreateText(home + "/" + json))
             {
                 JsonSerializer serializer = new JsonSerializer();
@@ -442,6 +460,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private Socket ClientSocket { get; set; }
         private Boolean IsRunning { get; set; }
 
+        private AMLLearnerProtocolResults Results { get; set; }
+
         private void Listen()
         {
             Boolean receiving = true;
@@ -454,6 +474,12 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     byte[] rcvBytes = new byte[rcvLen];
                     ClientSocket.Receive(rcvBytes);
                     String rcv = System.Text.Encoding.UTF8.GetString(rcvBytes);
+
+                    if (rcv.StartsWith("{") && rcv.Contains("results"))
+                    {
+                        Results = AMLLearnerProtocol.GetResults(rcv);
+                        continue;
+                    }
 
                     if (rcv.Contains(MESSAGE_END))
                     {
@@ -530,7 +556,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 return false;
             }
             return true;
-        }
+        }        
 
         private void Learn()
         {
@@ -542,6 +568,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     {
                         btnRun.IsEnabled = false;
                         btnStop.IsEnabled = true;
+                        btnLoad.IsEnabled = false;
+                        btnLoadACM.IsEnabled = false;
                     });
                     
                     String start = AMLLearnerProtocol.MakeStartRequest(home + "/" + json, 5);
@@ -560,7 +588,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     //    Console.WriteLine("failed to send end signal!");
                     //    return;
                     //}                        
-                    Console.WriteLine("Learning finished successively.");
+                    Console.WriteLine("Learning finished successively.");                    
 
                     while (SocketConnected()) { }
 
@@ -568,6 +596,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     {
                         btnRun.IsEnabled = true;
                         btnStop.IsEnabled = false;
+                        btnLoad.IsEnabled = true;
+                        btnLoadACM.IsEnabled = true;
                     });
                 }
                 catch (ThreadAbortException e)
@@ -624,7 +654,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private void BtnRm_Click(object sender, RoutedEventArgs e)
         {
 
-            TestViewModel.Instance.removeObj(this._selectedObj);
+            TestViewModel.Instance.RemoveObj(this._selectedObj);
             Clear();
         }
 
@@ -648,7 +678,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 // - if (ele) is unknown: add to negative list
                 foreach (InternalElementType descendant in ih.Descendants<InternalElementType>())
                 {
-                    if (!TestViewModel.Instance.containsExample(descendant))
+                    if (!TestViewModel.Instance.ContainsExample(descendant))
                     {
                         objs.Add(descendant);
                     }
@@ -656,13 +686,13 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
                 foreach (ExternalInterfaceType descendant in ih.Descendants<ExternalInterfaceType>())
                 {
-                    if (!TestViewModel.Instance.containsExample(descendant))
+                    if (!TestViewModel.Instance.ContainsExample(descendant))
                     {
                         objs.Add(descendant);
                     }
                 }
 
-                TestViewModel.Instance.addNegative(objs);
+                TestViewModel.Instance.AddNegative(objs);
             }
         }
 
@@ -674,14 +704,49 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         private void BtnLoad_Click(object sender, RoutedEventArgs e)
         {
-            String load = AMLLearnerProtocol.MakeLoadRequest();
-            Write(load);
+            if (Results is null)
+                return;
+            else
+            {
+                int idx = 0;
+                foreach (AMLLearnerProtocolResult result in Results.Data)
+                {
+                    String concept = result.Concept;
+                    String[] positives = result.Positives;
+                    String[] negatives = result.Negatives;
+
+                    List<CAEXObject> positiveObjs = new List<CAEXObject>();
+                    foreach (String positive in positives)
+                    {
+                        String id = positive.Substring(positive.LastIndexOf("_")+1);
+                        positiveObjs.Add(Document.FindByID(id));
+                    }
+
+                    List<CAEXObject> negativeObjs = new List<CAEXObject>();
+                    foreach (String negative in positives)
+                    {
+                        String id = negative.Substring(negative.LastIndexOf("_")+1);
+                        negativeObjs.Add(Document.FindByID(id));
+                    }
+
+                    TestViewModel.Instance.AddDeducedExamples(positiveObjs, TestViewModel.ExampleType.POSITIVE, "result_" + (++idx).ToString());
+                    TestViewModel.Instance.AddDeducedExamples(negativeObjs, TestViewModel.ExampleType.NEGATIVE, "result_" + (idx).ToString());
+                }
+            }
         }
 
         private void BtnClear_Click(object sender, RoutedEventArgs e)
         {
-            TestViewModel.Instance.clearPositives();
-            TestViewModel.Instance.clearNegatives();
+            TestViewModel.Instance.ClearPositives();
+            TestViewModel.Instance.ClearNegatives();
+        }
+
+        // for now, we load ACM by writing the ACMs into the original aml file
+        private void BtnLoadACM_Click(object sender, RoutedEventArgs e)
+        {
+            InstanceHierarchyType acmIh = Document.CAEXFile.InstanceHierarchy.Append("acms");
+            Document.SaveToFile("D:/repositories/aml/aml_framework/src/main/resources/test/data_src_3.0.aml", true);
+            ChangeAMLFilePath("D:/repositories/aml/aml_framework/src/main/resources/test/data_src_3.0.aml");
         }
     }
 }

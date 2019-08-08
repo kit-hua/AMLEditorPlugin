@@ -51,6 +51,7 @@
             <Button x:Name="btnRun" Content="run learning" Margin="0,5" Width="90" Click="BtnRun_Click" IsEnabled="True"/>
             <Button x:Name="btnStop" Content="stop learning" Margin="0,5" Width="90" Click="BtnStop_Click" IsEnabled="False"/>
             <Button x:Name="btnLoad" Content="load results" Margin="0,5" Width="90" Click="BtnLoad_Click" IsEnabled="False"/>
+            <Button x:Name="btnLoadACM" Content="load ACMs" Margin="0,5" Width="90" Click="BtnLoadACM_Click"  IsEnabled="False"/>
         </StackPanel>
 
     </Grid>

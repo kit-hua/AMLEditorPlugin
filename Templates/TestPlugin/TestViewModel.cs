@@ -21,6 +21,10 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             set;
         }
 
+        public enum ObjectType { IE, EI, UNKNOWN };
+        public enum ExampleType { POSITIVE, NEGATIVE };
+        public enum ExampleCollectionType { SELECTED, DEDUCED };
+
         private AMLTreeViewModel _aMLDocumentTreeViewModelPos;
         private AMLTreeViewModel _aMLDocumentTreeViewModelNeg;
 
@@ -35,16 +39,21 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
         public List<CAEXObject> Positives { get; private set; }
         public List<CAEXObject> Negatives { get; private set; }
 
-        public String ObjType { get; private set; }
+        public ObjectType ObjType { get; private set; } = ObjectType.UNKNOWN;
 
-        private InstanceHierarchyType IhPos { get; set; }
-        private InstanceHierarchyType IhNeg { get; set; }
+        private InstanceHierarchyType IhSelectedPos { get; set; }
+        private InstanceHierarchyType IhSelectedNeg { get; set; }
+        public InternalElementType PlaceholderSelectedPos { get; set; }
+        public InternalElementType PlaceholderSelectedNeg { get; set; }
+        public Boolean PlaceholderPosAttached { get; set; } = false;
+        public Boolean PlaceholderNegAttached { get; set; } = false;
 
-        public InternalElementType PlaceholderPos { get; set; }
-        public InternalElementType PlaceholderNeg { get; set; }
+        //private InstanceHierarchyType IhDeducedPos { get; set; }
+        //private InstanceHierarchyType IhDeducedNeg { get; set; }
+        //public Boolean DeducedIhsAttached { get; set; } = false;
+        //private InternalElementType PlaceholderDeducedPos { get; set; }
+        //private InternalElementType PlaceholderDeducedNeg { get; set; }
 
-        public Boolean PlaceholderPosAttached { get; set; }
-        public Boolean PlaceholderNegAttached { get; set; }
 
         static TestViewModel()
         {
@@ -58,16 +67,10 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             DocumentPos = CAEXDocument.New_CAEXDocument();
             DocumentNeg = CAEXDocument.New_CAEXDocument();
 
-            ObjType = "";
-            IhPos = DocumentPos.CAEXFile.InstanceHierarchy.Append("positives");
-            IhNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("negatives");
-
-            PlaceholderPosAttached = false;
-            PlaceholderNegAttached = false;            
+            IhSelectedPos = DocumentPos.CAEXFile.InstanceHierarchy.Append("selectedPositives");
+            IhSelectedNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("selectedNegatives");
 
             BuildTreeViewModel();
-            //GenerateSomeAutomationMLTestData("test");
-            //BuildTreeViewModel();
         }
 
         /// <summary>
@@ -140,152 +143,152 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             }
         }       
 
-        public void addPositive(CAEXObject obj)
+        public void AddPositive(CAEXObject obj)
         {           
             if (obj is InternalElementType)
             {
-                if (ObjType.Equals("EI"))
+                if (ObjType.Equals(ObjectType.EI))
                 {
                     MessageBox.Show("can not mixing EI and IE in one list!");
                 }
                 else
                 {
-                    ObjType = "IE";
-                    IhPos.InternalElement.Insert((InternalElementType)obj);
+                    ObjType = ObjectType.IE;
+                    IhSelectedPos.InternalElement.Insert((InternalElementType)obj);
                     Positives.Add(obj);                    
                 }                    
             }                
 
             if (obj is ExternalInterfaceType)
             {
-                if (ObjType.Equals("IE"))
+                if (ObjType.Equals(ObjectType.IE))
                 {
                     MessageBox.Show("can not mixing EI and IE in one list!");
                 }
 
-                if (!IhPos.InternalElement.Exists)
+                if (!IhSelectedPos.InternalElement.Exists)
                 {
-                    PlaceholderPos = IhPos.InternalElement.Append("PlaceHolder");
+                    PlaceholderSelectedPos = IhSelectedPos.InternalElement.Append("PlaceHolder");
                 }
 
                 else if (!PlaceholderPosAttached)
                 {
-                    IhPos.InternalElement.Insert(PlaceholderPos);
+                    IhSelectedPos.InternalElement.Insert(PlaceholderSelectedPos);
                 }
 
                 PlaceholderPosAttached = true;
 
-                ObjType = "EI";
-                PlaceholderPos.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                ObjType = ObjectType.EI;
+                PlaceholderSelectedPos.ExternalInterface.Insert((ExternalInterfaceType)obj);
                 Positives.Add(obj);                
             }
-            removeNegativeObj(obj);
-            updateTreeViewModel();
+            RemoveNegativeObj(obj);
+            UpdateTreeViewModel();
         }
 
-        public void addNegative(CAEXObject obj)
+        public void AddNegative(CAEXObject obj)
         {
 
             if (obj is InternalElementType)
             {
-                IhNeg.InternalElement.Insert((InternalElementType)obj);
+                IhSelectedNeg.InternalElement.Insert((InternalElementType)obj);
                 Negatives.Add(obj);
             }
 
             if (obj is ExternalInterfaceType)
             {
-                if (PlaceholderNeg is null)
+                if (PlaceholderSelectedNeg is null)
                 {
-                    PlaceholderNeg = IhNeg.InternalElement.Append("PlaceHolder");
+                    PlaceholderSelectedNeg = IhSelectedNeg.InternalElement.Append("PlaceHolder");
                 }
                 else if (!PlaceholderNegAttached)
                 {
-                    IhNeg.InternalElement.Insert(PlaceholderNeg);
+                    IhSelectedNeg.InternalElement.Insert(PlaceholderSelectedNeg);
                 }
 
                 PlaceholderNegAttached = true;
-                PlaceholderNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                PlaceholderSelectedNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
                 Negatives.Add(obj);                
             }
 
-            removePositiveObj(obj);
-            updateTreeViewModel();
+            RemovePositiveObj(obj);
+            UpdateTreeViewModel();
         }
 
-        public void addNegative(List<CAEXObject> objs)
+        public void AddNegative(List<CAEXObject> objs)
         {
             foreach (CAEXObject obj in objs)
             {
                 if (obj is InternalElementType)
                 {
-                    IhNeg.InternalElement.Insert((InternalElementType)obj);
+                    IhSelectedNeg.InternalElement.Insert((InternalElementType)obj);
                     Negatives.Add(obj);
                 }
 
                 if (obj is ExternalInterfaceType)
                 {
-                    if (PlaceholderNeg is null)
+                    if (PlaceholderSelectedNeg is null)
                     {
-                        PlaceholderNeg = IhNeg.InternalElement.Append("PlaceHolder");
+                        PlaceholderSelectedNeg = IhSelectedNeg.InternalElement.Append("PlaceHolder");
                     }
 
                     else if (!PlaceholderNegAttached)
                     {
-                        IhNeg.InternalElement.Insert(PlaceholderNeg);
+                        IhSelectedNeg.InternalElement.Insert(PlaceholderSelectedNeg);
                     }
 
                     PlaceholderNegAttached = true;
 
-                    PlaceholderNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                    PlaceholderSelectedNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
                     Negatives.Add(obj);
                 }
 
-                removePositiveObj(obj);
+                RemovePositiveObj(obj);
             }
 
-            updateTreeViewModel();
+            UpdateTreeViewModel();
         }
 
-        public void removeObj(CAEXObject obj)
+        public void RemoveObj(CAEXObject obj)
         {
 
-            if (obj.Equals(PlaceholderPos))
+            if (obj.Equals(PlaceholderSelectedPos))
             {
                 MessageBox.Show("removing all EIs from this place holder object!");
-                foreach (ExternalInterfaceType ei in PlaceholderPos.ExternalInterface)
+                foreach (ExternalInterfaceType ei in PlaceholderSelectedPos.ExternalInterface)
                 {                    
-                    removePositiveObj(ei);                    
+                    RemovePositiveObj(ei);                    
                 }
-                PlaceholderPos.Remove();
+                PlaceholderSelectedPos.Remove();
                 PlaceholderPosAttached = false;
-                ObjType = "";
+                ObjType = ObjectType.UNKNOWN;
             }
 
-            else if (obj.Equals(PlaceholderNeg))
+            else if (obj.Equals(PlaceholderSelectedNeg))
             {
                 MessageBox.Show("removing all EIs from this place holder object!");
-                foreach (ExternalInterfaceType ei in PlaceholderNeg.ExternalInterface)
+                foreach (ExternalInterfaceType ei in PlaceholderSelectedNeg.ExternalInterface)
                 {                    
-                    removePositiveObj(ei);                    
+                    RemovePositiveObj(ei);                    
                 }
-                PlaceholderNeg.Remove();
+                PlaceholderSelectedNeg.Remove();
                 PlaceholderNegAttached = false;
             }
 
             else
             {
-                removePositiveObj(obj);
-                removeNegativeObj(obj);
+                RemovePositiveObj(obj);
+                RemoveNegativeObj(obj);
             }
             
-            updateTreeViewModel();
+            UpdateTreeViewModel();
         }        
 
-        public void removePositiveObj(CAEXObject obj)
+        public void RemovePositiveObj(CAEXObject obj)
         {
             if (obj is InternalElementType)
             {
-                foreach (CAEXObject ele in IhPos.InternalElement.ToList())
+                foreach (CAEXObject ele in IhSelectedPos.InternalElement.ToList())
                 {
                     if (ele.ID.Equals(obj.ID))
                     {
@@ -296,9 +299,9 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             if (obj is ExternalInterfaceType)
             {
-                if (IhPos.InternalElement.Exists)
+                if (IhSelectedPos.InternalElement.Exists)
                 {
-                    foreach (CAEXObject ele in PlaceholderPos.ExternalInterface.ToList())
+                    foreach (CAEXObject ele in PlaceholderSelectedPos.ExternalInterface.ToList())
                     {
                         if (ele.ID.Equals(obj.ID))
                         {
@@ -311,27 +314,27 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             Positives.RemoveAll(item => item.ID.Equals(obj.ID));
         }
 
-        public void clearPositives()
+        public void ClearPositives()
         {
             Positives.Clear();
-            IhPos.InternalElement.Remove();
-            updateTreeViewModel();
-            ObjType = "";
+            IhSelectedPos.InternalElement.Remove();
+            UpdateTreeViewModel();
+            ObjType = ObjectType.UNKNOWN;
         }
 
-        public void clearNegatives()
+        public void ClearNegatives()
         {
             Negatives.Clear();
-            IhNeg.InternalElement.Remove();
-            updateTreeViewModel();
+            IhSelectedNeg.InternalElement.Remove();
+            UpdateTreeViewModel();
         }
 
-        public void removeNegativeObj(CAEXObject obj)
+        public void RemoveNegativeObj(CAEXObject obj)
         {
 
             if (obj is InternalElementType)
             {
-                foreach (CAEXObject ele in IhNeg.InternalElement.ToList())
+                foreach (CAEXObject ele in IhSelectedNeg.InternalElement.ToList())
                 {
                     if (ele.ID.Equals(obj.ID))
                     {
@@ -342,9 +345,9 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             if (obj is ExternalInterfaceType)
             {
-                if (IhNeg.InternalElement.Exists)
+                if (IhSelectedNeg.InternalElement.Exists)
                 {
-                    foreach (CAEXObject ele in PlaceholderNeg.ExternalInterface.ToList())
+                    foreach (CAEXObject ele in PlaceholderSelectedNeg.ExternalInterface.ToList())
                     {
                         if (ele.ID.Equals(obj.ID))
                         {
@@ -357,7 +360,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             Negatives.RemoveAll(item => item.ID.Equals(obj.ID));
         }
 
-        public bool containsPositiveExample(CAEXObject obj)
+        public bool ContainsPositiveExample(CAEXObject obj)
         {
             //var caexObj = DocumentPos.FindByID(obj.ID);
             //if (caexObj is null)
@@ -369,10 +372,10 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             //return (caexObj == null) ? false : true;  
 
             //return Positives.Contains(obj);
-            return containsExample(Positives, obj);
+            return ContainsExample(Positives, obj);
         }
 
-        public bool containsNegativeExample(CAEXObject obj)
+        public bool ContainsNegativeExample(CAEXObject obj)
         {
             //var caexObj = DocumentNeg.FindByID(obj.ID);
             //if (caexObj is null)
@@ -385,15 +388,15 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             //return Negatives.Contains(obj);
 
-            return containsExample(Negatives, obj);
+            return ContainsExample(Negatives, obj);
         }
 
-        public bool containsExample(CAEXObject obj)
+        public bool ContainsExample(CAEXObject obj)
         {
-            return containsPositiveExample(obj) || containsNegativeExample(obj);
+            return ContainsPositiveExample(obj) || ContainsNegativeExample(obj);
         }
 
-        private bool containsExample(List<CAEXObject> list, CAEXObject obj)
+        private bool ContainsExample(List<CAEXObject> list, CAEXObject obj)
         {
             foreach (CAEXObject ele in list)
             {
@@ -404,7 +407,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             return false;
         }
 
-        private void updateTreeViewModel()
+        private void UpdateTreeViewModel()
         {
             BuildTreeViewModel();
             AMLDocumentTreeViewModelPos.RefreshTree(true);
@@ -450,6 +453,87 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
                 AMLDocumentTreeViewModelNeg?.SelectCaexNode(caexObject.Node, true, true);
                 if (activate)
                     AMLDocumentTreeViewModelNeg.RaisePropertyChanged("Activate");
+            }
+        }
+
+        //public void attachDeducedIhs()
+        //{
+        //    IhDeducedPos = DocumentPos.CAEXFile.InstanceHierarchy.Append("deducedPositives");
+        //    IhDeducedNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("deducedNegatives");
+        //    DeducedIhsAttached = true;
+        //}
+
+        //public void addObjectTo(CAEXObject obj, ExampleType exampleType, ExampleCollectionType collectionType)
+        //{
+        //    InstanceHierarchyType target, counterTarget;
+        //    if (exampleType.Equals(ExampleType.POSITIVE) && collectionType.Equals(ExampleCollectionType.DEDUCED))
+        //    {
+        //        target = IhDeducedPos;
+        //    }
+        //    else if (exampleType.Equals(ExampleType.POSITIVE) && collectionType.Equals(ExampleCollectionType.SELECTED))
+        //    {
+        //        target = IhSelectedPos;
+        //        counterTarget = IhSelectedNeg;
+        //    }
+        //    else if (exampleType.Equals(ExampleType.NEGATIVE) && collectionType.Equals(ExampleCollectionType.DEDUCED))
+        //    {
+        //        target = IhDeducedNeg;
+        //    }
+        //    else
+        //    {
+        //        target = IhSelectedNeg;
+        //        counterTarget = IhSelectedPos;
+        //    }            
+
+        //}
+
+        public void AddDeducedExamples(List<CAEXObject> objs, ExampleType type, String ihName)
+        {
+            InstanceHierarchyType ih;
+
+            if (type.Equals(ExampleType.POSITIVE))
+            {
+                ih = DocumentPos.CAEXFile.InstanceHierarchy.Append(ihName);
+            }
+            else
+            {
+                ih = DocumentNeg.CAEXFile.InstanceHierarchy.Append(ihName);
+            }
+
+            InternalElementType placeholder = null;
+            // if there is at least one EI in the list, add a placeholder
+            foreach (CAEXObject obj in objs)
+            {
+                if (obj is ExternalInterfaceType)
+                {
+                    placeholder = ih.InternalElement.Append("placeholder");
+                    break;
+                }
+            }
+            
+            foreach (CAEXObject obj in objs)
+            {
+                AddDeducedExample(obj, ih, placeholder);
+            }
+
+            UpdateTreeViewModel();
+        }
+
+        private void AddDeducedExample(CAEXObject obj, InstanceHierarchyType ih, InternalElementType placeholder)
+        {
+            if (obj is InternalElementType)
+            {
+                ih.InternalElement.Insert((InternalElementType)obj);
+            }
+
+            else if (obj is ExternalInterfaceType)
+            {
+                if (placeholder is null)
+                {
+                    //TODO: handle exception
+                    return;
+                }
+                placeholder.ExternalInterface.Insert((ExternalInterfaceType)obj);
             }
         }
         

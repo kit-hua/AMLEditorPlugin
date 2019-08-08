@@ -47,6 +47,24 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         }
     }
 
+    class AMLLearnerProtocolResult
+    {
+        [JsonProperty("concept")]
+        public String Concept { get; set; }
+
+        [JsonProperty("negatives")]
+        public String[] Negatives { get; set; }
+
+        [JsonProperty("positives")]
+        public String[] Positives { get; set; }
+    }
+
+    class AMLLearnerProtocolResults
+    {
+        [JsonProperty("results")]
+        public AMLLearnerProtocolResult[] Data { get; set; }
+    }
+
     class AMLLearnerProtocol
     {
         public static String MakeStartRequest(String path, int numResults) {
@@ -69,6 +87,11 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         {
             AMLLearnerProtocolRequestLoad load = new AMLLearnerProtocolRequestLoad();
             return Newtonsoft.Json.JsonConvert.SerializeObject(load);
+        }
+
+        public static AMLLearnerProtocolResults GetResults(String jsonStr)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerProtocolResults>(jsonStr);
         }
     }
 }
