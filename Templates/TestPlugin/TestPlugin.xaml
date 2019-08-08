@@ -66,7 +66,8 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="5,15,-2,5">
-                <Button x:Name="btnRun" Content="run learning" Margin="5,0" Width="90" Click="BtnRun_Click" IsEnabled="True"/>
+                <Button x:Name="btnStartServer" Content="start server" Margin="5,0" Width="90" Click="BtnStartServer_Click"  IsEnabled="True"/>
+                <Button x:Name="btnRun" Content="run learning" Margin="5,0" Width="90" Click="BtnRun_Click" IsEnabled="False"/>
                 <Button x:Name="btnStop" Content="stop learning" Margin="5,0" Width="90" Click="BtnStop_Click" IsEnabled="False"/>
                 <Button x:Name="btnLoad" Content="load results" Margin="5,0" Width="90" Click="BtnLoad_Click" IsEnabled="False"/>
                 <Button x:Name="btnLoadACM" Content="load ACMs" Margin="5,0" Width="90" Click="BtnLoadACM_Click"  IsEnabled="False"/>

@@ -13,9 +13,11 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -91,6 +93,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
             InputQueue = new ConcurrentQueue<string>();
             OutputQueue = new ConcurrentQueue<string>();
             this.IsActive = false;
+
+            Home = textHome.Text;
         }
 
         /// <summary>
@@ -635,10 +639,75 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private Thread Writer { get; set; }
         private Thread Learner { get; set; }
 
-        private void BtnRun_Click(object sender, RoutedEventArgs e)
+        private bool PingHost(string hostUri, int portNumber)
         {
+            try
+            {
+                using (var client = new TcpClient(hostUri, portNumber))
+                    return true;
+            }
+            catch (SocketException ex)
+            {
+                return false;
+            }
+
+            //var client = new TcpClient();
+            //if (!client.ConnectAsync(hostUri, portNumber).Wait(1000))
+            //{
+            //    // connection failure
+            //    return false;
+            //}
+
+            //return true;
+
+            //var client = new TcpClient();
+            //var result = client.BeginConnect(hostUri, portNumber, null, null);
+            //var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(100));
+
+            //if (!success)
+            //{
+            //    return false;
+            //}
+
+            //// we have connected            
+            //client.EndConnect(result);
+            //return true;
+        }
+
+        private void StartServer()
+        {
+            String command = "mvn exec:java -Dexec.mainClass=\"server.AMLLearnerServer\" -f D:\\repositories\\aml\\aml_framework";
+
+            ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd", "/c " + command);
+            processStartInfo.FileName = "cmd.exe";            
+            //processStartInfo.RedirectStandardInput = true;
+            //processStartInfo.RedirectStandardOutput = true;
+            //processStartInfo.CreateNoWindow = true;
+            //processStartInfo.UseShellExecute = false;
+
+            Process process = new Process();
+            process.StartInfo = processStartInfo;
+            process.Start();
+
+            //System.Windows.MessageBox.Show("server running");
+
+            this.Dispatcher.Invoke(() =>
+            {
+                btnRun.IsEnabled = true;
+            });
+
+            //cmd.StandardInput.WriteLine(command);
+            //cmd.StandardInput.Flush();
+            //cmd.StandardInput.Close();
+            //process.WaitForExit();
+            //Console.WriteLine(cmd.StandardOutput.ReadToEnd());
+        }
+
+        private void BtnRun_Click(object sender, RoutedEventArgs e)
+        {            
             var host = Dns.GetHostEntry(Dns.GetHostName());
             String address = "";
+            int port = 4343;
             foreach (var ip in host.AddressList)
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
@@ -647,10 +716,16 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 }
             }
 
-            IPEndPoint serverAddress = new IPEndPoint(IPAddress.Parse(address), 4343);
+            IPEndPoint serverAddress = new IPEndPoint(IPAddress.Parse(address), port);
+
+            if (!PingHost(address, port)) {
+                System.Windows.MessageBox.Show("Cannot find running AMLLearner Server. Starting the server first!");                
+            }
+
+            while (!PingHost(address, port)) { }
 
             ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            ClientSocket.Connect(serverAddress);            
+            ClientSocket.Connect(serverAddress);
 
             ThreadStart listenerStart = new ThreadStart(Listen);
             Listener = new Thread(listenerStart);
@@ -662,7 +737,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
             ThreadStart learnerStart = new ThreadStart(Learn);
             Learner = new Thread(learnerStart);
-            Learner.Start();            
+            Learner.Start();
+
         }
 
         private bool SocketConnected()
@@ -785,6 +861,13 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     textHome.Text = Home;
                 }
             }
+        }
+
+        private void BtnStartServer_Click(object sender, RoutedEventArgs e)
+        {            
+            ThreadStart serverStart = new ThreadStart(StartServer);
+            Thread server = new Thread(serverStart);
+            server.Start();
         }
     }
 }
