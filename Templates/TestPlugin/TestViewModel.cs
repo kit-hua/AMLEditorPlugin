@@ -37,11 +37,14 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
         public String ObjType { get; private set; }
 
-        private InstanceHierarchyType IhPos;
-        private InstanceHierarchyType IhNeg;
+        private InstanceHierarchyType IhPos { get; set; }
+        private InstanceHierarchyType IhNeg { get; set; }
 
-        private InternalElementType placeholderPos;
-        private InternalElementType placeholderNeg;
+        public InternalElementType PlaceholderPos { get; set; }
+        public InternalElementType PlaceholderNeg { get; set; }
+
+        public Boolean PlaceholderPosAttached { get; set; }
+        public Boolean PlaceholderNegAttached { get; set; }
 
         static TestViewModel()
         {
@@ -57,7 +60,11 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             ObjType = "";
             IhPos = DocumentPos.CAEXFile.InstanceHierarchy.Append("positives");
-            IhNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("negatives");     
+            IhNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("negatives");
+
+            PlaceholderPosAttached = false;
+            PlaceholderNegAttached = false;            
+
             BuildTreeViewModel();
             //GenerateSomeAutomationMLTestData("test");
             //BuildTreeViewModel();
@@ -145,8 +152,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
                 {
                     ObjType = "IE";
                     IhPos.InternalElement.Insert((InternalElementType)obj);
-                    Positives.Add(obj);
-                    removeNegativeObj(obj);
+                    Positives.Add(obj);                    
                 }                    
             }                
 
@@ -159,14 +165,21 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
                 if (!IhPos.InternalElement.Exists)
                 {
-                    placeholderPos = IhPos.InternalElement.Append("PlaceHolder");
+                    PlaceholderPos = IhPos.InternalElement.Append("PlaceHolder");
                 }
 
+                else if (!PlaceholderPosAttached)
+                {
+                    IhPos.InternalElement.Insert(PlaceholderPos);
+                }
+
+                PlaceholderPosAttached = true;
+
                 ObjType = "EI";
-                placeholderPos.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                PlaceholderPos.ExternalInterface.Insert((ExternalInterfaceType)obj);
                 Positives.Add(obj);                
             }
-
+            removeNegativeObj(obj);
             updateTreeViewModel();
         }
 
@@ -181,24 +194,92 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             if (obj is ExternalInterfaceType)
             {
-                if (placeholderNeg is null)
+                if (PlaceholderNeg is null)
                 {
-                    placeholderNeg = IhNeg.InternalElement.Append("PlaceHolder");                    
+                    PlaceholderNeg = IhNeg.InternalElement.Append("PlaceHolder");
                 }
-                placeholderNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                else if (!PlaceholderNegAttached)
+                {
+                    IhNeg.InternalElement.Insert(PlaceholderNeg);
+                }
+
+                PlaceholderNegAttached = true;
+                PlaceholderNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
                 Negatives.Add(obj);                
             }
 
             removePositiveObj(obj);
             updateTreeViewModel();
-        }    
+        }
+
+        public void addNegative(List<CAEXObject> objs)
+        {
+            foreach (CAEXObject obj in objs)
+            {
+                if (obj is InternalElementType)
+                {
+                    IhNeg.InternalElement.Insert((InternalElementType)obj);
+                    Negatives.Add(obj);
+                }
+
+                if (obj is ExternalInterfaceType)
+                {
+                    if (PlaceholderNeg is null)
+                    {
+                        PlaceholderNeg = IhNeg.InternalElement.Append("PlaceHolder");
+                    }
+
+                    else if (!PlaceholderNegAttached)
+                    {
+                        IhNeg.InternalElement.Insert(PlaceholderNeg);
+                    }
+
+                    PlaceholderNegAttached = true;
+
+                    PlaceholderNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
+                    Negatives.Add(obj);
+                }
+
+                removePositiveObj(obj);
+            }
+
+            updateTreeViewModel();
+        }
 
         public void removeObj(CAEXObject obj)
         {
-            removePositiveObj(obj);
-            removeNegativeObj(obj);
+
+            if (obj.Equals(PlaceholderPos))
+            {
+                MessageBox.Show("removing all EIs from this place holder object!");
+                foreach (ExternalInterfaceType ei in PlaceholderPos.ExternalInterface)
+                {                    
+                    removePositiveObj(ei);                    
+                }
+                PlaceholderPos.Remove();
+                PlaceholderPosAttached = false;
+                ObjType = "";
+            }
+
+            else if (obj.Equals(PlaceholderNeg))
+            {
+                MessageBox.Show("removing all EIs from this place holder object!");
+                foreach (ExternalInterfaceType ei in PlaceholderNeg.ExternalInterface)
+                {                    
+                    removePositiveObj(ei);                    
+                }
+                PlaceholderNeg.Remove();
+                PlaceholderNegAttached = false;
+            }
+
+            else
+            {
+                removePositiveObj(obj);
+                removeNegativeObj(obj);
+            }
+            
             updateTreeViewModel();
-        }
+        }        
 
         public void removePositiveObj(CAEXObject obj)
         {
@@ -215,16 +296,34 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             if (obj is ExternalInterfaceType)
             {
-                foreach (CAEXObject ele in IhPos.InternalElement.First.ExternalInterface.ToList())
+                if (IhPos.InternalElement.Exists)
                 {
-                    if (ele.ID.Equals(obj.ID))
+                    foreach (CAEXObject ele in PlaceholderPos.ExternalInterface.ToList())
                     {
-                        ele.Remove();
+                        if (ele.ID.Equals(obj.ID))
+                        {
+                            ele.Remove();
+                        }
                     }
-                }
+                }                
             }          
 
             Positives.RemoveAll(item => item.ID.Equals(obj.ID));
+        }
+
+        public void clearPositives()
+        {
+            Positives.Clear();
+            IhPos.InternalElement.Remove();
+            updateTreeViewModel();
+            ObjType = "";
+        }
+
+        public void clearNegatives()
+        {
+            Negatives.Clear();
+            IhNeg.InternalElement.Remove();
+            updateTreeViewModel();
         }
 
         public void removeNegativeObj(CAEXObject obj)
@@ -243,13 +342,16 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             if (obj is ExternalInterfaceType)
             {
-                foreach (CAEXObject ele in IhNeg.InternalElement.First.ExternalInterface.ToList())
+                if (IhNeg.InternalElement.Exists)
                 {
-                    if (ele.ID.Equals(obj.ID))
+                    foreach (CAEXObject ele in PlaceholderNeg.ExternalInterface.ToList())
                     {
-                        ele.Remove();
+                        if (ele.ID.Equals(obj.ID))
+                        {
+                            ele.Remove();
+                        }
                     }
-                }
+                }                
             }
 
             Negatives.RemoveAll(item => item.ID.Equals(obj.ID));
@@ -286,6 +388,11 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             return containsExample(Negatives, obj);
         }
 
+        public bool containsExample(CAEXObject obj)
+        {
+            return containsPositiveExample(obj) || containsNegativeExample(obj);
+        }
+
         private bool containsExample(List<CAEXObject> list, CAEXObject obj)
         {
             foreach (CAEXObject ele in list)
@@ -295,7 +402,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
             }
 
             return false;
-        }            
+        }
 
         private void updateTreeViewModel()
         {

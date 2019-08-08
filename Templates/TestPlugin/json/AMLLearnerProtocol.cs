@@ -18,6 +18,33 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
 
         [JsonProperty("numResults")]
         public int NumResults { get; set; }
+
+        public AMLLearnerProtocolRequestStart()
+        {
+            this.Request = "start";
+        }
+    }
+
+    class AMLLearnerProtocolRequestStop
+    {
+        [JsonProperty("request")]
+        public String Request { get; set; }
+
+        public AMLLearnerProtocolRequestStop()
+        {
+            this.Request = "stop";
+        }
+    }
+
+    class AMLLearnerProtocolRequestLoad
+    {
+        [JsonProperty("request")]
+        public String Request { get; set; }
+
+        public AMLLearnerProtocolRequestLoad()
+        {
+            this.Request = "load";
+        }
     }
 
     class AMLLearnerProtocol
@@ -25,12 +52,23 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         public static String MakeStartRequest(String path, int numResults) {
             AMLLearnerProtocolRequestStart start = new AMLLearnerProtocolRequestStart
             {
-                Request = "start",
                 Path = path,
                 NumResults = numResults
             };
 
             return Newtonsoft.Json.JsonConvert.SerializeObject(start);
+        }
+
+        public static String MakeStopRequest()
+        {
+            AMLLearnerProtocolRequestStop stop = new AMLLearnerProtocolRequestStop();
+            return Newtonsoft.Json.JsonConvert.SerializeObject(stop);
+        }
+
+        public static String MakeLoadRequest()
+        {
+            AMLLearnerProtocolRequestLoad load = new AMLLearnerProtocolRequestLoad();
+            return Newtonsoft.Json.JsonConvert.SerializeObject(load);
         }
     }
 }

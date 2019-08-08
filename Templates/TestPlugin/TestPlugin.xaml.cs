@@ -314,6 +314,11 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         private CAEXObject _selectedObj;
 
+        private bool isPlaceHolder(CAEXBasicObject selectedObject)
+        {
+            return selectedObject.Equals(TestViewModel.Instance.PlaceholderPos) || selectedObject.Equals(TestViewModel.Instance.PlaceholderNeg);
+        }
+
         public void ChangeSelectedObjectWithPrefix(CAEXBasicObject selectedObject, String prefix)
         {
             if (selectedObject != null)
@@ -323,27 +328,36 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     this._selectedObj = (CAEXObject)selectedObject;
                 this.HelloText.Text = prefix + ": " + s;
 
-                if (this._selectedObj.Name.Equals("PlaceHolder"))
+                if (selectedObject is InstanceHierarchyType)
                 {
+                    btnRest.IsEnabled = true;
+                }
+                    
+                else if (isPlaceHolder(selectedObject))
+                {
+                    btnRest.IsEnabled = false;
                     btnPos.IsEnabled = false;
                     btnNeg.IsEnabled = false;
-                    btnRm.IsEnabled = false;
+                    btnRm.IsEnabled = true;
                 }
 
                 else if (TestViewModel.Instance.containsPositiveExample(this._selectedObj))
                 {
+                    btnRest.IsEnabled = false;
                     btnPos.IsEnabled = false;
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
                 }
                 else if (TestViewModel.Instance.containsNegativeExample(this._selectedObj))
                 {
+                    btnRest.IsEnabled = false;
                     btnNeg.IsEnabled = false;
                     btnPos.IsEnabled = true;
                     btnRm.IsEnabled = true;
                 }
                 else
                 {
+                    btnRest.IsEnabled = false;
                     btnPos.IsEnabled = true;
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
@@ -388,7 +402,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             Clear();
         }
 
-        private readonly String home = "H:/workspace/aml/aml_framework/src/main/resources/test";
+        private readonly String home = "D:/repositories/aml/aml_framework/src/main/resources/test";
         private readonly String aml = "data_src_3.0.aml";
         private readonly String json = "aml.json";
 
@@ -501,7 +515,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             }
         }
 
-        private Boolean write(String toSend) {
+        private Boolean Write(String toSend) {
 
             Console.WriteLine("writing to server: " + toSend);
 
@@ -527,6 +541,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     this.Dispatcher.Invoke(() =>
                     {
                         btnRun.IsEnabled = false;
+                        btnStop.IsEnabled = true;
                     });
                     
                     String start = AMLLearnerProtocol.MakeStartRequest(home + "/" + json, 5);
@@ -552,6 +567,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     this.Dispatcher.Invoke(() =>
                     {
                         btnRun.IsEnabled = true;
+                        btnStop.IsEnabled = false;
                     });
                 }
                 catch (ThreadAbortException e)
@@ -607,6 +623,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         private void BtnRm_Click(object sender, RoutedEventArgs e)
         {
+
             TestViewModel.Instance.removeObj(this._selectedObj);
             Clear();
         }
@@ -618,6 +635,53 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnNeg.IsEnabled = false;
             btnPos.IsEnabled = false;
             btnRm.IsEnabled = false;
+        }       
+
+        private void BtnRest_Click(object sender, RoutedEventArgs e)
+        {
+            if (this._selectedObj is InstanceHierarchyType) {
+                InstanceHierarchyType ih = (InstanceHierarchyType)this._selectedObj;                                
+
+                List<CAEXObject> objs = new List<CAEXObject>();
+                // for each caex obj (ele) under this IH: 
+                // - if (ele) is already in the positive or negative list, ignore
+                // - if (ele) is unknown: add to negative list
+                foreach (InternalElementType descendant in ih.Descendants<InternalElementType>())
+                {
+                    if (!TestViewModel.Instance.containsExample(descendant))
+                    {
+                        objs.Add(descendant);
+                    }
+                }
+
+                foreach (ExternalInterfaceType descendant in ih.Descendants<ExternalInterfaceType>())
+                {
+                    if (!TestViewModel.Instance.containsExample(descendant))
+                    {
+                        objs.Add(descendant);
+                    }
+                }
+
+                TestViewModel.Instance.addNegative(objs);
+            }
+        }
+
+        private void BtnStop_Click(object sender, RoutedEventArgs e)
+        {
+            String stop = AMLLearnerProtocol.MakeStopRequest();
+            OutputQueue.Enqueue(stop);
+        }
+
+        private void BtnLoad_Click(object sender, RoutedEventArgs e)
+        {
+            String load = AMLLearnerProtocol.MakeLoadRequest();
+            Write(load);
+        }
+
+        private void BtnClear_Click(object sender, RoutedEventArgs e)
+        {
+            TestViewModel.Instance.clearPositives();
+            TestViewModel.Instance.clearNegatives();
         }
     }
 }
