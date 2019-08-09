@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Aml.Editor.PlugIn.TestPlugin.json
 {
 
-    class AMLLearnerOperatorConfig
+    public class AMLLearnerOperatorConfig
     {
         [JsonProperty("type")]
         public String Type { get; set; }
@@ -39,7 +39,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         }
     }
 
-    class AMLLearnerHeuristicConfig
+    public class AMLLearnerHeuristicConfig
     {
         [JsonProperty("type")]
         public String Type { get; set; }
@@ -67,7 +67,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
     }
 
 
-    class AMLLearnerTreeConfig
+    public class AMLLearnerTreeConfig
     {
         [JsonProperty("write")]
         public bool Write { get; set; }
@@ -82,7 +82,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         }
     }
 
-    class AMLLearnerACMConfig
+    public class AMLLearnerACMConfig
     {
         [JsonProperty("file")]
         public String File { get; set; }
@@ -96,7 +96,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         }
     }
 
-    class AMLLearnerAlgConfig
+    public class AMLLearnerAlgConfig
     {
         [JsonProperty("type")]
         public String Type { get; set; }
@@ -110,6 +110,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         [JsonProperty("tree")]
         public AMLLearnerTreeConfig Tree { get; set; }
 
+        [JsonProperty("acm")]
         public AMLLearnerACMConfig Acm { get; set; }
 
         public AMLLearnerAlgConfig()
@@ -130,7 +131,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         }
     }
 
-    class AMLLearnerExamplesConfig
+    public class AMLLearnerExamplesConfig
     {
         [JsonProperty("positives")]
         public String[] Positives { get; set; }
@@ -150,7 +151,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         }
     }
 
-    class AMLLearnerConfig
+    public class AMLLearnerConfig
     {
 
         [JsonProperty("home")]

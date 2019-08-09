@@ -349,6 +349,8 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
         {
             Positives.Clear();
             IhSelectedPos.InternalElement.Remove();
+            PlaceholderPosAttached = false;
+            PlaceholderSelectedPos = null;
             UpdateTreeViewModel();
             ObjType = ObjectType.UNKNOWN;
         }
@@ -357,6 +359,8 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
         {
             Negatives.Clear();
             IhSelectedNeg.InternalElement.Remove();
+            PlaceholderNegAttached = false;
+            PlaceholderSelectedNeg = null;
             UpdateTreeViewModel();
         }
 
@@ -425,6 +429,17 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
         public bool ContainsExample(CAEXObject obj)
         {
             return ContainsPositiveExample(obj) || ContainsNegativeExample(obj);
+        }
+
+        public bool ContainsAcm(CAEXObject obj)
+        {
+            if (DocumentACM != null)
+            {
+                if (DocumentACM.FindByID(obj.ID) != null)
+                    return true;
+            }
+
+            return false;
         }
 
         private bool ContainsExample(List<CAEXObject> list, CAEXObject obj)

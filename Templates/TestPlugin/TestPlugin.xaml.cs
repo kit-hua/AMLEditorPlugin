@@ -95,6 +95,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             this.IsActive = false;
 
             Home = textHome.Text;
+            DirTmp = Home + "/tmp/";
         }
 
         /// <summary>
@@ -355,14 +356,16 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnPos.IsEnabled = false;
                     btnNeg.IsEnabled = false;
                     btnRm.IsEnabled = false;
+                    btnAcm.IsEnabled = false;
                 }
-                    
+
                 else if (isPlaceHolder(selectedObject))
                 {
                     btnRest.IsEnabled = false;
                     btnPos.IsEnabled = false;
                     btnNeg.IsEnabled = false;
                     btnRm.IsEnabled = true;
+                    btnAcm.IsEnabled = false;
                 }
 
                 else if (TestViewModel.Instance.ContainsPositiveExample(this._selectedObj))
@@ -371,6 +374,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnPos.IsEnabled = false;
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
+                    btnAcm.IsEnabled = false;
                 }
                 else if (TestViewModel.Instance.ContainsNegativeExample(this._selectedObj))
                 {
@@ -378,6 +382,15 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnNeg.IsEnabled = false;
                     btnPos.IsEnabled = true;
                     btnRm.IsEnabled = true;
+                    btnAcm.IsEnabled = false;
+                }
+                else if (TestViewModel.Instance.ContainsAcm(this._selectedObj))
+                {
+                    btnRest.IsEnabled = false;
+                    btnNeg.IsEnabled = false;
+                    btnPos.IsEnabled = false;
+                    btnRm.IsEnabled = false;
+                    btnAcm.IsEnabled = true;
                 }
                 else
                 {
@@ -385,6 +398,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnPos.IsEnabled = true;
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
+                    btnAcm.IsEnabled = false;
                 }
 
             }
@@ -439,16 +453,32 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 if (value != _home)
                 {
                     _home = value;
+                    DirTmp = Home + "/tmp/";
                     Console.WriteLine("setting home to: " + value);
                     OnPropertyChanged("Home");
                 }
             }
         }
 
-        private readonly String aml = "data_3.0_SRC.aml";
-        private readonly String json = "demo.json";
+        private string DirTmp { get; set; }
 
-        private AMLLearnerConfig _config;
+        private string _acmId;
+
+        public string AcmId
+        {
+            get { return _acmId; }
+            set
+            {
+                if (value != _acmId)
+                {
+                    _acmId = value;
+                    Console.WriteLine("setting ACM to: " + value);
+                    OnPropertyChanged("AcmId");
+                }
+            }
+        }
+
+        private readonly String aml = "data_3.0_SRC.aml";
         private AMLLearnerConfig Config { get; set; }
 
         private void SetAMLLearnerConfig()
@@ -459,11 +489,17 @@ namespace Aml.Editor.PlugIn.TestPlugin
             List<String> negatives = new List<String>();
             foreach (CAEXObject obj in TestViewModel.Instance.Positives)
             {
-                positives.Add("ie_" + obj.Name + "_" + obj.ID);
+                if(obj is InternalElementType)
+                    positives.Add("ie_" + obj.Name + "_" + obj.ID);
+                else if(obj is ExternalInterfaceType)
+                    positives.Add("ei_" + obj.Name + "_" + obj.ID);
             }
             foreach (CAEXObject obj in TestViewModel.Instance.Negatives)
             {
-                negatives.Add("ie_" + obj.Name + "_" + obj.ID);
+                if (obj is InternalElementType)
+                    negatives.Add("ie_" + obj.Name + "_" + obj.ID);
+                else if (obj is ExternalInterfaceType)
+                    negatives.Add("ei_" + obj.Name + "_" + obj.ID);
             }
             examples.Positives = positives.ToArray();
             examples.Negatives = negatives.ToArray();
@@ -477,6 +513,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 return;
 
             Config = new AMLLearnerConfig(Home, aml, objType, examples);
+            Config.Algorithm.Acm = Acm;
         }
 
         private void BtnStoreConfig_Click(object sender, RoutedEventArgs e)
@@ -626,7 +663,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     this.Dispatcher.Invoke(() =>
                     {
                         btnRun.IsEnabled = false;
-                        btnLoad.IsEnabled = false;
+                        btnLoadResults.IsEnabled = false;
                         btnLoadACM.IsEnabled = false;
                     });
 
@@ -655,7 +692,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     {
                         btnRun.IsEnabled = true;
                         btnStop.IsEnabled = false;
-                        btnLoad.IsEnabled = true;
+                        btnLoadResults.IsEnabled = true;
                         btnLoadACM.IsEnabled = true;
                     });
                 }
@@ -805,6 +842,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnNeg.IsEnabled = false;
             btnPos.IsEnabled = false;
             btnRm.IsEnabled = false;
+            btnAcm.IsEnabled = false;
         }       
 
         private void BtnRest_Click(object sender, RoutedEventArgs e)
@@ -842,7 +880,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             OutputQueue.Enqueue(stop);
         }
 
-        private void BtnLoad_Click(object sender, RoutedEventArgs e)
+        private void BtnLoadResults_Click(object sender, RoutedEventArgs e)
         {
             if (Results is null)
                 return;
@@ -881,11 +919,13 @@ namespace Aml.Editor.PlugIn.TestPlugin
             TestViewModel.Instance.ClearNegatives();
         }
 
+        private readonly string AcmFile = "learned_acm.aml";
+
         // for now, we load ACM by writing the ACMs into the original aml file
         private void BtnLoadACM_Click(object sender, RoutedEventArgs e)
         {
             //InstanceHierarchyType acmIh = Document.CAEXFile.InstanceHierarchy.Append("acms");
-            TestViewModel.Instance.loadACM(Home + "/tmp/learned_acm.aml");
+            TestViewModel.Instance.loadACM(DirTmp + AcmFile);
         }
 
         private void BtnHome_Click(object sender, RoutedEventArgs e)
@@ -929,7 +969,10 @@ namespace Aml.Editor.PlugIn.TestPlugin
             ofd.RestoreDirectory = true;
             
             if (ofd.ShowDialog() == DialogResult.OK)
-            {                
+            {
+                TestViewModel.Instance.ClearPositives();
+                TestViewModel.Instance.ClearNegatives();
+
                 var fileStream = ofd.OpenFile();
                 using (StreamReader reader = new StreamReader(fileStream))
                 {
@@ -950,6 +993,17 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 }
             }
 
+        }
+
+        public AMLLearnerACMConfig Acm { get; set; }
+
+        private void BtnAcm_Click(object sender, RoutedEventArgs e)
+        {
+            textAcm.Text = _selectedObj.ID;
+            Acm = new AMLLearnerACMConfig();
+            Acm.File = DirTmp + AcmFile;
+            Acm.Id = _selectedObj.ID;
+            SetAMLLearnerConfig();
         }
     }
 }
