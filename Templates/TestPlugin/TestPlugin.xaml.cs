@@ -90,7 +90,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 CommandToolTip = "Information about this PlugIn"
             });
 
-            InputQueue = new ConcurrentQueue<string>();
+            //InputQueue = new ConcurrentQueue<string>();
             OutputQueue = new ConcurrentQueue<string>();
             this.IsActive = false;
 
@@ -448,8 +448,11 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private readonly String aml = "data_3.0_SRC.aml";
         private readonly String json = "demo.json";
 
-        private void BtnStoreConfig_Click(object sender, RoutedEventArgs e)
-        {            
+        private AMLLearnerConfig _config;
+        private AMLLearnerConfig Config { get; set; }
+
+        private void SetAMLLearnerConfig()
+        {
             AMLLearnerExamplesConfig examples = new AMLLearnerExamplesConfig();
 
             List<String> positives = new List<String>();
@@ -473,7 +476,12 @@ namespace Aml.Editor.PlugIn.TestPlugin
             else
                 return;
 
-            AMLLearnerConfig config = new AMLLearnerConfig(Home, aml, objType, examples);
+            Config = new AMLLearnerConfig(Home, aml, objType, examples);
+        }
+
+        private void BtnStoreConfig_Click(object sender, RoutedEventArgs e)
+        {
+            SetAMLLearnerConfig();
 
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Config|*.json";
@@ -490,12 +498,11 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     serializer.NullValueHandling = NullValueHandling.Ignore;
                     serializer.Formatting = Formatting.Indented;
                     //serialize object directly into file stream
-                    serializer.Serialize(file, config);
+                    serializer.Serialize(file, Config);
                 }
             }
         }
 
-        private ConcurrentQueue<String> InputQueue { get; set; }
         private ConcurrentQueue<String> OutputQueue { get; set; }
 
         private readonly String MESSAGE_END = "transmission finished";
@@ -622,8 +629,9 @@ namespace Aml.Editor.PlugIn.TestPlugin
                         btnLoad.IsEnabled = false;
                         btnLoadACM.IsEnabled = false;
                     });
-                    
-                    String start = AMLLearnerProtocol.MakeStartRequest(Home + "/" + json, 5);
+
+                    //String start = AMLLearnerProtocol.MakeStartRequest(Home + "/" + json, 5);
+                    String start = AMLLearnerProtocol.MakeStartRequest(Config, 5);
                     OutputQueue.Enqueue(start);
                     //if (!write(start)) {
                     //    Console.WriteLine("failed to send start signal!");
@@ -926,15 +934,15 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 using (StreamReader reader = new StreamReader(fileStream))
                 {
                     String configStr = reader.ReadToEnd();
-                    AMLLearnerConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
+                    Config = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
 
-                    foreach (String positive in config.Examples.Positives)
+                    foreach (String positive in Config.Examples.Positives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(positive));
                         TestViewModel.Instance.AddPositive(obj);
                     }
 
-                    foreach (String negative in config.Examples.Negatives)
+                    foreach (String negative in Config.Examples.Negatives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(negative));
                         TestViewModel.Instance.AddNegative(obj);

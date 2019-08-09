@@ -10,40 +10,29 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
 {
     class AMLLearnerProtocolRequestStart
     {
-        [JsonProperty("request")]
-        public String Request { get; set; }
-
-        [JsonProperty("path")]
-        public String Path { get; set; }
+        [JsonProperty("type")]
+        public String Type { get; set; }
 
         [JsonProperty("numResults")]
         public int NumResults { get; set; }
 
+        [JsonProperty("config")]
+        public AMLLearnerConfig Config { get; set; }
+
         public AMLLearnerProtocolRequestStart()
         {
-            this.Request = "start";
+            this.Type = "start";
         }
     }
 
     class AMLLearnerProtocolRequestStop
     {
-        [JsonProperty("request")]
-        public String Request { get; set; }
+        [JsonProperty("type")]
+        public String Type { get; set; }
 
         public AMLLearnerProtocolRequestStop()
         {
-            this.Request = "stop";
-        }
-    }
-
-    class AMLLearnerProtocolRequestLoad
-    {
-        [JsonProperty("request")]
-        public String Request { get; set; }
-
-        public AMLLearnerProtocolRequestLoad()
-        {
-            this.Request = "load";
+            this.Type = "stop";
         }
     }
 
@@ -51,6 +40,9 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
     {
         [JsonProperty("concept")]
         public String Concept { get; set; }
+
+        [JsonProperty("idx")]
+        public String Index { get; set; }
 
         [JsonProperty("negatives")]
         public String[] Negatives { get; set; }
@@ -67,10 +59,12 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
 
     class AMLLearnerProtocol
     {
-        public static String MakeStartRequest(String path, int numResults) {
+
+        public static String MakeStartRequest(AMLLearnerConfig config, int numResults)
+        {
             AMLLearnerProtocolRequestStart start = new AMLLearnerProtocolRequestStart
             {
-                Path = path,
+                Config = config,
                 NumResults = numResults
             };
 
@@ -81,12 +75,6 @@ namespace Aml.Editor.PlugIn.TestPlugin.json
         {
             AMLLearnerProtocolRequestStop stop = new AMLLearnerProtocolRequestStop();
             return Newtonsoft.Json.JsonConvert.SerializeObject(stop);
-        }
-
-        public static String MakeLoadRequest()
-        {
-            AMLLearnerProtocolRequestLoad load = new AMLLearnerProtocolRequestLoad();
-            return Newtonsoft.Json.JsonConvert.SerializeObject(load);
         }
 
         public static AMLLearnerProtocolResults GetResults(String jsonStr)
