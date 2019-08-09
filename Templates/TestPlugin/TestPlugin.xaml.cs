@@ -352,6 +352,9 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 if (selectedObject is InstanceHierarchyType)
                 {
                     btnRest.IsEnabled = true;
+                    btnPos.IsEnabled = false;
+                    btnNeg.IsEnabled = false;
+                    btnRm.IsEnabled = false;
                 }
                     
                 else if (isPlaceHolder(selectedObject))
@@ -442,11 +445,11 @@ namespace Aml.Editor.PlugIn.TestPlugin
             }
         }
 
-        private readonly String aml = "data_src_3.0.aml";
-        private readonly String json = "aml.json";
+        private readonly String aml = "data_3.0_SRC.aml";
+        private readonly String json = "demo.json";
 
-        private void BtnConfig_Click(object sender, RoutedEventArgs e)
-        {
+        private void BtnStoreConfig_Click(object sender, RoutedEventArgs e)
+        {            
             AMLLearnerExamplesConfig examples = new AMLLearnerExamplesConfig();
 
             List<String> positives = new List<String>();
@@ -469,14 +472,26 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 objType = "EI";
             else
                 return;
+
             AMLLearnerConfig config = new AMLLearnerConfig(Home, aml, objType, examples);
-            using (StreamWriter file = File.CreateText(Home + "/" + json))
+
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Config|*.json";
+            sfd.Title = "save the AMLLearner config file";
+            sfd.InitialDirectory = Path.GetFullPath(Home);
+            sfd.RestoreDirectory = true;
+            sfd.ShowDialog();
+
+            if (sfd.FileName != "")
             {
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.NullValueHandling = NullValueHandling.Ignore;
-                serializer.Formatting = Formatting.Indented;
-                //serialize object directly into file stream
-                serializer.Serialize(file, config);
+                using (StreamWriter file = File.CreateText(sfd.FileName))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.NullValueHandling = NullValueHandling.Ignore;
+                    serializer.Formatting = Formatting.Indented;
+                    //serialize object directly into file stream
+                    serializer.Serialize(file, config);
+                }
             }
         }
 
@@ -484,6 +499,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private ConcurrentQueue<String> OutputQueue { get; set; }
 
         private readonly String MESSAGE_END = "transmission finished";
+        private readonly String ALG_RUNNING = "Current config";
         private readonly int MESSAGE_LEN = 4;
         private Socket ClientSocket { get; set; }
         private Boolean IsRunning { get; set; }
@@ -509,7 +525,15 @@ namespace Aml.Editor.PlugIn.TestPlugin
                         continue;
                     }
 
-                    if (rcv.Contains(MESSAGE_END))
+                    else if (rcv.Contains(ALG_RUNNING))
+                    {
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            btnStop.IsEnabled = true;
+                        });
+                    }
+
+                    else if (rcv.Contains(MESSAGE_END))
                     {
                         receiving = false;
                         continue;
@@ -595,7 +619,6 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     this.Dispatcher.Invoke(() =>
                     {
                         btnRun.IsEnabled = false;
-                        btnStop.IsEnabled = true;
                         btnLoad.IsEnabled = false;
                         btnLoadACM.IsEnabled = false;
                     });
@@ -704,7 +727,18 @@ namespace Aml.Editor.PlugIn.TestPlugin
         }
 
         private void BtnRun_Click(object sender, RoutedEventArgs e)
-        {            
+        {
+            if (!TestViewModel.Instance.Positives.Any()) { 
+                System.Windows.MessageBox.Show("Select some positive examples first!");
+                return;
+            }
+
+            if (!TestViewModel.Instance.Negatives.Any())
+            {
+                System.Windows.MessageBox.Show("Select some negative examples first!");
+                return;
+            }
+
             var host = Dns.GetHostEntry(Dns.GetHostName());
             String address = "";
             int port = 4343;
@@ -718,26 +752,24 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
             IPEndPoint serverAddress = new IPEndPoint(IPAddress.Parse(address), port);
 
-            if (!PingHost(address, port)) {
-                System.Windows.MessageBox.Show("Cannot find running AMLLearner Server. Starting the server first!");                
-            }
+            if (PingHost(address, port)) {
+                ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                ClientSocket.Connect(serverAddress);
 
-            while (!PingHost(address, port)) { }
+                ThreadStart listenerStart = new ThreadStart(Listen);
+                Listener = new Thread(listenerStart);
+                Listener.Start();
 
-            ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            ClientSocket.Connect(serverAddress);
+                ThreadStart writerStart = new ThreadStart(Write);
+                Writer = new Thread(writerStart);
+                Writer.Start();
 
-            ThreadStart listenerStart = new ThreadStart(Listen);
-            Listener = new Thread(listenerStart);
-            Listener.Start();
-
-            ThreadStart writerStart = new ThreadStart(Write);
-            Writer = new Thread(writerStart);
-            Writer.Start();
-
-            ThreadStart learnerStart = new ThreadStart(Learn);
-            Learner = new Thread(learnerStart);
-            Learner.Start();
+                ThreadStart learnerStart = new ThreadStart(Learn);
+                Learner = new Thread(learnerStart);
+                Learner.Start();                
+            }          
+            else
+                System.Windows.MessageBox.Show("Cannot find running AMLLearner Server. Starting the server first!");
 
         }
 
@@ -868,6 +900,48 @@ namespace Aml.Editor.PlugIn.TestPlugin
             ThreadStart serverStart = new ThreadStart(StartServer);
             Thread server = new Thread(serverStart);
             server.Start();
+        }
+
+        private String parseObjectID(String objComplexID)
+        {
+            return objComplexID.Substring(objComplexID.LastIndexOf("_") + 1);
+        }
+
+        private CAEXObject getObjectById(String id)
+        {
+            return Document.FindByID(id);
+        }
+
+        private void BtnLoadConfig_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Config|*.json";
+            ofd.Title = "load the AMLLearner config file";
+            ofd.InitialDirectory = Path.GetFullPath(Home);
+            ofd.RestoreDirectory = true;
+            
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {                
+                var fileStream = ofd.OpenFile();
+                using (StreamReader reader = new StreamReader(fileStream))
+                {
+                    String configStr = reader.ReadToEnd();
+                    AMLLearnerConfig config = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
+
+                    foreach (String positive in config.Examples.Positives)
+                    {
+                        CAEXObject obj = getObjectById(parseObjectID(positive));
+                        TestViewModel.Instance.AddPositive(obj);
+                    }
+
+                    foreach (String negative in config.Examples.Negatives)
+                    {
+                        CAEXObject obj = getObjectById(parseObjectID(negative));
+                        TestViewModel.Instance.AddNegative(obj);
+                    }
+                }
+            }
+
         }
     }
 }

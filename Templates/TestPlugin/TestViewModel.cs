@@ -330,7 +330,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             if (obj is ExternalInterfaceType)
             {
-                if (IhSelectedPos.InternalElement.Exists)
+                if (IhSelectedPos.InternalElement.Exists && PlaceholderSelectedPos != null)
                 {
                     foreach (CAEXObject ele in PlaceholderSelectedPos.ExternalInterface.ToList())
                     {
@@ -376,7 +376,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
 
             if (obj is ExternalInterfaceType)
             {
-                if (IhSelectedNeg.InternalElement.Exists)
+                if (IhSelectedNeg.InternalElement.Exists && PlaceholderSelectedNeg != null)
                 {
                     foreach (CAEXObject ele in PlaceholderSelectedNeg.ExternalInterface.ToList())
                     {

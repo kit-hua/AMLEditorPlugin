@@ -37,16 +37,17 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="btnHome" Grid.Column="0" Content="Home" Width="50" Click="BtnHome_Click"/>
-            <TextBox x:Name="textHome" Grid.Column="1" Text="{Binding Path=Home, FallbackValue=D:/repositories/aml/aml_framework/src/main/resources/test}" Margin="5,0,5,0" VerticalAlignment="Stretch"/>
+            <TextBox x:Name="textHome" Grid.Column="1" Text="{Binding Path=Home, FallbackValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" Margin="5,0,5,0" VerticalAlignment="Stretch"/>
         </Grid>
 
         <StackPanel Grid.Column="4" Orientation="Vertical" Grid.Row="1" Grid.RowSpan="2" Margin="0,5">
-            <Button x:Name="btnPos"  Content="add to positive" HorizontalAlignment="Center" Margin="0, 5" VerticalAlignment="Center" Width="90" Click="BtnPos_Click"/>
-            <Button x:Name="btnNeg" Content="add to negative" HorizontalAlignment="Center" Margin="0, 5" VerticalAlignment="Center" Width="90" Click="BtnNeg_Click"/>
-            <Button x:Name="btnRest" Content="rest to negative" HorizontalAlignment="Center" Margin="0, 5" VerticalAlignment="Center" Width="90" Click="BtnRest_Click"/>
-            <Button x:Name="btnRm" Content="remove selected" HorizontalAlignment="Center" Margin="0, 5" VerticalAlignment="Center" Width="90" Click="BtnRm_Click"/>
-            <Button x:Name="btnClear" Content="clear all" HorizontalAlignment="Center" Margin="0, 5" VerticalAlignment="Center" Width="90" Click="BtnClear_Click"/>
-            <Button x:Name="btnConfig" Content="store config" Margin="0,5" Width="90" Click="BtnConfig_Click"/>
+            <Button x:Name="btnPos"  Content="add to positive" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" Click="BtnPos_Click"/>
+            <Button x:Name="btnNeg" Content="add to negative" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" Click="BtnNeg_Click"/>
+            <Button x:Name="btnRest" Content="rest to negative" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" Click="BtnRest_Click"/>
+            <Button x:Name="btnRm" Content="remove selected" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" Click="BtnRm_Click"/>
+            <Button x:Name="btnClear" Content="clear all" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" Click="BtnClear_Click"/>
+            <Button x:Name="btnStoreConfig" Content="store config" Margin="0,3" Width="90" Click="BtnStoreConfig_Click"/>
+            <Button x:Name="btnLoadConfig" Content="load config" Margin="0,3" Width="90" Click="BtnLoadConfig_Click"/>
         </StackPanel>
 
         <aml:AMLTreeView x:Name="AMLDocumentTreePos" BorderThickness="1" Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5" VerticalAlignment="Stretch" TreeViewModel="{Binding AMLDocumentTreeViewModelPos}"/>
@@ -67,7 +68,7 @@
 
             <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="5,15,-2,5">
                 <Button x:Name="btnStartServer" Content="start server" Margin="5,0" Width="90" Click="BtnStartServer_Click"  IsEnabled="True"/>
-                <Button x:Name="btnRun" Content="run learning" Margin="5,0" Width="90" Click="BtnRun_Click" IsEnabled="False"/>
+                <Button x:Name="btnRun" Content="run learning" Margin="5,0" Width="90" Click="BtnRun_Click" IsEnabled="True"/>
                 <Button x:Name="btnStop" Content="stop learning" Margin="5,0" Width="90" Click="BtnStop_Click" IsEnabled="False"/>
                 <Button x:Name="btnLoad" Content="load results" Margin="5,0" Width="90" Click="BtnLoad_Click" IsEnabled="False"/>
                 <Button x:Name="btnLoadACM" Content="load ACMs" Margin="5,0" Width="90" Click="BtnLoadACM_Click"  IsEnabled="False"/>
