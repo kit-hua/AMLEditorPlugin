@@ -40,8 +40,8 @@
     <Reference Include="AML.Engine.Services, Version=1.2.7.0, Culture=neutral, PublicKeyToken=449e3551ddfecd2b, processorArchitecture=MSIL">
       <HintPath>..\AmlEditorPlugInSandbox\packages\Aml.Engine.1.2.7\lib\net4.7\AML.Engine.Services.dll</HintPath>
     </Reference>
-    <Reference Include="AML.Toolkit, Version=2.1.0.0, Culture=neutral, PublicKeyToken=7fd1f1659bb149da, processorArchitecture=MSIL">
-      <HintPath>..\AmlEditorPlugInSandbox\packages\Aml.Toolkit.2.1.0\lib\net47\AML.Toolkit.dll</HintPath>
+    <Reference Include="AML.Toolkit, Version=2.1.1.0, Culture=neutral, PublicKeyToken=7fd1f1659bb149da, processorArchitecture=MSIL">
+      <HintPath>..\AmlEditorPlugInSandbox\packages\Aml.Toolkit.2.1.1\lib\net47\AML.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="CommonServiceLocator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\AmlEditorPlugInSandbox\packages\CommonServiceLocator.2.0.4\lib\net47\CommonServiceLocator.dll</HintPath>
@@ -83,10 +83,10 @@
     <Compile Include="json\AMLLearnerConfig.cs" />
     <Compile Include="json\AMLLearnerProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestPlugin.xaml.cs">
-      <DependentUpon>TestPlugin.xaml</DependentUpon>
+    <Compile Include="AMLLearner.xaml.cs">
+      <DependentUpon>AMLLearner.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TestViewModel.cs" />
+    <Compile Include="AMLLearnerViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -101,7 +101,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="TestPlugin.xaml">
+    <Page Include="AMLLearner.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

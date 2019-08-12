@@ -45,7 +45,7 @@
             <ScrollViewer>
                 <StackPanel MinWidth="200">
                     <TextBlock Margin="10,5" Style="{StaticResource Heading2}">
-                        <Run Text="About the AutomationML Editor HelloAML PlugIn" />
+                        <Run Text="About the AutomationML Editor AMLLearner PlugIn" />
                     </TextBlock>
                     <StackPanel Orientation="Horizontal">
                         <Image

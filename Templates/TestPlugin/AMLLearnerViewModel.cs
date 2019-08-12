@@ -11,11 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
+namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 {
-    public class TestViewModel : ViewModelBase
+    public class AMLLearnerViewModel : ViewModelBase
     {
-        public Test Plugin
+        public AMLLearnerGUI Plugin
         {
             get;
             set;
@@ -32,7 +32,7 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
         /// <summary>
         /// Gets the singleton instance of the view model
         /// </summary>
-        public static TestViewModel Instance { get; private set; }
+        public static AMLLearnerViewModel Instance { get; private set; }
 
         public CAEXDocument DocumentPos { get; private set; }
         public CAEXDocument DocumentNeg { get; private set; }
@@ -57,12 +57,12 @@ namespace Aml.Editor.PlugIn.TestPlugin.ViewModel
         //private InternalElementType PlaceholderDeducedNeg { get; set; }
 
 
-        static TestViewModel()
+        static AMLLearnerViewModel()
         {
-            Instance = new TestViewModel();
+            Instance = new AMLLearnerViewModel();
         }
 
-        private TestViewModel()
+        private AMLLearnerViewModel()
         {
             Positives = new List<CAEXObject>();
             Negatives = new List<CAEXObject>();

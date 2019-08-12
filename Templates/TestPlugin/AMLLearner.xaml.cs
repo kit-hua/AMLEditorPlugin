@@ -1,7 +1,7 @@
 ﻿using Aml.Editor.Plugin;
 using Aml.Editor.Plugin.Contracts;
-using Aml.Editor.PlugIn.TestPlugin.json;
-using Aml.Editor.PlugIn.TestPlugin.ViewModel;
+using Aml.Editor.PlugIn.AMLLearner.json;
+using Aml.Editor.PlugIn.AMLLearner.ViewModel;
 using Aml.Engine.CAEX;
 using Aml.Engine.CAEX.Extensions;
 using Aml.Toolkit.ViewModel;
@@ -29,28 +29,28 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace Aml.Editor.PlugIn.TestPlugin
+namespace Aml.Editor.PlugIn.AMLLearner
 {
     /// <summary>
     /// Interaction logic for UserControl1.xaml
     /// </summary>
     [ExportMetadata("Author", "Yingbing Hua, KIT")]
-    [ExportMetadata("DisplayName", "Test")]
-    [ExportMetadata("Description", "Testing AML Editor Plugin")]
+    [ExportMetadata("DisplayName", "AMLLearner")]
+    [ExportMetadata("Description", "AMLLearner Plugin")]
     [Export(typeof(IAMLEditorView))]
-    public partial class Test : System.Windows.Controls.UserControl, IAMLEditorView, INotifyPropertyChanged, ISupportsSelection
+    public partial class AMLLearnerGUI : System.Windows.Controls.UserControl, IAMLEditorView, INotifyPropertyChanged, ISupportsSelection
     {
         /// <summary>
         /// <see cref="AboutCommand"/>
         /// </summary>
         private RelayCommand<object> aboutCommand;
         
-        public Test()
+        public AMLLearnerGUI()
         {
 
             InitializeComponent();
-            DataContext = TestViewModel.Instance;
-            TestViewModel.Instance.Plugin = this;
+            DataContext = AMLLearnerViewModel.Instance;
+            AMLLearnerViewModel.Instance.Plugin = this;
 
             // Defines the Command list, which will contain user commands, which a user can select
             // via the PlugIn Menu.
@@ -166,7 +166,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         /// <value>The display name.</value>
         public string DisplayName
         {
-            get { return "Test"; }
+            get { return "AMLLearner"; }
         }
 
         /// <summary>
@@ -338,7 +338,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         private bool isPlaceHolder(CAEXBasicObject selectedObject)
         {
-            return selectedObject.Equals(TestViewModel.Instance.PlaceholderSelectedPos) || selectedObject.Equals(TestViewModel.Instance.PlaceholderSelectedNeg);
+            return selectedObject.Equals(AMLLearnerViewModel.Instance.PlaceholderSelectedPos) || selectedObject.Equals(AMLLearnerViewModel.Instance.PlaceholderSelectedNeg);
         }
 
         public void ChangeSelectedObjectWithPrefix(CAEXBasicObject selectedObject, String prefix)
@@ -368,7 +368,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnAcm.IsEnabled = false;
                 }
 
-                else if (TestViewModel.Instance.ContainsPositiveExample(this._selectedObj))
+                else if (AMLLearnerViewModel.Instance.ContainsPositiveExample(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnPos.IsEnabled = false;
@@ -376,7 +376,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnRm.IsEnabled = true;
                     btnAcm.IsEnabled = false;
                 }
-                else if (TestViewModel.Instance.ContainsNegativeExample(this._selectedObj))
+                else if (AMLLearnerViewModel.Instance.ContainsNegativeExample(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnNeg.IsEnabled = false;
@@ -384,7 +384,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     btnRm.IsEnabled = true;
                     btnAcm.IsEnabled = false;
                 }
-                else if (TestViewModel.Instance.ContainsAcm(this._selectedObj))
+                else if (AMLLearnerViewModel.Instance.ContainsAcm(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnNeg.IsEnabled = false;
@@ -430,7 +430,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnNeg.IsEnabled = true;
             btnPos.IsEnabled = false;
             // add selected to positive 
-            TestViewModel.Instance.AddPositive(this._selectedObj);
+            AMLLearnerViewModel.Instance.AddPositive(this._selectedObj);
             Clear();
         }
 
@@ -439,7 +439,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
             btnNeg.IsEnabled = false;
             btnPos.IsEnabled = true;
 
-            TestViewModel.Instance.AddNegative(this._selectedObj);
+            AMLLearnerViewModel.Instance.AddNegative(this._selectedObj);
             Clear();
         }
 
@@ -487,14 +487,14 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
             List<String> positives = new List<String>();
             List<String> negatives = new List<String>();
-            foreach (CAEXObject obj in TestViewModel.Instance.Positives)
+            foreach (CAEXObject obj in AMLLearnerViewModel.Instance.Positives)
             {
                 if(obj is InternalElementType)
                     positives.Add("ie_" + obj.Name + "_" + obj.ID);
                 else if(obj is ExternalInterfaceType)
                     positives.Add("ei_" + obj.Name + "_" + obj.ID);
             }
-            foreach (CAEXObject obj in TestViewModel.Instance.Negatives)
+            foreach (CAEXObject obj in AMLLearnerViewModel.Instance.Negatives)
             {
                 if (obj is InternalElementType)
                     negatives.Add("ie_" + obj.Name + "_" + obj.ID);
@@ -505,9 +505,9 @@ namespace Aml.Editor.PlugIn.TestPlugin
             examples.Negatives = negatives.ToArray();
 
             String objType = "";
-            if (TestViewModel.Instance.ObjType.Equals(TestViewModel.ObjectType.IE))
+            if (AMLLearnerViewModel.Instance.ObjType.Equals(AMLLearnerViewModel.ObjectType.IE))
                 objType = "IE";
-            else if (TestViewModel.Instance.ObjType.Equals(TestViewModel.ObjectType.EI))
+            else if (AMLLearnerViewModel.Instance.ObjType.Equals(AMLLearnerViewModel.ObjectType.EI))
                 objType = "EI";
             else
                 return;
@@ -773,12 +773,12 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
-            if (!TestViewModel.Instance.Positives.Any()) { 
+            if (!AMLLearnerViewModel.Instance.Positives.Any()) { 
                 System.Windows.MessageBox.Show("Select some positive examples first!");
                 return;
             }
 
-            if (!TestViewModel.Instance.Negatives.Any())
+            if (!AMLLearnerViewModel.Instance.Negatives.Any())
             {
                 System.Windows.MessageBox.Show("Select some negative examples first!");
                 return;
@@ -831,7 +831,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private void BtnRm_Click(object sender, RoutedEventArgs e)
         {
 
-            TestViewModel.Instance.RemoveObj(this._selectedObj);
+            AMLLearnerViewModel.Instance.RemoveObj(this._selectedObj);
             Clear();
         }
 
@@ -856,7 +856,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
                 // - if (ele) is unknown: add to negative list
                 foreach (InternalElementType descendant in ih.Descendants<InternalElementType>())
                 {
-                    if (!TestViewModel.Instance.ContainsExample(descendant))
+                    if (!AMLLearnerViewModel.Instance.ContainsExample(descendant))
                     {
                         objs.Add(descendant);
                     }
@@ -864,13 +864,13 @@ namespace Aml.Editor.PlugIn.TestPlugin
 
                 foreach (ExternalInterfaceType descendant in ih.Descendants<ExternalInterfaceType>())
                 {
-                    if (!TestViewModel.Instance.ContainsExample(descendant))
+                    if (!AMLLearnerViewModel.Instance.ContainsExample(descendant))
                     {
                         objs.Add(descendant);
                     }
                 }
 
-                TestViewModel.Instance.AddNegative(objs);
+                AMLLearnerViewModel.Instance.AddNegative(objs);
             }
         }
 
@@ -907,16 +907,16 @@ namespace Aml.Editor.PlugIn.TestPlugin
                         negativeObjs.Add(Document.FindByID(id));
                     }
 
-                    TestViewModel.Instance.AddDeducedExamples(positiveObjs, TestViewModel.ExampleType.POSITIVE, "result_" + (++idx).ToString());
-                    TestViewModel.Instance.AddDeducedExamples(negativeObjs, TestViewModel.ExampleType.NEGATIVE, "result_" + (idx).ToString());
+                    AMLLearnerViewModel.Instance.AddDeducedExamples(positiveObjs, AMLLearnerViewModel.ExampleType.POSITIVE, "result_" + (++idx).ToString());
+                    AMLLearnerViewModel.Instance.AddDeducedExamples(negativeObjs, AMLLearnerViewModel.ExampleType.NEGATIVE, "result_" + (idx).ToString());
                 }
             }
         }
 
         private void BtnClear_Click(object sender, RoutedEventArgs e)
         {
-            TestViewModel.Instance.ClearPositives();
-            TestViewModel.Instance.ClearNegatives();
+            AMLLearnerViewModel.Instance.ClearPositives();
+            AMLLearnerViewModel.Instance.ClearNegatives();
         }
 
         private readonly string AcmFile = "learned_acm.aml";
@@ -925,7 +925,7 @@ namespace Aml.Editor.PlugIn.TestPlugin
         private void BtnLoadACM_Click(object sender, RoutedEventArgs e)
         {
             //InstanceHierarchyType acmIh = Document.CAEXFile.InstanceHierarchy.Append("acms");
-            TestViewModel.Instance.loadACM(DirTmp + AcmFile);
+            AMLLearnerViewModel.Instance.loadACM(DirTmp + AcmFile);
         }
 
         private void BtnHome_Click(object sender, RoutedEventArgs e)
@@ -970,8 +970,8 @@ namespace Aml.Editor.PlugIn.TestPlugin
             
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                TestViewModel.Instance.ClearPositives();
-                TestViewModel.Instance.ClearNegatives();
+                AMLLearnerViewModel.Instance.ClearPositives();
+                AMLLearnerViewModel.Instance.ClearNegatives();
 
                 var fileStream = ofd.OpenFile();
                 using (StreamReader reader = new StreamReader(fileStream))
@@ -982,13 +982,13 @@ namespace Aml.Editor.PlugIn.TestPlugin
                     foreach (String positive in Config.Examples.Positives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(positive));
-                        TestViewModel.Instance.AddPositive(obj);
+                        AMLLearnerViewModel.Instance.AddPositive(obj);
                     }
 
                     foreach (String negative in Config.Examples.Negatives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(negative));
-                        TestViewModel.Instance.AddNegative(obj);
+                        AMLLearnerViewModel.Instance.AddNegative(obj);
                     }
                 }
             }

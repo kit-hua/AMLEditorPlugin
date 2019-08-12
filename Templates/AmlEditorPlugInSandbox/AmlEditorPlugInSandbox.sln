@@ -24,7 +24,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlugInWithToolBar", "..\Plu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlugInCallingCommands", "..\PlugInCallingCommands\PlugInCallingCommands.csproj", "{52AAA374-987C-416E-8F06-2C1EBD4DB94B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "..\TestPlugin\TestPlugin.csproj", "{04338C48-8F20-4020-BE65-121986119213}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AMLLearner", "..\TestPlugin\AMLLearner.csproj", "{04338C48-8F20-4020-BE65-121986119213}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

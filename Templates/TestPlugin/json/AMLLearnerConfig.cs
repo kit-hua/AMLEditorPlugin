@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Aml.Editor.PlugIn.TestPlugin.json
+namespace Aml.Editor.PlugIn.AMLLearner.json
 {
 
     public class AMLLearnerOperatorConfig
