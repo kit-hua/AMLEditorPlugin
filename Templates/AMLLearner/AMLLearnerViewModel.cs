@@ -655,6 +655,105 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             configParam.Value = value;
         }
 
+        private string _configPriamry;
+
+        public string ConfigPrimary
+        {
+            get { return _configPriamry; }
+            set
+            {
+                _configPriamry = value;
+                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "distinguished", value);
+                Console.WriteLine("primary: " + value);
+
+                RaisePropertyChanged("ConfigPrimary");
+            }
+        }
+
+        private string _configId;
+
+        public string ConfigId
+        {
+            get { return _configId; }
+            set
+            {
+                _configId = value;
+                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedById", value);
+                Console.WriteLine("id: " + value);
+                RaisePropertyChanged("ConfigId");
+            }
+        }
+
+        private string _configName;
+
+        public string ConfigName
+        {
+            get { return _configName; }
+            set
+            {
+                _configName = value;
+                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedByName", value);
+                Console.WriteLine("name: " + value);
+                RaisePropertyChanged("ConfigName");
+            }
+        }
+
+        private string _configNegated;
+
+        public string ConfigNegated
+        {
+            get { return _configNegated; }
+            set
+            {
+                _configNegated = value;
+                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "negated", value);
+                Console.WriteLine("negated: " + value);
+                RaisePropertyChanged("ConfigNegated");
+            }
+        }
+
+        private string _configDescendant;
+
+        public string ConfigDescendant
+        {
+            get { return _configDescendant; }
+            set
+            {
+                _configDescendant = value;
+                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "descendant", value);
+                Console.WriteLine("descendant: " + value);
+                RaisePropertyChanged("ConfigDescendant");
+            }
+        }
+
+        private int _configMincardinalitiy;
+
+        public int ConfigMinCardinality
+        {
+            get { return _configMincardinalitiy; }
+            set
+            {
+                _configMincardinalitiy = value;
+                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "minCardinality", value.ToString());
+                Console.WriteLine("min: " + value);
+                RaisePropertyChanged("ConfigMinCardinality");
+            }
+        }
+
+        private int _configMaxcardinalitiy;
+
+        public int ConfigMaxCardinality
+        {
+            get { return _configMaxcardinalitiy; }
+            set
+            {
+                _configMaxcardinalitiy = value;
+                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "maxCardinality", value.ToString());
+                Console.WriteLine("max: " + value);
+                RaisePropertyChanged("ConfigMaxCardinality");
+            }
+        }
+
 
         /// <summary>
         /// Generates some automationML test data to be viewed in the tree

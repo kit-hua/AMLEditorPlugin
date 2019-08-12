@@ -395,34 +395,34 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     AttributeType config = AMLLearnerViewModel.Instance.getConfigAttribute(this._selectedObj);
 
                     AttributeType primary = AMLLearnerViewModel.Instance.getConfigParameter(config, "distinguished");
-                    ConfigPrimary = primary.Value;
-                    cbPrimary.IsChecked = bool.Parse(ConfigPrimary);
+                    AMLLearnerViewModel.Instance.ConfigPrimary = primary.Value;
+                    //cbPrimary.IsChecked = bool.Parse(ConfigPrimary);
 
                     AttributeType id = AMLLearnerViewModel.Instance.getConfigParameter(config, "identifiedById");
-                    ConfigId = id.Value;
-                    cbId.IsChecked = bool.Parse(ConfigId);
+                    AMLLearnerViewModel.Instance.ConfigId = id.Value;
+                    //cbId.IsChecked = bool.Parse(ConfigId);
 
                     AttributeType name = AMLLearnerViewModel.Instance.getConfigParameter(config, "identifiedByName");
-                    ConfigName = name.Value;
-                    cbName.IsChecked = bool.Parse(ConfigName);
+                    AMLLearnerViewModel.Instance.ConfigName = name.Value;
+                    //cbName.IsChecked = bool.Parse(ConfigName);
 
                     AttributeType negated = AMLLearnerViewModel.Instance.getConfigParameter(config, "negated");
-                    ConfigNegated = negated.Value;
-                    cbNegated.IsChecked = bool.Parse(ConfigNegated);
+                    AMLLearnerViewModel.Instance.ConfigNegated = negated.Value;
+                    //cbNegated.IsChecked = bool.Parse(ConfigNegated);
 
                     AttributeType descendant = AMLLearnerViewModel.Instance.getConfigParameter(config, "descendant");
-                    ConfigDescendant = descendant.Value;
-                    cbDesendant.IsChecked = bool.Parse(ConfigDescendant);
+                    AMLLearnerViewModel.Instance.ConfigDescendant = descendant.Value;
+                    //cbDesendant.IsChecked = bool.Parse(ConfigDescendant);
 
                     AttributeType min = AMLLearnerViewModel.Instance.getConfigParameter(config, "minCardinality");
-                    ConfigMinCardinality = int.Parse(min.Value);
-                    slMin.Value = ConfigMinCardinality;
-                    textMin.Text = ConfigMinCardinality.ToString();
+                    AMLLearnerViewModel.Instance.ConfigMinCardinality = int.Parse(min.Value);
+                    //slMin.Value = ConfigMinCardinality;
+                    //textMin.Text = ConfigMinCardinality.ToString();
 
                     AttributeType max = AMLLearnerViewModel.Instance.getConfigParameter(config, "maxCardinality");
-                    ConfigMaxCardinality = int.Parse(max.Value);
-                    slMax.Value = ConfigMaxCardinality;
-                    textMax.Text = ConfigMaxCardinality.ToString();
+                    AMLLearnerViewModel.Instance.ConfigMaxCardinality = int.Parse(max.Value);
+                    //slMax.Value = ConfigMaxCardinality;
+                    //textMax.Text = ConfigMaxCardinality.ToString();
                 }
                 else
                 {
@@ -1042,103 +1042,103 @@ namespace Aml.Editor.PlugIn.AMLLearner
             SetAMLLearnerConfig();
         }        
 
-        private string _configPriamry;
+        //private string _configPriamry;
 
-        public string ConfigPrimary
-        {
-            get { return _configPriamry; }
-            set
-            {
-                _configPriamry = value;
-                AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "distinguished", value);
-                Console.WriteLine("primary: " + value);
-                OnPropertyChanged("ConfigPrimary");
-            }
-        }
+        //public string ConfigPrimary
+        //{
+        //    get { return _configPriamry; }
+        //    set
+        //    {
+        //        _configPriamry = value;
+        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "distinguished", value);
+        //        Console.WriteLine("primary: " + value);
+        //        OnPropertyChanged("ConfigPrimary");
+        //    }
+        //}
 
-        private string _configId;
+        //private string _configId;
 
-        public string ConfigId
-        {
-            get { return _configId; }
-            set
-            {
-                _configId = value;
-                AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedById", value);
-                Console.WriteLine("id: " + value);
-                OnPropertyChanged("ConfigId");
-            }
-        }
+        //public string ConfigId
+        //{
+        //    get { return _configId; }
+        //    set
+        //    {
+        //        _configId = value;
+        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedById", value);
+        //        Console.WriteLine("id: " + value);
+        //        OnPropertyChanged("ConfigId");
+        //    }
+        //}
 
-        private string _configName;
+        //private string _configName;
 
-        public string ConfigName
-        {
-            get { return _configName; }
-            set
-            {
-                _configName = value;
-                AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedByName", value);
-                Console.WriteLine("name: " + value);
-                OnPropertyChanged("ConfigName");
-            }
-        }
+        //public string ConfigName
+        //{
+        //    get { return _configName; }
+        //    set
+        //    {
+        //        _configName = value;
+        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedByName", value);
+        //        Console.WriteLine("name: " + value);
+        //        OnPropertyChanged("ConfigName");
+        //    }
+        //}
 
-        private string _configNegated;
+        //private string _configNegated;
 
-        public string ConfigNegated
-        {
-            get { return _configNegated; }
-            set
-            {
-                _configNegated = value;
-                AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "negated", value);
-                Console.WriteLine("negated: " + value);
-                OnPropertyChanged("ConfigNegated");
-            }
-        }
+        //public string ConfigNegated
+        //{
+        //    get { return _configNegated; }
+        //    set
+        //    {
+        //        _configNegated = value;
+        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "negated", value);
+        //        Console.WriteLine("negated: " + value);
+        //        OnPropertyChanged("ConfigNegated");
+        //    }
+        //}
 
-        private string _configDescendant;
+        //private string _configDescendant;
 
-        public string ConfigDescendant
-        {
-            get { return _configDescendant; }
-            set
-            {
-                _configDescendant = value;
-                AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "descendant", value);
-                Console.WriteLine("descendant: " + value);
-                OnPropertyChanged("ConfigDescendant");
-            }
-        }
+        //public string ConfigDescendant
+        //{
+        //    get { return _configDescendant; }
+        //    set
+        //    {
+        //        _configDescendant = value;
+        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "descendant", value);
+        //        Console.WriteLine("descendant: " + value);
+        //        OnPropertyChanged("ConfigDescendant");
+        //    }
+        //}
 
-        private int _configMincardinalitiy;
+        //private int _configMincardinalitiy;
 
-        public int ConfigMinCardinality
-        {
-            get { return _configMincardinalitiy; }
-            set
-            {
-                _configMincardinalitiy = value;
-                AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "minCardinality", value.ToString());
-                Console.WriteLine("min: " + value);
-                OnPropertyChanged("ConfigMinCardinality");
-            }
-        }
+        //public int ConfigMinCardinality
+        //{
+        //    get { return _configMincardinalitiy; }
+        //    set
+        //    {
+        //        _configMincardinalitiy = value;
+        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "minCardinality", value.ToString());
+        //        Console.WriteLine("min: " + value);
+        //        OnPropertyChanged("ConfigMinCardinality");
+        //    }
+        //}
 
-        private int _configMaxcardinalitiy;
+        //private int _configMaxcardinalitiy;
 
-        public int ConfigMaxCardinality
-        {
-            get { return _configMaxcardinalitiy; }
-            set
-            {
-                _configMaxcardinalitiy = value;
-                AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "maxCardinality", value.ToString());
-                Console.WriteLine("max: " + value);
-                OnPropertyChanged("ConfigMaxCardinality");
-            }
-        }
+        //public int ConfigMaxCardinality
+        //{
+        //    get { return _configMaxcardinalitiy; }
+        //    set
+        //    {
+        //        _configMaxcardinalitiy = value;
+        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "maxCardinality", value.ToString());
+        //        Console.WriteLine("max: " + value);
+        //        OnPropertyChanged("ConfigMaxCardinality");
+        //    }
+        //}
 
         private void BtnClearAcm_Click(object sender, RoutedEventArgs e)
         {
@@ -1147,14 +1147,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void SlMax_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            ConfigMaxCardinality = (int) slMax.Value;
-            textMax.Text = ConfigMaxCardinality.ToString();
+            AMLLearnerViewModel.Instance.ConfigMaxCardinality = (int)slMax.Value;
         }
 
         private void SlMin_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            ConfigMinCardinality = (int)slMin.Value;
-            textMin.Text = ConfigMinCardinality.ToString();
+            AMLLearnerViewModel.Instance.ConfigMinCardinality = (int)slMin.Value;
         }
 
         //private void CbPrimary_Checked(object sender, RoutedEventArgs e)
