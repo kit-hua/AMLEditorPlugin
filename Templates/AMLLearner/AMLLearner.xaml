@@ -54,7 +54,7 @@
             </StackPanel>
             <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,0">
                 <StackPanel Orientation="Horizontal" Margin="0,3" HorizontalAlignment="Center">
-                    <Button x:Name="btnAcm"  Content="choose acm" Width="70" Click="BtnAcm_Click"/>
+                    <Button x:Name="btnAcm"  Content="use acm" Width="70" Click="BtnAcm_Click"/>
                     <TextBox x:Name="textAcm" Text="{Binding Path=AcmId, FallbackValue=IE_1_1231231}" Margin="5,0,5,0" VerticalAlignment="Stretch"/>
                 </StackPanel>
                 <Button x:Name="btnStoreConfig" Content="store config" Margin="0,3" Width="90" Click="BtnStoreConfig_Click"/>
@@ -78,12 +78,12 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" Margin="5,15,-2,5">
-                <Button x:Name="btnStartServer" Content="start server" Margin="5,0" Width="90" Click="BtnStartServer_Click"  IsEnabled="True"/>
-                <Button x:Name="btnRun" Content="run learning" Margin="5,0" Width="90" Click="BtnRun_Click" IsEnabled="True"/>
-                <Button x:Name="btnStop" Content="stop learning" Margin="5,0" Width="90" Click="BtnStop_Click" IsEnabled="False"/>
-                <Button x:Name="btnLoadResults" Content="load results" Margin="5,0" Width="90" Click="BtnLoadResults_Click" IsEnabled="False"/>
-                <Button x:Name="btnLoadACM" Content="load ACMs" Margin="5,0" Width="90" Click="BtnLoadACM_Click"  IsEnabled="False"/>
+            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5,15,-2,5">
+                <Button x:Name="btnStartServer" Content="start server" Margin="3,0" Width="80" Click="BtnStartServer_Click"  IsEnabled="True"/>
+                <Button x:Name="btnRun" Content="run learning" Margin="3,0" Width="80" Click="BtnRun_Click" IsEnabled="True"/>
+                <Button x:Name="btnStop" Content="stop learning" Margin="3,0" Width="80" Click="BtnStop_Click" IsEnabled="False"/>
+                <Button x:Name="btnLoadResults" Content="load results" Margin="3,0" Width="80" Click="BtnLoadResults_Click" IsEnabled="False"/>
+                <Button x:Name="btnLoadACM" Content="load ACMs" Margin="3,0" Width="80" Click="BtnLoadACM_Click"  IsEnabled="False"/>
             </StackPanel>
             <ScrollViewer BorderThickness="1" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,-2,5">
                 <TextBox x:Name="Logger" TextWrapping="Wrap" Text="Runtime information from AMLLearner Server"/>

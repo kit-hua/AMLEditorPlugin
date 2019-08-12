@@ -65,8 +65,9 @@ namespace Aml.Editor.Plugin.Sandbox.ViewModel
         {
             Plugins = new ObservableCollection<IAMLEditorPlugin>();
 
-            GenerateSomeAutomationMLTestData("My test hierarchy");
-            BuildTreeViewModel();
+            Open("D:/repositories/aml/aml_framework/src/test/resources/demo/data_3.0_SRC.aml");
+            //GenerateSomeAutomationMLTestData("My test hierarchy");
+            //BuildTreeViewModel();
         }
 
         #endregion Private Constructors
@@ -262,18 +263,18 @@ namespace Aml.Editor.Plugin.Sandbox.ViewModel
 
         internal void Open(string filePath)
         {
-            var template = new HashSet<string> ( AMLTreeViewTemplate.CompleteInstanceHierarchyTree
-                .Concat(AMLTreeViewTemplate.CompleteSystemUnitClassLibTree)
-                .Concat(AMLTreeViewTemplate.ExtendedRoleClassLibTree)
-                .Concat(AMLTreeViewTemplate.InterfaceClassLibTree   )
-                .Concat(AMLTreeViewTemplate.AttributeTypeLibTree).Distinct());
+            //var template = new HashSet<string> ( AMLTreeViewTemplate.CompleteInstanceHierarchyTree
+            //    .Concat(AMLTreeViewTemplate.CompleteSystemUnitClassLibTree)
+            //    .Concat(AMLTreeViewTemplate.ExtendedRoleClassLibTree)
+            //    .Concat(AMLTreeViewTemplate.InterfaceClassLibTree   )
+            //    .Concat(AMLTreeViewTemplate.AttributeTypeLibTree).Distinct());
 
             AMLDocumentTreeViewModel?.ClearAll();
             Document = null;
 
             FilePath = filePath;
             Document = CAEXDocument.LoadFromFile(filePath);
-            AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, template);
+            AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
             PropagateFileOpenEventToPlugins(FilePath);
         }
 
@@ -405,15 +406,15 @@ namespace Aml.Editor.Plugin.Sandbox.ViewModel
             var result = ofd.ShowDialog();
             if (result.HasValue && (bool)result)
             {
-                var template = new HashSet<string>(AMLTreeViewTemplate.CompleteInstanceHierarchyTree
-               .Concat(AMLTreeViewTemplate.CompleteSystemUnitClassLibTree)
-               .Concat(AMLTreeViewTemplate.ExtendedRoleClassLibTree)
-               .Concat(AMLTreeViewTemplate.InterfaceClassLibTree)
-               .Concat(AMLTreeViewTemplate.AttributeTypeLibTree).Distinct());
+               // var template = new HashSet<string>(AMLTreeViewTemplate.CompleteInstanceHierarchyTree
+               //.Concat(AMLTreeViewTemplate.CompleteSystemUnitClassLibTree)
+               //.Concat(AMLTreeViewTemplate.ExtendedRoleClassLibTree)
+               //.Concat(AMLTreeViewTemplate.InterfaceClassLibTree)
+               //.Concat(AMLTreeViewTemplate.AttributeTypeLibTree).Distinct());
 
                 FilePath = ofd.FileName;
                 Document = CAEXDocument.LoadFromFile(ofd.FileName);
-                AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, template);
+                AMLDocumentTreeViewModel = new AMLTreeViewModel(Document.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
                 PropagateFileOpenEventToPlugins(FilePath);
             }
         }

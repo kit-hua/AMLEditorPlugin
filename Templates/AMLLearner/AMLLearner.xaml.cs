@@ -901,7 +901,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     }
 
                     List<CAEXObject> negativeObjs = new List<CAEXObject>();
-                    foreach (String negative in positives)
+                    foreach (String negative in negatives)
                     {
                         String id = negative.Substring(negative.LastIndexOf("_")+1);
                         negativeObjs.Add(Document.FindByID(id));
