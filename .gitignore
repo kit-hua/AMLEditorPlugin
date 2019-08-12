@@ -43,7 +43,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+**/
 **/bin/
 **/.vs/
 **/obj/
 *.exe
+Templates/AmlEditorPlugInSandbox/Plugins
