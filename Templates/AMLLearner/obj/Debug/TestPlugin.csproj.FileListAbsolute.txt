@@ -1,0 +1,16 @@
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\TestPlugin\TestPlugin.dll.config
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\TestPlugin\TestPlugin.dll
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\TestPlugin\TestPlugin.pdb
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.csprojAssemblyReference.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\About.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\Simple Styles.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\About.g.cs
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.g.cs
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin_MarkupCompile.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin_MarkupCompile.lref
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.g.resources
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.csproj.CoreCompileInputs.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.csproj.CopyComplete
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.dll
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\TestPlugin.pdb

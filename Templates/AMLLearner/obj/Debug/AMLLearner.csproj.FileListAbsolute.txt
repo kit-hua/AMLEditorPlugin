@@ -1,0 +1,32 @@
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\TestPlugin\AMLLearner.dll.config
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\TestPlugin\AMLLearner.dll
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\TestPlugin\AMLLearner.pdb
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.csprojAssemblyReference.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\About.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\Simple Styles.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\About.g.cs
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.g.cs
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner_MarkupCompile.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner_MarkupCompile.lref
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.g.resources
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.csproj.CoreCompileInputs.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.csproj.CopyComplete
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.dll
+D:\repositories\aml\AMLEditorPlugin\Templates\TestPlugin\obj\Debug\AMLLearner.pdb
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\AMLLearner\AMLLearner.dll.config
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\AMLLearner\AMLLearner.dll
+D:\repositories\aml\AMLEditorPlugin\Templates\AmlEditorPlugInSandbox\Plugins\AMLLearner\AMLLearner.pdb
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.csprojAssemblyReference.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\About.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\Simple Styles.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\About.g.cs
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.g.cs
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner_MarkupCompile.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner_MarkupCompile.lref
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.baml
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.g.resources
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.csproj.CoreCompileInputs.cache
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.csproj.CopyComplete
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.dll
+D:\repositories\aml\AMLEditorPlugin\Templates\AMLLearner\obj\Debug\AMLLearner.pdb
