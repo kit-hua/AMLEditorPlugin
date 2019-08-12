@@ -81,6 +81,11 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             AMLDocumentTreeViewModelACM = new AMLTreeViewModel(DocumentACM.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
         }
 
+        public void saveACM(String filename)
+        {
+            DocumentACM.SaveToFile(filename, true);
+        }
+
         /// <summary>
         ///  Gets and sets the AMLDocumentTreeViewModel which holds the data for the AML document tree view
         /// </summary>
@@ -582,7 +587,74 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 placeholder.ExternalInterface.Insert((ExternalInterfaceType)obj);
             }
         }
-        
+
+        private Boolean isConfigAttribute(AttributeType attr)
+        {
+            return attr.Name.Equals("queryConfig");
+        }
+
+        public AttributeType getConfigParameter(AttributeType attr, String config)
+        {
+            AttributeType parameter = null;
+            foreach (AttributeType sub in attr.Attribute)
+            {
+                if (sub.Name.Equals(config))
+                    parameter = sub;
+            }
+
+            if (parameter is null)
+                return attr.New_Attribute(config);
+            else
+                return parameter;
+        }
+
+        public AttributeType getConfigAttribute(CAEXObject obj)
+        {
+            if (obj is InternalElementType)
+            {
+                InternalElementType ie = (InternalElementType)obj;
+                foreach (AttributeType attr in ie.Attribute)
+                {
+                    if (isConfigAttribute(attr)) {
+                        return attr;
+                    }
+                }
+            }
+
+            else if (obj is ExternalInterfaceType)
+            {
+                ExternalInterfaceType ei = (ExternalInterfaceType)obj;
+                foreach (AttributeType attr in ei.Attribute)
+                {
+                    if (isConfigAttribute(attr))
+                    {
+                        return attr;
+                    }
+                }
+            }
+
+            else if (obj is AttributeType)
+            {
+                AttributeType attribute = (AttributeType)obj;
+                foreach (AttributeType attr in attribute.Attribute)
+                {
+                    if (isConfigAttribute(attr))
+                    {
+                        return attr;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public void adaptQueryConfig(CAEXObject obj, String config, String value)
+        {
+            AttributeType configAttr = getConfigAttribute(obj);
+            AttributeType configParam = getConfigParameter(configAttr, config);
+            configParam.Value = value;
+        }
+
 
         /// <summary>
         /// Generates some automationML test data to be viewed in the tree
