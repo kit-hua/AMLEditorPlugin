@@ -1,4 +1,5 @@
 ﻿using Aml.Editor.Plugin.Contracts;
+using Aml.Editor.PlugIn.AMLLearner.json;
 using Aml.Engine.CAEX;
 using Aml.Engine.CAEX.Extensions;
 using Aml.Toolkit.ViewModel;
@@ -6,6 +7,7 @@ using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,49 +15,42 @@ using System.Windows;
 
 namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 {
-    public class AMLLearnerViewModel : ViewModelBase
+    public enum ObjectType { IE, EI, UNKNOWN };
+    public enum ExampleType { POSITIVE, NEGATIVE };
+    public enum ExampleCollectionType { SELECTED, DEDUCED };
+    public enum TreeType { POSITIVE, NEGATIVE, ACM};
+
+    public class AMLLearnerViewModel : ViewModelBase, INotifyPropertyChanged
     {
         public AMLLearnerGUI Plugin
         {
             get;
             set;
-        }
-
-        public enum ObjectType { IE, EI, UNKNOWN };
-        public enum ExampleType { POSITIVE, NEGATIVE };
-        public enum ExampleCollectionType { SELECTED, DEDUCED };
+        }        
 
         private AMLTreeViewModel _aMLDocumentTreeViewModelPos;
         private AMLTreeViewModel _aMLDocumentTreeViewModelNeg;
-        private AMLTreeViewModel _aMLDocumentTreeViewModelACM;
+        private AMLTreeViewModel _aMLDocumentTreeViewModelAcm;
+
+        public readonly string AcmFile = "learned_acm.aml";
+        public readonly String AmlFile = "data_3.0_SRC.aml";
+        public AMLLearnerConfig Config { get; set; }
+        public AMLLearnerACMConfig Acm { get; set; }
 
         /// <summary>
         /// Gets the singleton instance of the view model
         /// </summary>
         public static AMLLearnerViewModel Instance { get; private set; }
 
-        public CAEXDocument DocumentPos { get; private set; }
-        public CAEXDocument DocumentNeg { get; private set; }
-        public CAEXDocument DocumentACM { get; private set; }
+        public AMLLearnerTree TreePos;
+        public AMLLearnerTree TreeNeg;
+        public AMLLearnerTree TreeAcm;
 
-        public List<CAEXObject> Positives { get; private set; }
-        public List<CAEXObject> Negatives { get; private set; }
+
+        //public List<CAEXObject> Positives { get; private set; }
+        //public List<CAEXObject> Negatives { get; private set; }
 
         public ObjectType ObjType { get; private set; } = ObjectType.UNKNOWN;
-
-        private InstanceHierarchyType IhSelectedPos { get; set; }
-        private InstanceHierarchyType IhSelectedNeg { get; set; }
-        public InternalElementType PlaceholderSelectedPos { get; set; }
-        public InternalElementType PlaceholderSelectedNeg { get; set; }
-        public Boolean PlaceholderPosAttached { get; set; } = false;
-        public Boolean PlaceholderNegAttached { get; set; } = false;
-
-        //private InstanceHierarchyType IhDeducedPos { get; set; }
-        //private InstanceHierarchyType IhDeducedNeg { get; set; }
-        //public Boolean DeducedIhsAttached { get; set; } = false;
-        //private InternalElementType PlaceholderDeducedPos { get; set; }
-        //private InternalElementType PlaceholderDeducedNeg { get; set; }
-
 
         static AMLLearnerViewModel()
         {
@@ -64,27 +59,32 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
         private AMLLearnerViewModel()
         {
-            Positives = new List<CAEXObject>();
-            Negatives = new List<CAEXObject>();
-            DocumentPos = CAEXDocument.New_CAEXDocument();
-            DocumentNeg = CAEXDocument.New_CAEXDocument();
+            //Positives = new List<CAEXObject>();
+            TreePos = new AMLLearnerTree();
+            TreePos.AddInstanceHiearchy("selectedPositives");
 
-            IhSelectedPos = DocumentPos.CAEXFile.InstanceHierarchy.Append("selectedPositives");
-            IhSelectedNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("selectedNegatives");
+            //Negatives = new List<CAEXObject>();
+            TreeNeg = new AMLLearnerTree();
+            TreeNeg.AddInstanceHiearchy("selectedNegatives");
 
-            BuildTreeViewModel();
+            UpdateTreeViewModel(TreeType.POSITIVE);
+            UpdateTreeViewModel(TreeType.NEGATIVE);
+
+            Home = "D:/repositories/aml/aml_framework/src/test/resources/demo";
+            Acm = new AMLLearnerACMConfig();
+            Acm.File = DirTmp + AcmFile;
         }
 
-        public void loadACM(String filename)
+        public void loadACM()
         {
-            DocumentACM = CAEXDocument.LoadFromFile(filename);
-            AMLDocumentTreeViewModelACM = new AMLTreeViewModel(DocumentACM.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
+            TreeAcm = new AMLLearnerTree(CAEXDocument.LoadFromFile(DirTmp + AcmFile));
+            UpdateTreeViewModel(TreeType.ACM);
         }
 
-        public void saveACM(String filename)
-        {
-            DocumentACM.SaveToFile(filename, true);
-        }
+        //public void saveACM()
+        //{
+        //    TreeAcm.Document.SaveToFile(DirTmp + AcmFile, true);
+        //}
 
         /// <summary>
         ///  Gets and sets the AMLDocumentTreeViewModel which holds the data for the AML document tree view
@@ -100,7 +100,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 if (_aMLDocumentTreeViewModelPos != value)
                 {
                     _aMLDocumentTreeViewModelPos = value;
-                    //RaisePropertyChanged(() => AMLDocumentTreeViewModel);
+                    RaisePropertyChanged(() => AMLDocumentTreeViewModelPos);
 
                     // we need a handler to recognize a selection in the tree view. Every selection can be propagated to every plugIn.
                     if (AMLDocumentTreeViewModelPos != null)
@@ -135,22 +135,22 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         /// <summary>
         ///  Gets and sets the AMLDocumentTreeViewModel which holds the data for the AML document tree view
         /// </summary>
-        public AMLTreeViewModel AMLDocumentTreeViewModelACM
+        public AMLTreeViewModel AMLDocumentTreeViewModelAcm
         {
             get
             {
-                return _aMLDocumentTreeViewModelACM;
+                return _aMLDocumentTreeViewModelAcm;
             }
             set
             {
-                if (_aMLDocumentTreeViewModelACM != value)
+                if (_aMLDocumentTreeViewModelAcm != value)
                 {
-                    _aMLDocumentTreeViewModelACM = value;
-                    RaisePropertyChanged(() => AMLDocumentTreeViewModelACM);
+                    _aMLDocumentTreeViewModelAcm = value;
+                    RaisePropertyChanged(() => AMLDocumentTreeViewModelAcm);
 
                     // we need a handler to recognize a selection in the tree view. Every selection can be propagated to every plugIn.
-                    if (AMLDocumentTreeViewModelACM != null)
-                        AMLDocumentTreeViewModelACM.SelectedElements.CollectionChanged += SelectedElementsCollectionChanged;
+                    if (AMLDocumentTreeViewModelAcm != null)
+                        AMLDocumentTreeViewModelAcm.SelectedElements.CollectionChanged += SelectedElementsCollectionChanged;
                 }
             }
         }
@@ -177,366 +177,172 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                     Plugin.ChangeSelectedObjectWithPrefix(CurrentSelectedObject, "plugin");
                 }
             }
-        }       
+        }
+
+        public Boolean isPlaceHolder(CAEXObject obj)
+        {
+            return TreePos.HasPlaceHolder(obj) || TreeNeg.HasPlaceHolder(obj);
+        }
+
+        public Boolean ContainsPositiveExample(CAEXObject obj)
+        {
+            return TreePos.Contains(obj);
+        }
+
+        public Boolean ContainsNegativeExample(CAEXObject obj)
+        {
+            return TreeNeg.Contains(obj);
+        }
 
         public void AddPositive(CAEXObject obj)
-        {           
+        {
             if (obj is InternalElementType)
             {
                 if (ObjType.Equals(ObjectType.EI))
                 {
                     MessageBox.Show("can not mixing EI and IE in one list!");
+                    return;
                 }
                 else
                 {
                     ObjType = ObjectType.IE;
-                    IhSelectedPos.InternalElement.Insert((InternalElementType)obj);
-                    Positives.Add(obj);                    
-                }                    
-            }                
+                }
+            }
 
-            if (obj is ExternalInterfaceType)
+            else if (obj is ExternalInterfaceType)
             {
                 if (ObjType.Equals(ObjectType.IE))
                 {
                     MessageBox.Show("can not mixing EI and IE in one list!");
+                    return;
                 }
-
-                if (!IhSelectedPos.InternalElement.Exists)
+                else
                 {
-                    PlaceholderSelectedPos = IhSelectedPos.InternalElement.Append("PlaceHolder");
+                    ObjType = ObjectType.EI;
                 }
-
-                else if (!PlaceholderPosAttached)
-                {
-                    IhSelectedPos.InternalElement.Insert(PlaceholderSelectedPos);
-                }
-
-                PlaceholderPosAttached = true;
-
-                ObjType = ObjectType.EI;
-                PlaceholderSelectedPos.ExternalInterface.Insert((ExternalInterfaceType)obj);
-                Positives.Add(obj);                
             }
-            RemoveNegativeObj(obj);
-            UpdateTreeViewModel();
+
+            TreePos.AddObjectToIh(TreePos.Ihs[0], obj);
+            //Positives.Add(obj);
+
+            TreeNeg.RemoveObject(obj);
+            //Negatives.Remove(obj);
+
+            UpdateTreeViewModel(TreeType.POSITIVE);
+            UpdateTreeViewModel(TreeType.NEGATIVE);
         }
 
         public void AddNegative(CAEXObject obj)
         {
+            TreeNeg.AddObjectToIh(TreeNeg.Ihs[0], obj);
+            //Negatives.Add(obj);
 
-            if (obj is InternalElementType)
-            {
-                IhSelectedNeg.InternalElement.Insert((InternalElementType)obj);
-                Negatives.Add(obj);
-            }
+            TreePos.RemoveObject(obj);
+            //Positives.Remove(obj);
 
-            if (obj is ExternalInterfaceType)
-            {
-                if (PlaceholderSelectedNeg is null)
-                {
-                    PlaceholderSelectedNeg = IhSelectedNeg.InternalElement.Append("PlaceHolder");
-                }
-                else if (!PlaceholderNegAttached)
-                {
-                    IhSelectedNeg.InternalElement.Insert(PlaceholderSelectedNeg);
-                }
-
-                PlaceholderNegAttached = true;
-                PlaceholderSelectedNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
-                Negatives.Add(obj);                
-            }
-
-            RemovePositiveObj(obj);
-            UpdateTreeViewModel();
+            UpdateTreeViewModel(TreeType.POSITIVE);
+            UpdateTreeViewModel(TreeType.NEGATIVE);
         }
 
         public void AddNegative(List<CAEXObject> objs)
         {
             foreach (CAEXObject obj in objs)
             {
-                if (obj is InternalElementType)
-                {
-                    IhSelectedNeg.InternalElement.Insert((InternalElementType)obj);
-                    Negatives.Add(obj);
-                }
+                TreeNeg.AddObjectToIh(TreeNeg.Ihs[0], obj);
+                //Negatives.Add(obj);
 
-                if (obj is ExternalInterfaceType)
-                {
-                    if (PlaceholderSelectedNeg is null)
-                    {
-                        PlaceholderSelectedNeg = IhSelectedNeg.InternalElement.Append("PlaceHolder");
-                    }
-
-                    else if (!PlaceholderNegAttached)
-                    {
-                        IhSelectedNeg.InternalElement.Insert(PlaceholderSelectedNeg);
-                    }
-
-                    PlaceholderNegAttached = true;
-
-                    PlaceholderSelectedNeg.ExternalInterface.Insert((ExternalInterfaceType)obj);
-                    Negatives.Add(obj);
-                }
-
-                RemovePositiveObj(obj);
+                TreePos.RemoveObject(obj);
+                //Positives.Remove(obj);
             }
 
-            UpdateTreeViewModel();
+            UpdateTreeViewModel(TreeType.POSITIVE);
+            UpdateTreeViewModel(TreeType.NEGATIVE);
         }
 
         public void RemoveObj(CAEXObject obj)
         {
+            TreePos.RemoveObject(obj);
+            TreeNeg.RemoveObject(obj);
 
-            if (obj.Equals(PlaceholderSelectedPos))
-            {
-                MessageBox.Show("removing all EIs from this place holder object!");
-                foreach (ExternalInterfaceType ei in PlaceholderSelectedPos.ExternalInterface)
-                {                    
-                    RemovePositiveObj(ei);                    
-                }
-                PlaceholderSelectedPos.Remove();
-                PlaceholderPosAttached = false;
-                ObjType = ObjectType.UNKNOWN;
-            }
+            //Positives.RemoveAll(item => item.ID.Equals(obj.ID));
+            //Negatives.RemoveAll(item => item.ID.Equals(obj.ID));
 
-            else if (obj.Equals(PlaceholderSelectedNeg))
-            {
-                MessageBox.Show("removing all EIs from this place holder object!");
-                foreach (ExternalInterfaceType ei in PlaceholderSelectedNeg.ExternalInterface)
-                {                    
-                    RemovePositiveObj(ei);                    
-                }
-                PlaceholderSelectedNeg.Remove();
-                PlaceholderNegAttached = false;
-            }
-
-            else
-            {
-                RemovePositiveObj(obj);
-                RemoveNegativeObj(obj);
-            }
-            
-            UpdateTreeViewModel();
+            UpdateTreeViewModel(TreeType.POSITIVE);
+            UpdateTreeViewModel(TreeType.NEGATIVE);
         }        
-
-        public void RemovePositiveObj(CAEXObject obj)
-        {
-            if (obj is InternalElementType)
-            {
-                foreach (CAEXObject ele in IhSelectedPos.InternalElement.ToList())
-                {
-                    if (ele.ID.Equals(obj.ID))
-                    {
-                        ele.Remove();
-                    }
-                }
-            }
-
-            if (obj is ExternalInterfaceType)
-            {
-                if (IhSelectedPos.InternalElement.Exists && PlaceholderSelectedPos != null)
-                {
-                    foreach (CAEXObject ele in PlaceholderSelectedPos.ExternalInterface.ToList())
-                    {
-                        if (ele.ID.Equals(obj.ID))
-                        {
-                            ele.Remove();
-                        }
-                    }
-                }                
-            }          
-
-            Positives.RemoveAll(item => item.ID.Equals(obj.ID));
-        }
 
         public void ClearPositives()
         {
-            Positives.Clear();
-            IhSelectedPos.InternalElement.Remove();
-            PlaceholderPosAttached = false;
-            PlaceholderSelectedPos = null;
-            UpdateTreeViewModel();
+            //Positives.Clear();
+            TreePos.Clear();
             ObjType = ObjectType.UNKNOWN;
+
+            UpdateTreeViewModel(TreeType.POSITIVE);            
         }
 
         public void ClearNegatives()
         {
-            Negatives.Clear();
-            IhSelectedNeg.InternalElement.Remove();
-            PlaceholderNegAttached = false;
-            PlaceholderSelectedNeg = null;
-            UpdateTreeViewModel();
-        }
+            //Negatives.Clear();
+            TreeNeg.Clear();
+            
+            UpdateTreeViewModel(TreeType.NEGATIVE);
+        }      
 
-        public void RemoveNegativeObj(CAEXObject obj)
+        //public bool ContainsAcm(CAEXObject obj)
+        //{
+        //    if (TreeAcm != null)
+        //    {
+        //        return TreeAcm.Contains(obj);
+        //    }
+
+        //    return false;
+        //}
+
+        public bool IsAcm(CAEXObject obj)
         {
+            if (TreeAcm is null)
+                return false;
 
-            if (obj is InternalElementType)
-            {
-                foreach (CAEXObject ele in IhSelectedNeg.InternalElement.ToList())
-                {
-                    if (ele.ID.Equals(obj.ID))
-                    {
-                        ele.Remove();
-                    }
-                }
-            }
-
-            if (obj is ExternalInterfaceType)
-            {
-                if (IhSelectedNeg.InternalElement.Exists && PlaceholderSelectedNeg != null)
-                {
-                    foreach (CAEXObject ele in PlaceholderSelectedNeg.ExternalInterface.ToList())
-                    {
-                        if (ele.ID.Equals(obj.ID))
-                        {
-                            ele.Remove();
-                        }
-                    }
-                }                
-            }
-
-            Negatives.RemoveAll(item => item.ID.Equals(obj.ID));
-        }
-
-        public bool ContainsPositiveExample(CAEXObject obj)
-        {
-            //var caexObj = DocumentPos.FindByID(obj.ID);
-            //if (caexObj is null)
-            //    return false;
-            //if (caexObj.CAEXParent is InstanceHierarchyType)
-            //    return true;
-            //return false;
-
-            //return (caexObj == null) ? false : true;  
-
-            //return Positives.Contains(obj);
-            return ContainsExample(Positives, obj);
-        }
-
-        public bool ContainsNegativeExample(CAEXObject obj)
-        {
-            //var caexObj = DocumentNeg.FindByID(obj.ID);
-            //if (caexObj is null)
-            //    return false;
-            //if (caexObj.CAEXParent is InstanceHierarchyType)
-            //    return true;
-            //return false;
-
-            //return (caexObj == null) ? false : true;
-
-            //return Negatives.Contains(obj);
-
-            return ContainsExample(Negatives, obj);
+            return TreeAcm.Document.FindByID(obj.ID) != null;
         }
 
         public bool ContainsExample(CAEXObject obj)
         {
-            return ContainsPositiveExample(obj) || ContainsNegativeExample(obj);
+            return TreePos.Contains(obj) || TreeNeg.Contains(obj);
         }
 
-        public bool ContainsAcm(CAEXObject obj)
-        {
-            if (DocumentACM != null)
+        private void UpdateTreeViewModel(TreeType type)
+        {           
+            switch (type)
             {
-                if (DocumentACM.FindByID(obj.ID) != null)
-                    return true;
-            }
+                case TreeType.POSITIVE:
+                    AMLDocumentTreeViewModelPos = new AMLTreeViewModel(TreePos.Document.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
+                    AMLDocumentTreeViewModelPos.Root.Children[0].IsExpanded = true;
+                    AMLDocumentTreeViewModelPos.RefreshTree(true);
+                    AMLDocumentTreeViewModelPos.RefreshNodeInformation(true);
+                    RaisePropertyChanged(() => AMLDocumentTreeViewModelPos);
+                    break;
 
-            return false;
-        }
+                case TreeType.NEGATIVE:
+                    AMLDocumentTreeViewModelNeg = new AMLTreeViewModel(TreeNeg.Document.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
+                    AMLDocumentTreeViewModelNeg.Root.Children[0].IsExpanded = true;
+                    AMLDocumentTreeViewModelNeg.RefreshTree(true);
+                    AMLDocumentTreeViewModelNeg.RefreshNodeInformation(true);
+                    RaisePropertyChanged(() => AMLDocumentTreeViewModelNeg);
+                    break;
 
-        private bool ContainsExample(List<CAEXObject> list, CAEXObject obj)
-        {
-            foreach (CAEXObject ele in list)
-            {
-                if (ele.ID.Equals(obj.ID))
-                    return true;
-            }
+                case TreeType.ACM:
+                    AMLDocumentTreeViewModelAcm = new AMLTreeViewModel(TreeAcm.Document.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
+                    AMLDocumentTreeViewModelAcm.Root.Children[0].IsExpanded = true;
+                    AMLDocumentTreeViewModelAcm.RefreshTree(true);
+                    AMLDocumentTreeViewModelAcm.RefreshNodeInformation(true);
+                    RaisePropertyChanged(() => AMLDocumentTreeViewModelAcm);
+                    break;
 
-            return false;
-        }
-
-        private void UpdateTreeViewModel()
-        {
-            BuildTreeViewModel();
-            AMLDocumentTreeViewModelPos.RefreshTree(true);
-            AMLDocumentTreeViewModelPos.RefreshNodeInformation(true);
-            AMLDocumentTreeViewModelNeg.RefreshTree(true);
-            AMLDocumentTreeViewModelNeg.RefreshNodeInformation(true);
-            
-            RaisePropertyChanged(() => AMLDocumentTreeViewModelPos);
-            RaisePropertyChanged(() => AMLDocumentTreeViewModelNeg);
-        }
-
-        /// <summary>
-        /// Builds the TreeView model for the generated test data.
-        /// </summary>
-        /// <exception cref="System.NotImplementedException"></exception>
-        private void BuildTreeViewModel()
-        {
-            // use the InstanceHierarchy template for the created tree view because our document contains an IH only.
-            AMLDocumentTreeViewModelPos = new AMLTreeViewModel(DocumentPos.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
-            AMLDocumentTreeViewModelNeg = new AMLTreeViewModel(DocumentNeg.CAEXFile.Node, AMLTreeViewTemplate.CompleteInstanceHierarchyTree);
-            
-            // expands the first level
-            AMLDocumentTreeViewModelPos.Root.Children[0].IsExpanded = true;
-            AMLDocumentTreeViewModelNeg.Root.Children[0].IsExpanded = true;
-        }
-
-        internal void SelectPos(ICAEXWrapper caexObject, bool activate)
-        {
-            var lib = caexObject.Library();
-            if (lib is InstanceHierarchyType)
-            {
-                AMLDocumentTreeViewModelPos?.SelectCaexNode(caexObject.Node, true, true);
-                if (activate)
-                    AMLDocumentTreeViewModelPos.RaisePropertyChanged("Activate");
+                default:
+                    return;
             }
         }
-
-        internal void SelectNeg(ICAEXWrapper caexObject, bool activate)
-        {
-            var lib = caexObject.Library();
-            if (lib is InstanceHierarchyType)
-            {
-                AMLDocumentTreeViewModelNeg?.SelectCaexNode(caexObject.Node, true, true);
-                if (activate)
-                    AMLDocumentTreeViewModelNeg.RaisePropertyChanged("Activate");
-            }
-        }
-
-        //public void attachDeducedIhs()
-        //{
-        //    IhDeducedPos = DocumentPos.CAEXFile.InstanceHierarchy.Append("deducedPositives");
-        //    IhDeducedNeg = DocumentNeg.CAEXFile.InstanceHierarchy.Append("deducedNegatives");
-        //    DeducedIhsAttached = true;
-        //}
-
-        //public void addObjectTo(CAEXObject obj, ExampleType exampleType, ExampleCollectionType collectionType)
-        //{
-        //    InstanceHierarchyType target, counterTarget;
-        //    if (exampleType.Equals(ExampleType.POSITIVE) && collectionType.Equals(ExampleCollectionType.DEDUCED))
-        //    {
-        //        target = IhDeducedPos;
-        //    }
-        //    else if (exampleType.Equals(ExampleType.POSITIVE) && collectionType.Equals(ExampleCollectionType.SELECTED))
-        //    {
-        //        target = IhSelectedPos;
-        //        counterTarget = IhSelectedNeg;
-        //    }
-        //    else if (exampleType.Equals(ExampleType.NEGATIVE) && collectionType.Equals(ExampleCollectionType.DEDUCED))
-        //    {
-        //        target = IhDeducedNeg;
-        //    }
-        //    else
-        //    {
-        //        target = IhSelectedNeg;
-        //        counterTarget = IhSelectedPos;
-        //    }            
-
-        //}
 
         public void AddDeducedExamples(List<CAEXObject> objs, ExampleType type, String ihName)
         {
@@ -544,56 +350,39 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
             if (type.Equals(ExampleType.POSITIVE))
             {
-                ih = DocumentPos.CAEXFile.InstanceHierarchy.Append(ihName);
+                //ih = DocumentPos.CAEXFile.InstanceHierarchy.Append(ihName);
+                ih = TreePos.AddInstanceHiearchy(ihName);
+                foreach (CAEXObject obj in objs)
+                    TreePos.AddObjectToIh(ih, obj);
             }
             else
             {
-                ih = DocumentNeg.CAEXFile.InstanceHierarchy.Append(ihName);
+                //ih = DocumentNeg.CAEXFile.InstanceHierarchy.Append(ihName);
+                ih = TreeNeg.AddInstanceHiearchy(ihName);
+                foreach (CAEXObject obj in objs)
+                    TreeNeg.AddObjectToIh(ih, obj);
             }
 
-            InternalElementType placeholder = null;
-            // if there is at least one EI in the list, add a placeholder
-            foreach (CAEXObject obj in objs)
-            {
-                if (obj is ExternalInterfaceType)
-                {
-                    placeholder = ih.InternalElement.Append("placeholder");
-                    break;
-                }
-            }
-            
-            foreach (CAEXObject obj in objs)
-            {
-                AddDeducedExample(obj, ih, placeholder);
-            }
-
-            UpdateTreeViewModel();
+            UpdateTreeViewModel(TreeType.POSITIVE);
+            UpdateTreeViewModel(TreeType.NEGATIVE);
         }
 
-        private void AddDeducedExample(CAEXObject obj, InstanceHierarchyType ih, InternalElementType placeholder)
+        public List<CAEXObject> GetAllSelectedPositives()
         {
-            if (obj is InternalElementType)
-            {
-                ih.InternalElement.Insert((InternalElementType)obj);
-            }
-
-            else if (obj is ExternalInterfaceType)
-            {
-                if (placeholder is null)
-                {
-                    //TODO: handle exception
-                    return;
-                }
-                placeholder.ExternalInterface.Insert((ExternalInterfaceType)obj);
-            }
+            return TreePos.Ihs[0].GetAllObjects();
         }
 
-        private Boolean isConfigAttribute(AttributeType attr)
+        public List<CAEXObject> GetAllSelectedNegatives()
+        {
+            return TreeNeg.Ihs[0].GetAllObjects();
+        }
+
+        private Boolean IsConfigAttribute(AttributeType attr)
         {
             return attr.Name.Equals("queryConfig");
         }
 
-        public AttributeType getConfigParameter(AttributeType attr, String config)
+        public AttributeType GetConfigParameter(AttributeType attr, String config)
         {
             AttributeType parameter = null;
             foreach (AttributeType sub in attr.Attribute)
@@ -608,14 +397,14 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 return parameter;
         }
 
-        public AttributeType getConfigAttribute(CAEXObject obj)
+        public AttributeType GetConfigAttribute(CAEXObject obj)
         {
             if (obj is InternalElementType)
             {
                 InternalElementType ie = (InternalElementType)obj;
                 foreach (AttributeType attr in ie.Attribute)
                 {
-                    if (isConfigAttribute(attr)) {
+                    if (IsConfigAttribute(attr)) {
                         return attr;
                     }
                 }
@@ -626,7 +415,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 ExternalInterfaceType ei = (ExternalInterfaceType)obj;
                 foreach (AttributeType attr in ei.Attribute)
                 {
-                    if (isConfigAttribute(attr))
+                    if (IsConfigAttribute(attr))
                     {
                         return attr;
                     }
@@ -638,7 +427,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 AttributeType attribute = (AttributeType)obj;
                 foreach (AttributeType attr in attribute.Attribute)
                 {
-                    if (isConfigAttribute(attr))
+                    if (IsConfigAttribute(attr))
                     {
                         return attr;
                     }
@@ -648,80 +437,87 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             return null;
         }
 
-        public void adaptQueryConfig(CAEXObject obj, String config, String value)
-        {
-            AttributeType configAttr = getConfigAttribute(obj);
-            AttributeType configParam = getConfigParameter(configAttr, config);
+        public void AdaptQueryConfig(CAEXObject obj, String config, String value)
+        {            
+            AttributeType configAttr = GetConfigAttribute(obj);
+            AttributeType configParam = GetConfigParameter(configAttr, config);
             configParam.Value = value;
         }
 
-        private string _configPriamry;
+        private Boolean _configPriamry;
 
-        public string ConfigPrimary
+        public Boolean ConfigPrimary
         {
             get { return _configPriamry; }
             set
             {
                 _configPriamry = value;
-                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "distinguished", value);
-                Console.WriteLine("primary: " + value);
+                if(IsAcm((CAEXObject) CurrentSelectedObject))
+                    AdaptQueryConfig((CAEXObject) CurrentSelectedObject, "distinguished", value.ToString());
 
                 RaisePropertyChanged("ConfigPrimary");
             }
         }
 
-        private string _configId;
+        private Boolean _configId;
 
-        public string ConfigId
+        public Boolean ConfigId
         {
             get { return _configId; }
             set
             {
                 _configId = value;
-                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedById", value);
-                Console.WriteLine("id: " + value);
+                if (IsAcm((CAEXObject)CurrentSelectedObject))
+                    AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "identifiedById", value.ToString());
+
                 RaisePropertyChanged("ConfigId");
             }
         }
 
-        private string _configName;
+        private Boolean _configName;
 
-        public string ConfigName
+        public Boolean ConfigName
         {
             get { return _configName; }
             set
             {
                 _configName = value;
-                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedByName", value);
-                Console.WriteLine("name: " + value);
+
+                if (IsAcm((CAEXObject)CurrentSelectedObject))
+                    AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "identifiedByName", value.ToString());
+
                 RaisePropertyChanged("ConfigName");
             }
         }
 
-        private string _configNegated;
+        private Boolean _configNegated;
 
-        public string ConfigNegated
+        public Boolean ConfigNegated
         {
             get { return _configNegated; }
             set
             {
                 _configNegated = value;
-                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "negated", value);
-                Console.WriteLine("negated: " + value);
+
+                if (IsAcm((CAEXObject)CurrentSelectedObject))
+                    AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "negated", value.ToString());
+
                 RaisePropertyChanged("ConfigNegated");
             }
         }
 
-        private string _configDescendant;
+        private Boolean _configDescendant;
 
-        public string ConfigDescendant
+        public Boolean ConfigDescendant
         {
             get { return _configDescendant; }
             set
             {
                 _configDescendant = value;
-                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "descendant", value);
-                Console.WriteLine("descendant: " + value);
+
+                if (IsAcm((CAEXObject)CurrentSelectedObject))
+                    AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "descendant", value.ToString());
+
                 RaisePropertyChanged("ConfigDescendant");
             }
         }
@@ -734,8 +530,10 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             set
             {
                 _configMincardinalitiy = value;
-                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "minCardinality", value.ToString());
-                Console.WriteLine("min: " + value);
+
+                if (IsAcm((CAEXObject)CurrentSelectedObject))
+                    AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "minCardinality", value.ToString());
+
                 RaisePropertyChanged("ConfigMinCardinality");
             }
         }
@@ -748,58 +546,96 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             set
             {
                 _configMaxcardinalitiy = value;
-                //AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "maxCardinality", value.ToString());
-                Console.WriteLine("max: " + value);
+
+                if (IsAcm((CAEXObject)CurrentSelectedObject))
+                    AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "maxCardinality", value.ToString());
+
                 RaisePropertyChanged("ConfigMaxCardinality");
             }
         }
 
-
-        /// <summary>
-        /// Generates some automationML test data to be viewed in the tree
-        /// </summary>
-        private void GenerateSomeAutomationMLTestData(string file)
+        private string _home;
+        public string Home
         {
-            // we want unique names for the created elements
-            Engine.Services.UniqueNameService.Register();
-
-            DocumentPos = CAEXDocument.New_CAEXDocument();
-            var ih = DocumentPos.CAEXFile.InstanceHierarchy.Append(file);
-            var slib = DocumentPos.CAEXFile.SystemUnitClassLib.Append("SLib");
-            var rand = new Random(DateTime.Now.Millisecond);
-            for (int i = 0; i < 10; i++)
+            get { return _home; }
+            set
             {
-                var s = slib.SystemUnitClass.Append();
-                for (int j = 0; j < rand.Next(5); j++)
-                    s.InternalElement.Append();
-                for (int j = 0; j < rand.Next(3); j++)
-                    s.ExternalInterface.Append();
+                if (value != _home)
+                {
+                    _home = value;
+                    DirTmp = Home + "/tmp/";
+                    Console.WriteLine("setting home to: " + value);
+                    RaisePropertyChanged("Home");
+                }
             }
+        }        
 
-            for (int i = 0; i < 15; i++)
+        public string DirTmp { get; set; }
+
+        private string _acmId;
+
+        public string AcmId
+        {
+            get { return _acmId; }
+            set
             {
-                ih.InternalElement.Insert(slib.SystemUnitClass[rand.Next(0, 9)].CreateClassInstance(), false);
-                ih.InternalElement.Last.Name = "IE of " + ih.InternalElement.Last.Name;
+                if (value != _acmId)
+                {
+                    _acmId = value;
+                    Console.WriteLine("setting ACM to: " + value);
+                    RaisePropertyChanged("AcmId");
+                }
             }
+        }
 
-            DocumentNeg = CAEXDocument.New_CAEXDocument();
-            var ih2 = DocumentNeg.CAEXFile.InstanceHierarchy.Append(file);
-            var slib2 = DocumentNeg.CAEXFile.SystemUnitClassLib.Append("SLib");
-            for (int i = 0; i < 10; i++)
+
+        public void UpdateAMLLearnerConfig()
+        {
+            AMLLearnerExamplesConfig examples = new AMLLearnerExamplesConfig();
+
+            List<String> positives = new List<String>();
+            List<String> negatives = new List<String>();
+            foreach (CAEXObject obj in GetAllSelectedPositives())
             {
-                var s = slib2.SystemUnitClass.Append();
-                for (int j = 0; j < rand.Next(5); j++)
-                    s.InternalElement.Append();
-                for (int j = 0; j < rand.Next(3); j++)
-                    s.ExternalInterface.Append();
+                if (obj is InternalElementType)
+                    positives.Add("ie_" + obj.Name + "_" + obj.ID);
+                else if (obj is ExternalInterfaceType)
+                    positives.Add("ei_" + obj.Name + "_" + obj.ID);
             }
-
-            for (int i = 0; i < 15; i++)
+            foreach (CAEXObject obj in GetAllSelectedNegatives())
             {
-                ih2.InternalElement.Insert(slib2.SystemUnitClass[rand.Next(0, 9)].CreateClassInstance(), false);
-                ih2.InternalElement.Last.Name = "IE of " + ih2.InternalElement.Last.Name;
+                if (obj is InternalElementType)
+                    negatives.Add("ie_" + obj.Name + "_" + obj.ID);
+                else if (obj is ExternalInterfaceType)
+                    negatives.Add("ei_" + obj.Name + "_" + obj.ID);
             }
+            examples.Positives = positives.ToArray();
+            examples.Negatives = negatives.ToArray();
 
+            String objType = "";
+            if (ObjType.Equals(ObjectType.IE))
+                objType = "IE";
+            else if (ObjType.Equals(ObjectType.EI))
+                objType = "EI";
+            else
+                return;
+
+            Config = new AMLLearnerConfig(Home, AmlFile, objType, examples);
+
+            if (Acm.Id != null)
+            {
+                //UpdateAcm();
+                Config.Algorithm.Acm = Acm;                
+            }
+        }
+
+        public void UpdateAcm()
+        {
+            if (IsAcm((CAEXObject)CurrentSelectedObject))
+            {
+                Acm.Id = ((CAEXObject)CurrentSelectedObject).ID;
+                TreeAcm.Document.SaveToFile(DirTmp + AcmFile, true);
+            }
         }
     }
 }

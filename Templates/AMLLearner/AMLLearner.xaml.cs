@@ -38,19 +38,22 @@ namespace Aml.Editor.PlugIn.AMLLearner
     [ExportMetadata("DisplayName", "AMLLearner")]
     [ExportMetadata("Description", "AMLLearner Plugin")]
     [Export(typeof(IAMLEditorView))]
-    public partial class AMLLearnerGUI : System.Windows.Controls.UserControl, IAMLEditorView, INotifyPropertyChanged, ISupportsSelection
+    public partial class AMLLearnerGUI : System.Windows.Controls.UserControl, IAMLEditorView, ISupportsSelection //, INotifyPropertyChanged
     {
         /// <summary>
         /// <see cref="AboutCommand"/>
         /// </summary>
         private RelayCommand<object> aboutCommand;
-        
+
+        private AMLLearnerViewModel ViewModel { get; set; } = AMLLearnerViewModel.Instance;
+
         public AMLLearnerGUI()
         {
 
-            InitializeComponent();
-            DataContext = AMLLearnerViewModel.Instance;
-            AMLLearnerViewModel.Instance.Plugin = this;
+            InitializeComponent();                        
+
+            DataContext = ViewModel;
+            ViewModel.Plugin = this;
 
             // Defines the Command list, which will contain user commands, which a user can select
             // via the PlugIn Menu.
@@ -92,10 +95,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
             //InputQueue = new ConcurrentQueue<string>();
             OutputQueue = new ConcurrentQueue<string>();
-            this.IsActive = false;
-
-            Home = textHome.Text;
-            DirTmp = Home + "/tmp/";
+            this.IsActive = false;            
         }
 
         /// <summary>
@@ -109,12 +109,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
         /// </summary>
         public event EventHandler PluginTerminated;
         public event EventHandler<SelectionEventArgs> Selected;
-        public event PropertyChangedEventHandler PropertyChanged;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        //protected void OnPropertyChanged(string propertyName)
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //}
 
         /// <summary>
         /// The AboutCommand - Command
@@ -337,8 +337,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private CAEXObject _selectedObj;
 
         private bool isPlaceHolder(CAEXBasicObject selectedObject)
-        {
-            return selectedObject.Equals(AMLLearnerViewModel.Instance.PlaceholderSelectedPos) || selectedObject.Equals(AMLLearnerViewModel.Instance.PlaceholderSelectedNeg);
+        {            
+            return ViewModel.isPlaceHolder((CAEXObject)selectedObject);
         }
 
         public void ChangeSelectedObjectWithPrefix(CAEXBasicObject selectedObject, String prefix)
@@ -357,6 +357,14 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     btnNeg.IsEnabled = false;
                     btnRm.IsEnabled = false;
                     btnSetAcm.IsEnabled = false;
+
+                    cbPrimary.IsEnabled = false;
+                    cbId.IsEnabled = false;
+                    cbDesendant.IsEnabled = false;
+                    cbName.IsEnabled = false;
+                    cbNegated.IsEnabled = false;
+                    slMin.IsEnabled = false;
+                    slMax.IsEnabled = false;
                 }
 
                 else if (isPlaceHolder(selectedObject))
@@ -366,25 +374,49 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     btnNeg.IsEnabled = false;
                     btnRm.IsEnabled = true;
                     btnSetAcm.IsEnabled = false;
+
+                    cbPrimary.IsEnabled = false;
+                    cbId.IsEnabled = false;
+                    cbDesendant.IsEnabled = false;
+                    cbName.IsEnabled = false;
+                    cbNegated.IsEnabled = false;
+                    slMin.IsEnabled = false;
+                    slMax.IsEnabled = false;
                 }
 
-                else if (AMLLearnerViewModel.Instance.ContainsPositiveExample(this._selectedObj))
+                else if (ViewModel.ContainsPositiveExample(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnPos.IsEnabled = false;
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
                     btnSetAcm.IsEnabled = false;
+
+                    cbPrimary.IsEnabled = false;
+                    cbId.IsEnabled = false;
+                    cbDesendant.IsEnabled = false;
+                    cbName.IsEnabled = false;
+                    cbNegated.IsEnabled = false;
+                    slMin.IsEnabled = false;
+                    slMax.IsEnabled = false;
                 }
-                else if (AMLLearnerViewModel.Instance.ContainsNegativeExample(this._selectedObj))
+                else if (ViewModel.ContainsNegativeExample(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnNeg.IsEnabled = false;
                     btnPos.IsEnabled = true;
                     btnRm.IsEnabled = true;
                     btnSetAcm.IsEnabled = false;
+
+                    cbPrimary.IsEnabled = false;
+                    cbId.IsEnabled = false;
+                    cbDesendant.IsEnabled = false;
+                    cbName.IsEnabled = false;
+                    cbNegated.IsEnabled = false;
+                    slMin.IsEnabled = false;
+                    slMax.IsEnabled = false;
                 }
-                else if (AMLLearnerViewModel.Instance.ContainsAcm(this._selectedObj))
+                else if (ViewModel.IsAcm(this._selectedObj))
                 {
                     btnRest.IsEnabled = false;
                     btnNeg.IsEnabled = false;
@@ -392,35 +424,45 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     btnRm.IsEnabled = false;
                     btnSetAcm.IsEnabled = true;
 
-                    AttributeType config = AMLLearnerViewModel.Instance.getConfigAttribute(this._selectedObj);
+                    cbPrimary.IsEnabled = true;
+                    cbId.IsEnabled = true;
+                    cbDesendant.IsEnabled = true;
+                    cbName.IsEnabled = true;
+                    cbNegated.IsEnabled = true;
+                    slMin.IsEnabled = true;
+                    slMax.IsEnabled = true;
 
-                    AttributeType primary = AMLLearnerViewModel.Instance.getConfigParameter(config, "distinguished");
-                    AMLLearnerViewModel.Instance.ConfigPrimary = primary.Value;
+                    ViewModel.AcmId = ((CAEXObject)_selectedObj).ID;
+
+                    AttributeType config = ViewModel.GetConfigAttribute(this._selectedObj);
+
+                    AttributeType primary = ViewModel.GetConfigParameter(config, "distinguished");
+                    ViewModel.ConfigPrimary = bool.Parse(primary.Value);
                     //cbPrimary.IsChecked = bool.Parse(ConfigPrimary);
 
-                    AttributeType id = AMLLearnerViewModel.Instance.getConfigParameter(config, "identifiedById");
-                    AMLLearnerViewModel.Instance.ConfigId = id.Value;
+                    AttributeType id = ViewModel.GetConfigParameter(config, "identifiedById");
+                    ViewModel.ConfigId = bool.Parse(id.Value);
                     //cbId.IsChecked = bool.Parse(ConfigId);
 
-                    AttributeType name = AMLLearnerViewModel.Instance.getConfigParameter(config, "identifiedByName");
-                    AMLLearnerViewModel.Instance.ConfigName = name.Value;
+                    AttributeType name = ViewModel.GetConfigParameter(config, "identifiedByName");
+                    ViewModel.ConfigName = bool.Parse(name.Value);
                     //cbName.IsChecked = bool.Parse(ConfigName);
 
-                    AttributeType negated = AMLLearnerViewModel.Instance.getConfigParameter(config, "negated");
-                    AMLLearnerViewModel.Instance.ConfigNegated = negated.Value;
+                    AttributeType negated = ViewModel.GetConfigParameter(config, "negated");
+                    ViewModel.ConfigNegated = bool.Parse(negated.Value);
                     //cbNegated.IsChecked = bool.Parse(ConfigNegated);
 
-                    AttributeType descendant = AMLLearnerViewModel.Instance.getConfigParameter(config, "descendant");
-                    AMLLearnerViewModel.Instance.ConfigDescendant = descendant.Value;
+                    AttributeType descendant = ViewModel.GetConfigParameter(config, "descendant");
+                    ViewModel.ConfigDescendant = bool.Parse(descendant.Value);
                     //cbDesendant.IsChecked = bool.Parse(ConfigDescendant);
 
-                    AttributeType min = AMLLearnerViewModel.Instance.getConfigParameter(config, "minCardinality");
-                    AMLLearnerViewModel.Instance.ConfigMinCardinality = int.Parse(min.Value);
+                    AttributeType min = ViewModel.GetConfigParameter(config, "minCardinality");
+                    ViewModel.ConfigMinCardinality = int.Parse(min.Value);
                     //slMin.Value = ConfigMinCardinality;
                     //textMin.Text = ConfigMinCardinality.ToString();
 
-                    AttributeType max = AMLLearnerViewModel.Instance.getConfigParameter(config, "maxCardinality");
-                    AMLLearnerViewModel.Instance.ConfigMaxCardinality = int.Parse(max.Value);
+                    AttributeType max = ViewModel.GetConfigParameter(config, "maxCardinality");
+                    ViewModel.ConfigMaxCardinality = int.Parse(max.Value);
                     //slMax.Value = ConfigMaxCardinality;
                     //textMax.Text = ConfigMaxCardinality.ToString();
                 }
@@ -431,12 +473,19 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
                     btnSetAcm.IsEnabled = false;
+
+                    cbPrimary.IsEnabled = false;
+                    cbId.IsEnabled = false;
+                    cbDesendant.IsEnabled = false;
+                    cbName.IsEnabled = false;
+                    cbNegated.IsEnabled = false;
+                    slMin.IsEnabled = false;
+                    slMax.IsEnabled = false;
+
                 }
 
             }
-        }
-       
-
+        }       
 
         public void ChangeSelectedObject(CAEXBasicObject selectedObject)
         {
@@ -464,8 +513,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
             btnNeg.IsEnabled = true;
             btnPos.IsEnabled = false;
             // add selected to positive 
-            AMLLearnerViewModel.Instance.AddPositive(this._selectedObj);
-            Clear();
+            ViewModel.AddPositive(this._selectedObj);
+            ResetUI();
         }
 
         private void BtnNeg_Click(object sender, RoutedEventArgs e)
@@ -473,93 +522,20 @@ namespace Aml.Editor.PlugIn.AMLLearner
             btnNeg.IsEnabled = false;
             btnPos.IsEnabled = true;
 
-            AMLLearnerViewModel.Instance.AddNegative(this._selectedObj);
-            Clear();
-        }
+            ViewModel.AddNegative(this._selectedObj);
+            ResetUI();
+        }                                     
 
-        private string _home;
 
-        public string Home
-        {
-            get { return _home; }
-            set
-            {
-                if (value != _home)
-                {
-                    _home = value;
-                    DirTmp = Home + "/tmp/";
-                    Console.WriteLine("setting home to: " + value);
-                    OnPropertyChanged("Home");
-                }
-            }
-        }
-
-        private string DirTmp { get; set; }
-
-        private string _acmId;
-
-        public string AcmId
-        {
-            get { return _acmId; }
-            set
-            {
-                if (value != _acmId)
-                {
-                    _acmId = value;
-                    Console.WriteLine("setting ACM to: " + value);
-                    OnPropertyChanged("AcmId");
-                }
-            }
-        }
-
-        private readonly String aml = "data_3.0_SRC.aml";
-        private AMLLearnerConfig Config { get; set; }
-
-        private void SetAMLLearnerConfig()
-        {
-            AMLLearnerExamplesConfig examples = new AMLLearnerExamplesConfig();
-
-            List<String> positives = new List<String>();
-            List<String> negatives = new List<String>();
-            foreach (CAEXObject obj in AMLLearnerViewModel.Instance.Positives)
-            {
-                if(obj is InternalElementType)
-                    positives.Add("ie_" + obj.Name + "_" + obj.ID);
-                else if(obj is ExternalInterfaceType)
-                    positives.Add("ei_" + obj.Name + "_" + obj.ID);
-            }
-            foreach (CAEXObject obj in AMLLearnerViewModel.Instance.Negatives)
-            {
-                if (obj is InternalElementType)
-                    negatives.Add("ie_" + obj.Name + "_" + obj.ID);
-                else if (obj is ExternalInterfaceType)
-                    negatives.Add("ei_" + obj.Name + "_" + obj.ID);
-            }
-            examples.Positives = positives.ToArray();
-            examples.Negatives = negatives.ToArray();
-
-            String objType = "";
-            if (AMLLearnerViewModel.Instance.ObjType.Equals(AMLLearnerViewModel.ObjectType.IE))
-                objType = "IE";
-            else if (AMLLearnerViewModel.Instance.ObjType.Equals(AMLLearnerViewModel.ObjectType.EI))
-                objType = "EI";
-            else
-                return;
-
-            Config = new AMLLearnerConfig(Home, aml, objType, examples);
-            Config.Algorithm.Acm = Acm;
-
-            AMLLearnerViewModel.Instance.saveACM(AcmFile);
-        }
 
         private void BtnStoreConfig_Click(object sender, RoutedEventArgs e)
         {
-            SetAMLLearnerConfig();
+            ViewModel.UpdateAMLLearnerConfig();
 
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Config|*.json";
             sfd.Title = "save the AMLLearner config file";
-            sfd.InitialDirectory = Path.GetFullPath(Home);
+            sfd.InitialDirectory = Path.GetFullPath(ViewModel.Home);
             sfd.RestoreDirectory = true;
             sfd.ShowDialog();
 
@@ -571,7 +547,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     serializer.NullValueHandling = NullValueHandling.Ignore;
                     serializer.Formatting = Formatting.Indented;
                     //serialize object directly into file stream
-                    serializer.Serialize(file, Config);
+                    serializer.Serialize(file, ViewModel.Config);
                 }
             }
         }
@@ -703,8 +679,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         btnLoadACM.IsEnabled = false;
                     });
 
+                    ViewModel.UpdateAMLLearnerConfig();
                     //String start = AMLLearnerProtocol.MakeStartRequest(Home + "/" + json, 5);
-                    String start = AMLLearnerProtocol.MakeStartRequest(Config, 5);
+                    String start = AMLLearnerProtocol.MakeStartRequest(ViewModel.Config, 5);
                     OutputQueue.Enqueue(start);
                     //if (!write(start)) {
                     //    Console.WriteLine("failed to send start signal!");
@@ -809,12 +786,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
-            if (!AMLLearnerViewModel.Instance.Positives.Any()) { 
+            if (!ViewModel.GetAllSelectedPositives().Any()) { 
                 System.Windows.MessageBox.Show("Select some positive examples first!");
                 return;
             }
 
-            if (!AMLLearnerViewModel.Instance.Negatives.Any())
+            if (!ViewModel.GetAllSelectedNegatives().Any())
             {
                 System.Windows.MessageBox.Show("Select some negative examples first!");
                 return;
@@ -833,7 +810,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
             IPEndPoint serverAddress = new IPEndPoint(IPAddress.Parse(address), port);
 
-            if (PingHost(address, port)) {
+            if (PingHost(address, port)) {                
+
                 ClientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 ClientSocket.Connect(serverAddress);
 
@@ -867,11 +845,11 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private void BtnRm_Click(object sender, RoutedEventArgs e)
         {
 
-            AMLLearnerViewModel.Instance.RemoveObj(this._selectedObj);
-            Clear();
+            ViewModel.RemoveObj(this._selectedObj);
+            ResetUI();
         }
 
-        private void Clear()
+        private void ResetUI()
         {
             this._selectedObj = null;
             this.HelloText.Text = "";
@@ -892,7 +870,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 // - if (ele) is unknown: add to negative list
                 foreach (InternalElementType descendant in ih.Descendants<InternalElementType>())
                 {
-                    if (!AMLLearnerViewModel.Instance.ContainsExample(descendant))
+                    if (!ViewModel.ContainsExample(descendant))
                     {
                         objs.Add(descendant);
                     }
@@ -900,13 +878,13 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
                 foreach (ExternalInterfaceType descendant in ih.Descendants<ExternalInterfaceType>())
                 {
-                    if (!AMLLearnerViewModel.Instance.ContainsExample(descendant))
+                    if (!ViewModel.ContainsExample(descendant))
                     {
                         objs.Add(descendant);
                     }
                 }
 
-                AMLLearnerViewModel.Instance.AddNegative(objs);
+                ViewModel.AddNegative(objs);
             }
         }
 
@@ -943,38 +921,38 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         negativeObjs.Add(Document.FindByID(id));
                     }
 
-                    AMLLearnerViewModel.Instance.AddDeducedExamples(positiveObjs, AMLLearnerViewModel.ExampleType.POSITIVE, "result_" + (++idx).ToString());
-                    AMLLearnerViewModel.Instance.AddDeducedExamples(negativeObjs, AMLLearnerViewModel.ExampleType.NEGATIVE, "result_" + (idx).ToString());
+                    //ViewModel.AddDeducedExamples(positiveObjs, ExampleType.POSITIVE, "result_" + (++idx).ToString());
+                    //ViewModel.AddDeducedExamples(negativeObjs, ExampleType.NEGATIVE, "result_" + (idx).ToString());
+
+                    ViewModel.AddDeducedExamples(positiveObjs, ExampleType.POSITIVE, "result_" + (++idx).ToString());
+                    ViewModel.AddDeducedExamples(negativeObjs, ExampleType.NEGATIVE, "result_" + (idx).ToString());
                 }
             }
         }
 
         private void BtnClear_Click(object sender, RoutedEventArgs e)
         {
-            AMLLearnerViewModel.Instance.ClearPositives();
-            AMLLearnerViewModel.Instance.ClearNegatives();
-        }
-
-        private readonly string AcmFile = "learned_acm.aml";
+            ViewModel.ClearPositives();
+            ViewModel.ClearNegatives();
+        }        
 
         // for now, we load ACM by writing the ACMs into the original aml file
         private void BtnLoadACM_Click(object sender, RoutedEventArgs e)
         {
-            //InstanceHierarchyType acmIh = Document.CAEXFile.InstanceHierarchy.Append("acms");
-            AMLLearnerViewModel.Instance.loadACM(DirTmp + AcmFile);
+            ViewModel.loadACM();
         }
 
         private void BtnHome_Click(object sender, RoutedEventArgs e)
         {
             using (var fbd = new FolderBrowserDialog())
             {
-                fbd.SelectedPath = Home;
+                fbd.SelectedPath = ViewModel.Home;
                 DialogResult result = fbd.ShowDialog();
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    Home = fbd.SelectedPath;
-                    textHome.Text = Home;
+                    ViewModel.Home = fbd.SelectedPath;
+                    //textHome.Text = ViewModel.Home;
                 }
             }
         }
@@ -1001,144 +979,41 @@ namespace Aml.Editor.PlugIn.AMLLearner
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "Config|*.json";
             ofd.Title = "load the AMLLearner config file";
-            ofd.InitialDirectory = Path.GetFullPath(Home);
+            ofd.InitialDirectory = Path.GetFullPath(ViewModel.Home);
             ofd.RestoreDirectory = true;
             
             if (ofd.ShowDialog() == DialogResult.OK)
             {
-                AMLLearnerViewModel.Instance.ClearPositives();
-                AMLLearnerViewModel.Instance.ClearNegatives();
+                ViewModel.ClearPositives();
+                ViewModel.ClearNegatives();
 
                 var fileStream = ofd.OpenFile();
                 using (StreamReader reader = new StreamReader(fileStream))
                 {
                     String configStr = reader.ReadToEnd();
-                    Config = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
+                    ViewModel.Config = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
 
-                    foreach (String positive in Config.Examples.Positives)
+                    foreach (String positive in ViewModel.Config.Examples.Positives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(positive));
-                        AMLLearnerViewModel.Instance.AddPositive(obj);
+                        ViewModel.AddPositive(obj);
                     }
 
-                    foreach (String negative in Config.Examples.Negatives)
+                    foreach (String negative in ViewModel.Config.Examples.Negatives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(negative));
-                        AMLLearnerViewModel.Instance.AddNegative(obj);
+                        ViewModel.AddNegative(obj);
                     }
                 }
             }
 
-        }
-
-        public AMLLearnerACMConfig Acm { get; set; }
+        }        
 
         private void BtnSetAcm_Click(object sender, RoutedEventArgs e)
         {
-            textAcm.Text = _selectedObj.ID;
-            Acm = new AMLLearnerACMConfig();
-            Acm.File = DirTmp + AcmFile;
-            Acm.Id = _selectedObj.ID;
-            SetAMLLearnerConfig();
+            ViewModel.UpdateAcm();
         }        
 
-        //private string _configPriamry;
-
-        //public string ConfigPrimary
-        //{
-        //    get { return _configPriamry; }
-        //    set
-        //    {
-        //        _configPriamry = value;
-        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "distinguished", value);
-        //        Console.WriteLine("primary: " + value);
-        //        OnPropertyChanged("ConfigPrimary");
-        //    }
-        //}
-
-        //private string _configId;
-
-        //public string ConfigId
-        //{
-        //    get { return _configId; }
-        //    set
-        //    {
-        //        _configId = value;
-        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedById", value);
-        //        Console.WriteLine("id: " + value);
-        //        OnPropertyChanged("ConfigId");
-        //    }
-        //}
-
-        //private string _configName;
-
-        //public string ConfigName
-        //{
-        //    get { return _configName; }
-        //    set
-        //    {
-        //        _configName = value;
-        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "identifiedByName", value);
-        //        Console.WriteLine("name: " + value);
-        //        OnPropertyChanged("ConfigName");
-        //    }
-        //}
-
-        //private string _configNegated;
-
-        //public string ConfigNegated
-        //{
-        //    get { return _configNegated; }
-        //    set
-        //    {
-        //        _configNegated = value;
-        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "negated", value);
-        //        Console.WriteLine("negated: " + value);
-        //        OnPropertyChanged("ConfigNegated");
-        //    }
-        //}
-
-        //private string _configDescendant;
-
-        //public string ConfigDescendant
-        //{
-        //    get { return _configDescendant; }
-        //    set
-        //    {
-        //        _configDescendant = value;
-        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "descendant", value);
-        //        Console.WriteLine("descendant: " + value);
-        //        OnPropertyChanged("ConfigDescendant");
-        //    }
-        //}
-
-        //private int _configMincardinalitiy;
-
-        //public int ConfigMinCardinality
-        //{
-        //    get { return _configMincardinalitiy; }
-        //    set
-        //    {
-        //        _configMincardinalitiy = value;
-        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "minCardinality", value.ToString());
-        //        Console.WriteLine("min: " + value);
-        //        OnPropertyChanged("ConfigMinCardinality");
-        //    }
-        //}
-
-        //private int _configMaxcardinalitiy;
-
-        //public int ConfigMaxCardinality
-        //{
-        //    get { return _configMaxcardinalitiy; }
-        //    set
-        //    {
-        //        _configMaxcardinalitiy = value;
-        //        AMLLearnerViewModel.Instance.adaptQueryConfig(_selectedObj, "maxCardinality", value.ToString());
-        //        Console.WriteLine("max: " + value);
-        //        OnPropertyChanged("ConfigMaxCardinality");
-        //    }
-        //}
 
         private void BtnClearAcm_Click(object sender, RoutedEventArgs e)
         {
@@ -1147,62 +1022,37 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void SlMax_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            AMLLearnerViewModel.Instance.ConfigMaxCardinality = (int)slMax.Value;
+            ViewModel.ConfigMaxCardinality = (int)slMax.Value;
         }
 
         private void SlMin_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            AMLLearnerViewModel.Instance.ConfigMinCardinality = (int)slMin.Value;
+            ViewModel.ConfigMinCardinality = (int)slMin.Value;
         }
 
-        //private void CbPrimary_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigPrimary = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
+        private void CbPrimary_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ConfigPrimary = false;
+        }
 
-        //private void CbPrimary_Unchecked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigPrimary = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
+        private void CbId_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ConfigId = false;
+        }
 
-        //private void CbId_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigId = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
+        private void CbName_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ConfigName = false;
+        }
 
-        //private void CbId_Unchecked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigId = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
+        private void CbNegated_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ConfigNegated = false;
+        }
 
-        //private void CbName_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigName = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
-
-        //private void CbName_Unchecked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigName = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
-
-        //private void CbNegated_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigNegated = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
-
-        //private void CbNegated_Unchecked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigNegated = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
-
-        //private void CbDesendant_Checked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigDescendant = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
-
-        //private void CbDesendant_Unchecked(object sender, RoutedEventArgs e)
-        //{
-        //    ConfigDescendant = (sender as System.Windows.Controls.CheckBox).IsChecked.ToString();
-        //}
+        private void CbDesendant_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ConfigDescendant = false;
+        }
     }
 }

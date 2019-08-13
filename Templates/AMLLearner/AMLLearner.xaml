@@ -37,7 +37,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button x:Name="btnHome" Grid.Column="0" Content="Home" Width="50" Click="BtnHome_Click"/>
-            <TextBox x:Name="textHome" Grid.Column="1" Text="{Binding Path=Home, FallbackValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" Margin="5,0,5,0" VerticalAlignment="Stretch"/>
+            <TextBox x:Name="textHome" Grid.Column="1" Text="{Binding Path=Home, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" Margin="5,0,5,0" VerticalAlignment="Stretch"/>
         </Grid>
 
         <Grid Grid.Row="1" Grid.Column="4" Grid.RowSpan="2">
@@ -52,8 +52,8 @@
             </StackPanel>
         </Grid>
 
-        <aml:AMLTreeView x:Name="AMLDocumentTreePos" BorderThickness="1" Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5" VerticalAlignment="Stretch" TreeViewModel="{Binding AMLDocumentTreeViewModelPos}"/>
-        <aml:AMLTreeView x:Name="AMLDocumentTreeNeg" BorderThickness="1" Grid.Row ="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,5" VerticalAlignment="Stretch" TreeViewModel="{Binding AMLDocumentTreeViewModelNeg}"/>
+        <aml:AMLTreeView x:Name="AMLDocumentTreePos" BorderThickness="1" Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelPos}"/>
+        <aml:AMLTreeView x:Name="AMLDocumentTreeNeg" BorderThickness="1" Grid.Row ="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,5" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelNeg}"/>
         
         <Grid Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
@@ -63,25 +63,39 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <aml:AMLTreeView x:Name="AMLDocumentTreeACM" Grid.Row ="0" Grid.Column="0" Margin="5,5" BorderThickness="1" VerticalAlignment="Stretch" TreeViewModel="{Binding AMLDocumentTreeViewModelACM}" />
+            <aml:AMLTreeView x:Name="AMLDocumentTreeACM" Grid.Row ="0" Grid.Column="0" Margin="5,5" BorderThickness="1" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelAcm}" />
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
-                <CheckBox x:Name="cbPrimary" Content="primary" IsChecked="{Binding Path=ConfigPrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=False}" Margin="3,0"/>
-                <CheckBox x:Name="cbId" Content="id" IsChecked="{Binding Path=ConfigId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=False}" Margin="3,0"/>
-                <CheckBox x:Name="cbName" Content="name" IsChecked="{Binding Path=ConfigName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=False}" Margin="3,0"/>
-                <CheckBox x:Name="cbNegated" Content="negated" IsChecked="{Binding Path=ConfigNegated, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=False}" Margin="3,0"/>
-                <CheckBox x:Name="cbDesendant" Content="descendant" IsChecked="{Binding Path=ConfigDescendant, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, FallbackValue=False}" Margin="3,0"/>
+                <CheckBox x:Name="cbPrimary" Content="primary"      
+                          Unchecked="CbPrimary_Unchecked"
+                          IsChecked="{Binding Path=ConfigPrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="False" Margin="3,0"/>
+                <CheckBox x:Name="cbId" Content="id" 
+                          Unchecked="CbId_Unchecked"
+                          IsChecked="{Binding Path=ConfigId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="False" Margin="3,0"/>
+                <CheckBox x:Name="cbName" Content="name" 
+                          Unchecked="CbName_Unchecked"
+                          IsChecked="{Binding Path=ConfigName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                          IsEnabled="False" Margin="3,0"/>
+                <CheckBox x:Name="cbNegated" Content="negated" 
+                          Unchecked="CbNegated_Unchecked"
+                          IsChecked="{Binding Path=ConfigNegated, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                          IsEnabled="False" Margin="3,0"/>
+                <CheckBox x:Name="cbDesendant" Content="descendant" 
+                          Unchecked="CbDesendant_Unchecked"
+                          IsChecked="{Binding Path=ConfigDescendant, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="False" Margin="3,0"/>
             </StackPanel>
             <StackPanel Grid.Row="2" Margin="0,3" VerticalAlignment="Center">
                 <DockPanel VerticalAlignment="Center">
                     <Label DockPanel.Dock="Left">minCardinality:</Label>
-                    <TextBox x:Name="textMin" Text="{Binding Path=ConfigMinCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40" />
-                    <Slider x:Name="slMin" Minimum="-1"  Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="SlMin_ValueChanged" 
+                    <TextBox x:Name="textMin" Text="{Binding Path=ConfigMinCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40" />
+                    <Slider x:Name="slMin" Minimum="-1"  Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMin_ValueChanged" 
                             Value="{Binding Path=ConfigMinCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
                 <DockPanel VerticalAlignment="Center">
                     <Label DockPanel.Dock="Left">maxCardinality:</Label>
-                    <TextBox x:Name="textMax" Text="{Binding Path=ConfigMaxCardinality, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" Width="40"/>
-                    <Slider x:Name="slMax" Minimum="-1" Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="SlMax_ValueChanged"
+                    <TextBox x:Name="textMax" Text="{Binding Path=ConfigMaxCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40"/>
+                    <Slider x:Name="slMax" Minimum="-1" Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMax_ValueChanged"
                             Value="{Binding Path=ConfigMaxCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
             </StackPanel>
@@ -89,7 +103,7 @@
             <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,3" HorizontalAlignment="Stretch">
                 <Button x:Name="btnSetAcm"  Content="set acm" Width="70" IsEnabled="False" Click="BtnSetAcm_Click"/>
                 <Button x:Name="btnClearAcm"  Content="clear acm" Width="70" Margin="3,0"  IsEnabled="False" Click="BtnClearAcm_Click"/>
-                <TextBox x:Name="textAcm" Text="{Binding Path=AcmId, FallbackValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>
+                <TextBox x:Name="textAcm" Text="{Binding Path=AcmId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
