@@ -1,4 +1,4 @@
-﻿using Aml.Editor.Plugin.Contracts;
+﻿
 using Aml.Editor.PlugIn.AMLLearner.json;
 using Aml.Engine.CAEX;
 using Aml.Engine.CAEX.Extensions;
@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
@@ -85,6 +83,12 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         public void loadACM()
         {
             TreeAcm = new AMLLearnerTree(CAEXDocument.LoadFromFile(Settings.DirTmp + AcmFile));
+            UpdateTreeViewModel(TreeType.ACM);
+        }
+
+        public void loadACM(string filename)
+        {
+            TreeAcm = new AMLLearnerTree(CAEXDocument.LoadFromFile(filename));
             UpdateTreeViewModel(TreeType.ACM);
         }
 
@@ -653,13 +657,32 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             }
         }
 
+
+        /// <summary>
+        /// Update the ACM tree if the current selected object is an ACM object
+        /// Use the UI setting to update the config parameters of the selected ACM object
+        /// Write the update to the ACM file written by the server in the tmp folder 
+        /// </summary>
         public void UpdateAcm()
         {
             if (IsAcm((CAEXObject)CurrentSelectedObject))
             {
                 Acm.Id = ((CAEXObject)CurrentSelectedObject).ID;
                 TreeAcm.Document.SaveToFile(Settings.DirTmp + AcmFile, true);
+                MessageBox.Show("successfully set the acm [" + ((CAEXObject) CurrentSelectedObject).Name + "] for learning!");
             }
+        }
+
+
+        /// <summary>
+        /// Save the current ACM tree to the given file
+        /// This acts as a backup of the ACM file to any position of the file system
+        /// The saved file is not used by the AMLLearner system if not configured explicitly
+        /// </summary>
+        /// <param name="filename"></param>
+        public void SaveAcm(String filename)
+        {
+            TreeAcm.Document.SaveToFile(filename, true);            
         }
     }
 }

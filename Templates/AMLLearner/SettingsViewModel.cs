@@ -64,11 +64,20 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             get { return _path; }
             set
-            {                
-                _path = value;
-                Console.WriteLine("setting aml learner path to: " + value);
-                CommandStartServer = value + "/server.bat";
-                RaisePropertyChanged("Path");
+            {                                
+                string serverFile = value + "/server.bat";
+                if (!System.IO.File.Exists(serverFile))
+                {
+                    System.Windows.MessageBox.Show("Can not find the server.bat program in the path!");
+                }
+
+                else
+                {
+                    _path = value;
+                    Console.WriteLine("setting aml learner path to: " + value);
+                    CommandStartServer = serverFile;
+                    RaisePropertyChanged("Path");
+                }                
             }
         }
 

@@ -24,7 +24,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -38,7 +37,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
     [ExportMetadata("DisplayName", "AMLLearner")]
     [ExportMetadata("Description", "AMLLearner Plugin")]
     [Export(typeof(IAMLEditorView))]
-    public partial class AMLLearnerGUI : System.Windows.Controls.UserControl, IAMLEditorView, ISupportsSelection //, INotifyPropertyChanged
+    public partial class AMLLearnerGUI : UserControl, IAMLEditorView, ISupportsSelection //, INotifyPropertyChanged
     {
         /// <summary>
         /// <see cref="AboutCommand"/>
@@ -532,7 +531,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             ViewModel.UpdateAMLLearnerConfig();
 
-            SaveFileDialog sfd = new SaveFileDialog();
+            System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
             sfd.Filter = "Config|*.json";
             sfd.Title = "save the AMLLearner config file";
             sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
@@ -787,13 +786,13 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
             if (!ViewModel.GetAllSelectedPositives().Any()) { 
-                System.Windows.MessageBox.Show("Select some positive examples first!");
+                MessageBox.Show("Select some positive examples first!");
                 return;
             }
 
             if (!ViewModel.GetAllSelectedNegatives().Any())
             {
-                System.Windows.MessageBox.Show("Select some negative examples first!");
+                MessageBox.Show("Select some negative examples first!");
                 return;
             }
 
@@ -828,7 +827,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 Learner.Start();                
             }          
             else
-                System.Windows.MessageBox.Show("Cannot find running AMLLearner Server. Starting the server first!");
+                MessageBox.Show("Cannot find running AMLLearner Server. Starting the server first!");
 
         }
 
@@ -940,21 +939,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private void BtnLoadACM_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.loadACM();
-        }
-
-        private void BtnHome_Click(object sender, RoutedEventArgs e)
-        {
-            using (var fbd = new FolderBrowserDialog())
-            {
-                fbd.SelectedPath = ViewModel.Settings.Home;
-                DialogResult result = fbd.ShowDialog();
-
-                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-                {
-                    ViewModel.Settings.Home = fbd.SelectedPath;
-                    //textHome.Text = ViewModel.Home;
-                }
-            }
+            btnSaveAcm.IsEnabled = true;
+            btnClearAcm.IsEnabled = true;
         }
 
         private void BtnStartServer_Click(object sender, RoutedEventArgs e)
@@ -976,13 +962,13 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnLoadConfig_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
+            System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog();
             ofd.Filter = "Config|*.json";
             ofd.Title = "load the AMLLearner config file";
             ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
             ofd.RestoreDirectory = true;
             
-            if (ofd.ShowDialog() == DialogResult.OK)
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 ViewModel.ClearPositives();
                 ViewModel.ClearNegatives();
@@ -1006,18 +992,19 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     }
                 }
             }
-
         }        
 
         private void BtnSetAcm_Click(object sender, RoutedEventArgs e)
         {
-            ViewModel.UpdateAcm();
+            ViewModel.UpdateAcm();            
         }        
 
 
         private void BtnClearAcm_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.ClearAcm();
+            btnSaveAcm.IsEnabled = false;
+            btnClearAcm.IsEnabled = false;
         }
 
         private void SlMax_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -1059,6 +1046,37 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             Window settings = new Settings();
             settings.Show();
+        }
+
+        private void BtnSaveAcm_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
+            sfd.Filter = "ACM file|*.aml";
+            sfd.Title = "save the ACM file";
+            sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            sfd.RestoreDirectory = true;
+            sfd.ShowDialog();
+
+            if (sfd.FileName != "")
+            {
+                ViewModel.SaveAcm(sfd.FileName);                
+            }
+        }
+
+        private void BtnLoadACMFile_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog();
+            ofd.Filter = "ACM file|*.aml";
+            ofd.Title = "load ACM file";
+            ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            ofd.RestoreDirectory = true;
+
+            if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                ViewModel.loadACM(ofd.FileName);
+                btnSaveAcm.IsEnabled = true;
+                btnSetAcm.IsEnabled = true;
+            }
         }
     }
 }

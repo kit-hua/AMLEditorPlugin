@@ -165,10 +165,12 @@
                 </DockPanel>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,3" HorizontalAlignment="Stretch">
-                <Button x:Name="btnSetAcm"  Content="set acm" Width="70" IsEnabled="False" Click="BtnSetAcm_Click"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,3" HorizontalAlignment="Center">
+                <Button x:Name="btnSetAcm"  Content="set acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnSetAcm_Click"/>
                 <Button x:Name="btnClearAcm"  Content="clear acm" Width="70" Margin="3,0"  IsEnabled="False" Click="BtnClearAcm_Click"/>
-                <TextBox x:Name="textAcm" Text="{Binding Path=AcmId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>
+                <Button x:Name="btnSaveAcm"  Content="save acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnSaveAcm_Click"/>
+                <Button x:Name="btnLoadACMFile" Content="load ACM file" Margin="3,0" Width="80" Click="BtnLoadACMFile_Click"  IsEnabled="True"/>
+                <!--<TextBox x:Name="textAcm" Text="{Binding Path=AcmId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>-->
             </StackPanel>
         </Grid>
 
