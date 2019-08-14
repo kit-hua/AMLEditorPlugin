@@ -8,13 +8,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" 
              d:DesignWidth="800">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Simple Styles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -26,21 +19,62 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.ColumnSpan="2" Grid.Row="0" x:Name="HelloText" FontSize="20" FontWeight="Bold" Foreground="Black" Text="Selecting Object ABC" HorizontalAlignment="Center"/>
-        <Grid Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="3" >
+        <!-- The menu bar -->
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="5">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem Header="_New" />
+                    <MenuItem Header="_Open" />
+                    <MenuItem Header="_Save" />
+                    <MenuItem x:Name="menuSetting" Header="S_ettings" Click="MenuSetting_Click"/>
+                    <Separator />
+                    <MenuItem Header="_Exit" />
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+
+        <!-- The meta info area -->
+        <TextBlock Grid.ColumnSpan="5" Grid.Row="1" x:Name="HelloText" FontSize="20" FontWeight="Bold" Foreground="Black" Text="Selecting Object ABC" HorizontalAlignment="Center"/>
+        <!--<Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3" >
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="btnHome" Grid.Column="0" Content="Home" Width="50" Click="BtnHome_Click"/>
-            <TextBox x:Name="textHome" Grid.Column="1" Text="{Binding Path=Home, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" Margin="5,0,5,0" VerticalAlignment="Stretch"/>
+            <Button x:Name="btnSettings" Grid.Column="0" Content="Settings" Width="50" Click="BtnSettings_Click"/>
+            <Button x:Name="btnHome" Grid.Column="1" Content="Home" Width="50" Click="BtnHome_Click"/>
+            <TextBox x:Name="textHome" Grid.Column="2" BorderBrush="Black" BorderThickness="1" SnapsToDevicePixels="True" IsReadOnly="True" 
+                     Text="{Binding Path=Home, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" 
+                     Margin="5,0,5,0" TextAlignment="Justify" VerticalAlignment="Stretch"/>
+        </Grid>-->
+
+        <!-- The positive examples area -->
+        <Grid Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <aml:AMLTreeView x:Name="AMLDocumentTreePos" Grid.Row="0" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelPos}"/>
+            <!--<Label Grid.Row="1" Content="positive examples" HorizontalAlignment="Center"/>-->
         </Grid>
 
-        <Grid Grid.Row="1" Grid.Column="4" Grid.RowSpan="2">
+        <!-- The negative examples area -->
+        <Grid Grid.Row ="3" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,5" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <aml:AMLTreeView x:Name="AMLDocumentTreeNeg" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" Grid.Row ="0" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelNeg}"/>
+            <!--<Label Grid.Row="1" Content="negative examples" HorizontalAlignment="Center"/>-->
+        </Grid>
+
+        <!-- The example manipulation area -->
+        <Grid Grid.Row="2" Grid.Column="4" Grid.RowSpan="2">
             <StackPanel Grid.Row="0" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
                 <Button x:Name="btnPos"  Content="add to positive" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnPos_Click"/>
                 <Button x:Name="btnNeg" Content="add to negative" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnNeg_Click"/>
@@ -52,10 +86,36 @@
             </StackPanel>
         </Grid>
 
-        <aml:AMLTreeView x:Name="AMLDocumentTreePos" BorderThickness="1" Grid.Row ="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelPos}"/>
-        <aml:AMLTreeView x:Name="AMLDocumentTreeNeg" BorderThickness="1" Grid.Row ="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,5" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelNeg}"/>
-        
-        <Grid Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2">
+        <!-- The execution area -->
+        <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- The logger area -->
+            <ScrollViewer BorderBrush="DarkGray" BorderThickness="1" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,0,5">
+                <TextBox x:Name="Logger" IsReadOnly="True" TextWrapping="Wrap"/>
+            </ScrollViewer>
+
+            <!-- The execution control area -->
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
+                <Button x:Name="btnStartServer" Content="start server" Margin="3,0" Width="80" Click="BtnStartServer_Click"  IsEnabled="True"/>
+                <Button x:Name="btnRun" Content="run learning" Margin="3,0" Width="80" Click="BtnRun_Click" IsEnabled="True"/>
+                <Button x:Name="btnStop" Content="stop learning" Margin="3,0" Width="80" Click="BtnStop_Click" IsEnabled="False"/>
+                <Button x:Name="btnLoadResults" Content="load results" Margin="3,0" Width="80" Click="BtnLoadResults_Click" IsEnabled="False"/>
+                <Button x:Name="btnLoadACM" Content="load ACMs" Margin="3,0" Width="80" Click="BtnLoadACM_Click"  IsEnabled="False"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- The ACM area -->
+        <Grid Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
@@ -63,7 +123,10 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <aml:AMLTreeView x:Name="AMLDocumentTreeACM" Grid.Row ="0" Grid.Column="0" Margin="5,5" BorderThickness="1" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelAcm}" />
+            <!-- The acm tree area -->
+            <aml:AMLTreeView x:Name="AMLDocumentTreeACM" Grid.Row ="0" Grid.Column="0" Margin="5,5" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelAcm}" />
+
+            <!-- The acm control area -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
                 <CheckBox x:Name="cbPrimary" Content="primary"      
                           Unchecked="CbPrimary_Unchecked"
@@ -85,6 +148,8 @@
                           IsChecked="{Binding Path=ConfigDescendant, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           IsEnabled="False" Margin="3,0"/>
             </StackPanel>
+
+            <!-- The acm control area -->
             <StackPanel Grid.Row="2" Margin="0,3" VerticalAlignment="Center">
                 <DockPanel VerticalAlignment="Center">
                     <Label DockPanel.Dock="Left">minCardinality:</Label>
@@ -106,39 +171,6 @@
                 <TextBox x:Name="textAcm" Text="{Binding Path=AcmId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <ScrollViewer BorderThickness="1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,-2,5">
-                <TextBox x:Name="Logger" TextWrapping="Wrap" Text="Runtime information from AMLLearner Server"/>
-            </ScrollViewer>
-            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
-                <Button x:Name="btnStartServer" Content="start server" Margin="3,0" Width="80" Click="BtnStartServer_Click"  IsEnabled="True"/>
-                <Button x:Name="btnRun" Content="run learning" Margin="3,0" Width="80" Click="BtnRun_Click" IsEnabled="True"/>
-                <Button x:Name="btnStop" Content="stop learning" Margin="3,0" Width="80" Click="BtnStop_Click" IsEnabled="False"/>
-                <Button x:Name="btnLoadResults" Content="load results" Margin="3,0" Width="80" Click="BtnLoadResults_Click" IsEnabled="False"/>
-                <Button x:Name="btnLoadACM" Content="load ACMs" Margin="3,0" Width="80" Click="BtnLoadACM_Click"  IsEnabled="False"/>
-            </StackPanel>
-        </Grid>
-        <!--<StackPanel Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="3" Orientation="Vertical">
-            <Button x:Name="btnRun" Content="run learning" Margin="0,5" Width="90" Click="BtnRun_Click" IsEnabled="True"/>
-            <Button x:Name="btnStop" Content="stop learning" Margin="0,5" Width="90" Click="BtnStop_Click" IsEnabled="False"/>
-            <Button x:Name="btnLoad" Content="load results" Margin="0,5" Width="90" Click="BtnLoad_Click" IsEnabled="False"/>
-            <Button x:Name="btnLoadACM" Content="load ACMs" Margin="0,5" Width="90" Click="BtnLoadACM_Click"  IsEnabled="False"/>
-            <ScrollViewer HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,15,-2,5">
-                <TextBox x:Name="Logger" TextWrapping="Wrap" Text="Runtime information from AMLLearner Server"/>
-            </ScrollViewer>
-        </StackPanel>-->
-        
 
     </Grid>
 </UserControl>

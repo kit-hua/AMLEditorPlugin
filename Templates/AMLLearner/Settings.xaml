@@ -1,0 +1,91 @@
+﻿<Window x:Class="Aml.Editor.PlugIn.AMLLearner.Settings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Aml.Editor.PlugIn.AMLLearner"
+             mc:Ignorable="d" 
+             Title="Settings of AMLLearner"        
+             Height="260" Width="500">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- home -->
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Choose home directory: where you put your resource aml files"/>
+            <Button x:Name="btnHome" Grid.Row="1" Grid.Column="0" Content="Home" Width="50" Click="BtnHome_Click"/>
+            <TextBox x:Name="textHome" Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" SnapsToDevicePixels="True" IsReadOnly="True" 
+                     Text="{Binding Path=Home, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" 
+                     TextAlignment="Justify" VerticalAlignment="Stretch"/>
+        </Grid>
+
+        <GridSplitter Grid.Row="1"/>
+
+        <!-- server -->
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Content="Server configurations"/>
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="btnPath" Grid.Column="0" Content="Path" Width="50" Click="BtnPath_Click"/>
+                    <TextBox x:Name="textPath" Grid.Column="1" BorderBrush="Black" BorderThickness="1" SnapsToDevicePixels="True" IsReadOnly="True" 
+                             Text="{Binding Path=Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/target/bin/server.bat}"
+                             TextAlignment="Justify" VerticalAlignment="Stretch"/>
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="port" HorizontalAlignment="Center" Margin="0,5"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="textPort" SnapsToDevicePixels="True" Width="50" Margin="0,5"
+                             Text="{Binding Path=Port, Mode=OneWay, TargetNullValue=4343}"
+                             TextAlignment="Justify" HorizontalAlignment="Stretch"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="number results" HorizontalAlignment="Center" />
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="textNumResults" SnapsToDevicePixels="True" Width="50" 
+                             Text="{Binding Path=NumResults, Mode=OneWay, TargetNullValue=5}"
+                             TextAlignment="Justify" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <!-- save -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button x:Name="btnOk" Content="ok" Width="50"  Click="BtnOk_Click" />
+            <Button x:Name="btnCancel" Content="cancel" Width="50" Margin="20,0,0,0"  Click="BtnCancel_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

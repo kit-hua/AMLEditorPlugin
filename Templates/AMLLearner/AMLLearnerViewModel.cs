@@ -26,7 +26,9 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         {
             get;
             set;
-        }        
+        }
+
+        public SettingsViewModel Settings = SettingsViewModel.Instance;
 
         private AMLTreeViewModel _aMLDocumentTreeViewModelPos;
         private AMLTreeViewModel _aMLDocumentTreeViewModelNeg;
@@ -67,17 +69,22 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             TreeNeg = new AMLLearnerTree();
             TreeNeg.AddInstanceHiearchy("selectedNegatives");
 
+            TreeAcm = new AMLLearnerTree();
+            TreeAcm.AddInstanceHiearchy("acms");
+
             UpdateTreeViewModel(TreeType.POSITIVE);
             UpdateTreeViewModel(TreeType.NEGATIVE);
+            UpdateTreeViewModel(TreeType.ACM);
 
-            Home = "D:/repositories/aml/aml_framework/src/test/resources/demo";
+            //Home = "D:/repositories/aml/aml_framework/src/test/resources/demo";            
+
             Acm = new AMLLearnerACMConfig();
-            Acm.File = DirTmp + AcmFile;
+            Acm.File = Settings.DirTmp + AcmFile;
         }
 
         public void loadACM()
         {
-            TreeAcm = new AMLLearnerTree(CAEXDocument.LoadFromFile(DirTmp + AcmFile));
+            TreeAcm = new AMLLearnerTree(CAEXDocument.LoadFromFile(Settings.DirTmp + AcmFile));
             UpdateTreeViewModel(TreeType.ACM);
         }
 
@@ -174,7 +181,16 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 if (node != null)
                 {
                     CurrentSelectedObject = node.CAEXObject as CAEXBasicObject;
-                    Plugin.ChangeSelectedObjectWithPrefix(CurrentSelectedObject, "plugin");
+
+                    string prefix = "plugin:";
+                    if (TreePos.ContainsObject(CurrentSelectedObject))
+                        prefix += "positives::";
+                    else if (TreeNeg.ContainsObject(CurrentSelectedObject))
+                        prefix += "negatives::";
+                    else if (TreeAcm.ContainsObject(CurrentSelectedObject))
+                        prefix += "acms::";
+
+                    Plugin.ChangeSelectedObjectWithPrefix(CurrentSelectedObject, prefix);
                 }
             }
         }
@@ -186,12 +202,12 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
         public Boolean ContainsPositiveExample(CAEXObject obj)
         {
-            return TreePos.Contains(obj);
+            return TreePos.ContainsDataObject(obj);
         }
 
         public Boolean ContainsNegativeExample(CAEXObject obj)
         {
-            return TreeNeg.Contains(obj);
+            return TreeNeg.ContainsDataObject(obj);
         }
 
         public void AddPositive(CAEXObject obj)
@@ -286,7 +302,15 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             TreeNeg.Clear();
             
             UpdateTreeViewModel(TreeType.NEGATIVE);
-        }      
+        }
+
+        public void ClearAcm()
+        {
+            //Negatives.Clear();
+            TreeAcm.Clear();
+
+            UpdateTreeViewModel(TreeType.ACM);
+        }
 
         //public bool ContainsAcm(CAEXObject obj)
         //{
@@ -308,7 +332,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
         public bool ContainsExample(CAEXObject obj)
         {
-            return TreePos.Contains(obj) || TreeNeg.Contains(obj);
+            return TreePos.ContainsDataObject(obj) || TreeNeg.ContainsDataObject(obj);
         }
 
         private void UpdateTreeViewModel(TreeType type)
@@ -554,23 +578,23 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             }
         }
 
-        private string _home;
-        public string Home
-        {
-            get { return _home; }
-            set
-            {
-                if (value != _home)
-                {
-                    _home = value;
-                    DirTmp = Home + "/tmp/";
-                    Console.WriteLine("setting home to: " + value);
-                    RaisePropertyChanged("Home");
-                }
-            }
-        }        
+        //private string _home;
+        //public string Home
+        //{
+        //    get { return _home; }
+        //    set
+        //    {
+        //        if (value != _home)
+        //        {
+        //            _home = value;
+        //            DirTmp = Home + "/tmp/";
+        //            Console.WriteLine("setting home to: " + value);
+        //            RaisePropertyChanged("Home");
+        //        }
+        //    }
+        //}        
 
-        public string DirTmp { get; set; }
+        //public string DirTmp { get; set; }
 
         private string _acmId;
 
@@ -620,7 +644,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             else
                 return;
 
-            Config = new AMLLearnerConfig(Home, AmlFile, objType, examples);
+            Config = new AMLLearnerConfig(Settings.Home, AmlFile, objType, examples);
 
             if (Acm.Id != null)
             {
@@ -634,7 +658,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             if (IsAcm((CAEXObject)CurrentSelectedObject))
             {
                 Acm.Id = ((CAEXObject)CurrentSelectedObject).ID;
-                TreeAcm.Document.SaveToFile(DirTmp + AcmFile, true);
+                TreeAcm.Document.SaveToFile(Settings.DirTmp + AcmFile, true);
             }
         }
     }

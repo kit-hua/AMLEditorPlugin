@@ -348,7 +348,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
                 if (selectedObject is CAEXObject)
                     this._selectedObj = (CAEXObject)selectedObject;
-                this.HelloText.Text = prefix + ": " + s;
+                this.HelloText.Text = prefix + s;
 
                 if (selectedObject is InstanceHierarchyType)
                 {
@@ -489,7 +489,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         public void ChangeSelectedObject(CAEXBasicObject selectedObject)
         {
-            ChangeSelectedObjectWithPrefix(selectedObject, "editor");
+            ChangeSelectedObjectWithPrefix(selectedObject, "editor::");
         }
 
         public void PublishAutomationMLFileAndObject(string amlFilePath, CAEXBasicObject selectedObject)
@@ -535,7 +535,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
             SaveFileDialog sfd = new SaveFileDialog();
             sfd.Filter = "Config|*.json";
             sfd.Title = "save the AMLLearner config file";
-            sfd.InitialDirectory = Path.GetFullPath(ViewModel.Home);
+            sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
             sfd.RestoreDirectory = true;
             sfd.ShowDialog();
 
@@ -757,9 +757,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void StartServer()
         {
-            String command = "mvn exec:java -Dexec.mainClass=\"server.AMLLearnerServer\" -f D:\\repositories\\aml\\aml_framework";
+            //String command = "mvn exec:java -Dexec.mainClass=\"server.AMLLearnerServer\" -f D:\\repositories\\aml\\aml_framework";
 
-            ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd", "/c " + command);
+            ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd", "/c " + ViewModel.Settings.CommandStartServer);
             processStartInfo.FileName = "cmd.exe";            
             //processStartInfo.RedirectStandardInput = true;
             //processStartInfo.RedirectStandardOutput = true;
@@ -946,12 +946,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             using (var fbd = new FolderBrowserDialog())
             {
-                fbd.SelectedPath = ViewModel.Home;
+                fbd.SelectedPath = ViewModel.Settings.Home;
                 DialogResult result = fbd.ShowDialog();
 
                 if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    ViewModel.Home = fbd.SelectedPath;
+                    ViewModel.Settings.Home = fbd.SelectedPath;
                     //textHome.Text = ViewModel.Home;
                 }
             }
@@ -979,7 +979,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "Config|*.json";
             ofd.Title = "load the AMLLearner config file";
-            ofd.InitialDirectory = Path.GetFullPath(ViewModel.Home);
+            ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
             ofd.RestoreDirectory = true;
             
             if (ofd.ShowDialog() == DialogResult.OK)
@@ -1017,7 +1017,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnClearAcm_Click(object sender, RoutedEventArgs e)
         {
-            //TODO
+            ViewModel.ClearAcm();
         }
 
         private void SlMax_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -1053,6 +1053,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private void CbDesendant_Unchecked(object sender, RoutedEventArgs e)
         {
             ViewModel.ConfigDescendant = false;
+        }
+
+        private void MenuSetting_Click(object sender, RoutedEventArgs e)
+        {
+            Window settings = new Settings();
+            settings.Show();
         }
     }
 }
