@@ -364,6 +364,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     cbNegated.IsEnabled = false;
                     slMin.IsEnabled = false;
                     slMax.IsEnabled = false;
+                    textMin.IsEnabled = false;
+                    textMax.IsEnabled = false;
                 }
 
                 else if (isPlaceHolder(selectedObject))
@@ -381,6 +383,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     cbNegated.IsEnabled = false;
                     slMin.IsEnabled = false;
                     slMax.IsEnabled = false;
+                    textMin.IsEnabled = false;
+                    textMax.IsEnabled = false;
                 }
 
                 else if (ViewModel.ContainsPositiveExample(this._selectedObj))
@@ -398,6 +402,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     cbNegated.IsEnabled = false;
                     slMin.IsEnabled = false;
                     slMax.IsEnabled = false;
+                    textMin.IsEnabled = false;
+                    textMax.IsEnabled = false;
                 }
                 else if (ViewModel.ContainsNegativeExample(this._selectedObj))
                 {
@@ -414,6 +420,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     cbNegated.IsEnabled = false;
                     slMin.IsEnabled = false;
                     slMax.IsEnabled = false;
+                    textMin.IsEnabled = false;
+                    textMax.IsEnabled = false;
                 }
                 else if (ViewModel.IsAcm(this._selectedObj))
                 {
@@ -430,6 +438,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     cbNegated.IsEnabled = true;
                     slMin.IsEnabled = true;
                     slMax.IsEnabled = true;
+                    textMin.IsEnabled = true;
+                    textMax.IsEnabled = true;
 
                     ViewModel.AcmId = ((CAEXObject)_selectedObj).ID;
 
@@ -480,7 +490,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     cbNegated.IsEnabled = false;
                     slMin.IsEnabled = false;
                     slMax.IsEnabled = false;
-
+                    textMin.IsEnabled = false;
+                    textMax.IsEnabled = false;
                 }
 
             }
@@ -996,6 +1007,11 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnSetAcm_Click(object sender, RoutedEventArgs e)
         {
+            if (!ViewModel.GetAllSelectedPositives().Any() || !ViewModel.GetAllSelectedNegatives().Any())
+            {
+                MessageBox.Show("Select a configuration first: either load a config or select some examples!");
+                return;
+            }
             ViewModel.UpdateAcm();            
         }        
 

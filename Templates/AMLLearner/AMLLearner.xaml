@@ -153,13 +153,13 @@
             <StackPanel Grid.Row="2" Margin="0,3" VerticalAlignment="Center">
                 <DockPanel VerticalAlignment="Center">
                     <Label DockPanel.Dock="Left">minCardinality:</Label>
-                    <TextBox x:Name="textMin" Text="{Binding Path=ConfigMinCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40" />
+                    <TextBox x:Name="textMin" Text="{Binding ElementName=slMin, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40" />
                     <Slider x:Name="slMin" Minimum="-1"  Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMin_ValueChanged" 
                             Value="{Binding Path=ConfigMinCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
                 <DockPanel VerticalAlignment="Center">
                     <Label DockPanel.Dock="Left">maxCardinality:</Label>
-                    <TextBox x:Name="textMax" Text="{Binding Path=ConfigMaxCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40"/>
+                    <TextBox x:Name="textMax" Text="{Binding ElementName=slMax, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40"/>
                     <Slider x:Name="slMax" Minimum="-1" Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMax_ValueChanged"
                             Value="{Binding Path=ConfigMaxCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DockPanel>
