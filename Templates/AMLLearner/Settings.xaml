@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:Aml.Editor.PlugIn.AMLLearner"
              mc:Ignorable="d" 
              Title="Settings of AMLLearner"        
-             Height="350" Width="500">
+             Height="350" Width="500"
+             d:DesignHeight="350" d:DesignWidth="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

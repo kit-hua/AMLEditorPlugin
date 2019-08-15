@@ -64,8 +64,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
             set
             {                
                 _home = value;
-                LearnerConfig.Home = Home;
-                DirTmp = Home + "/tmp/";
+                LearnerConfig.Home = _home;
+                DirTmp = _home + "/tmp/";
                 Console.WriteLine("setting home to: " + value);
                 RaisePropertyChanged("Home");
             }
@@ -76,18 +76,17 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             get { return _path; }
             set
-            {                                
-                string serverFile = value + "/server.bat";
-                if (!System.IO.File.Exists(serverFile))
-                {
-                    System.Windows.MessageBox.Show("Can not find the server.bat program in the path!");
-                }
+            {
+                CommandStartServer = value + "/server.bat";
+                //if (!System.IO.File.Exists(serverFile))
+                //{
+                //    System.Windows.MessageBox.Show("Can not find the server.bat program in the path!");
+                //}
 
-                else
+                if (System.IO.File.Exists(CommandStartServer))
                 {
                     _path = value;
                     Console.WriteLine("setting aml learner path to: " + value);
-                    CommandStartServer = serverFile;
                     RaisePropertyChanged("Path");
                 }                
             }

@@ -25,7 +25,7 @@
         </Grid.RowDefinitions>
 
         <!-- The menu bar -->
-        <DockPanel Grid.Row="0" Grid.ColumnSpan="5">
+        <!--<DockPanel Grid.Row="0" Grid.ColumnSpan="5">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
                     <MenuItem Header="_New" />
@@ -36,7 +36,7 @@
                     <MenuItem Header="_Exit" />
                 </MenuItem>
             </Menu>
-        </DockPanel>
+        </DockPanel>-->
 
         <!-- The meta info area -->
         <TextBlock Grid.ColumnSpan="5" Grid.Row="1" x:Name="HelloText" FontSize="20" FontWeight="Bold" Foreground="Black" Text="Selecting Object ABC" HorizontalAlignment="Center"/>
@@ -83,6 +83,7 @@
                 <Button x:Name="btnClear" Content="clear all" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClear_Click"/>
                 <Button x:Name="btnStoreConfig" Content="store config" Margin="0,3" Width="90" IsEnabled="True" Click="BtnStoreConfig_Click"/>
                 <Button x:Name="btnLoadConfig" Content="load config" Margin="0,3" Width="90" Click="BtnLoadConfig_Click"/>
+                <Button x:Name="btnSettings" Content="settings" Margin="0,3" Width="90" Click="BtnSettings_Click"/>
             </StackPanel>
         </Grid>
 

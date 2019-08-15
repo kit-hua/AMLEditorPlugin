@@ -324,7 +324,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
             ViewModel.AmlFile = System.IO.Path.GetFileName(amlFilePath);
-            Document = Open(amlFilePath);
+            Document = CAEXDocument.LoadFromFile(System.IO.Path.GetFullPath(amlFilePath));
         }
 
         public CAEXDocument Document { get; private set; }
@@ -773,7 +773,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
             String info = "echo starting AMLLearner server, please wait...";
             ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd", "/c " + ViewModel.Settings.CommandStartServer);
-            processStartInfo.FileName = "cmd.exe";            
+            processStartInfo.FileName = "cmd.exe";
+            processStartInfo.Verb = "runas";
             //processStartInfo.RedirectStandardInput = true;
             //processStartInfo.RedirectStandardOutput = true;
             //processStartInfo.CreateNoWindow = true;
@@ -958,10 +959,17 @@ namespace Aml.Editor.PlugIn.AMLLearner
         }
 
         private void BtnStartServer_Click(object sender, RoutedEventArgs e)
-        {            
-            ThreadStart serverStart = new ThreadStart(StartServer);
-            Thread server = new Thread(serverStart);
-            server.Start();
+        {
+            if (!System.IO.File.Exists(ViewModel.Settings.CommandStartServer))
+            {
+                MessageBox.Show("Cannot find AMLLearner server.bat in the path: " + System.IO.Path.GetFullPath(ViewModel.Settings.CommandStartServer) + "!");
+            }
+            else
+            {
+                ThreadStart serverStart = new ThreadStart(StartServer);
+                Thread server = new Thread(serverStart);
+                server.Start();
+            }            
         }
 
         private String parseObjectID(String objComplexID)
@@ -1061,11 +1069,11 @@ namespace Aml.Editor.PlugIn.AMLLearner
             ViewModel.ConfigDescendant = false;
         }
 
-        private void MenuSetting_Click(object sender, RoutedEventArgs e)
-        {
-            Window settings = new Settings();
-            settings.Show();
-        }
+        //private void MenuSetting_Click(object sender, RoutedEventArgs e)
+        //{
+        //    Window settings = new Settings();
+        //    settings.Show();
+        //}
 
         private void BtnSaveAcm_Click(object sender, RoutedEventArgs e)
         {
@@ -1096,6 +1104,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 btnSaveAcm.IsEnabled = true;
                 btnSetAcm.IsEnabled = true;
             }
+        }
+
+        private void BtnSettings_Click(object sender, RoutedEventArgs e)
+        {
+            Window settings = new Settings();
+            settings.Show();
         }
     }
 }
