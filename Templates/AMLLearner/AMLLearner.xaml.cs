@@ -323,6 +323,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         public void ChangeAMLFilePath(string amlFilePath)
         {
             this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
+            ViewModel.AmlFile = System.IO.Path.GetFileName(amlFilePath);
             Document = Open(amlFilePath);
         }
 
@@ -506,7 +507,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             if (!string.IsNullOrEmpty(amlFilePath))
             {
-                this.HelloText.Text = "Hello " + System.IO.Path.GetFileName(amlFilePath);
+                this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
+                ViewModel.AmlFile = System.IO.Path.GetFileName(amlFilePath);
                 Document = Open(amlFilePath);
             }
             else
@@ -557,7 +559,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     serializer.NullValueHandling = NullValueHandling.Ignore;
                     serializer.Formatting = Formatting.Indented;
                     //serialize object directly into file stream
-                    serializer.Serialize(file, ViewModel.Config);
+                    serializer.Serialize(file, ViewModel.Settings.LearnerConfig);
                 }
             }
         }
@@ -691,7 +693,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
                     ViewModel.UpdateAMLLearnerConfig();
                     //String start = AMLLearnerProtocol.MakeStartRequest(Home + "/" + json, 5);
-                    String start = AMLLearnerProtocol.MakeStartRequest(ViewModel.Config, 5);
+                    String start = AMLLearnerProtocol.MakeStartRequest(ViewModel.Settings.LearnerConfig, 5);
                     OutputQueue.Enqueue(start);
                     //if (!write(start)) {
                     //    Console.WriteLine("failed to send start signal!");
@@ -769,6 +771,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             //String command = "mvn exec:java -Dexec.mainClass=\"server.AMLLearnerServer\" -f D:\\repositories\\aml\\aml_framework";
 
+            String info = "echo starting AMLLearner server, please wait...";
             ProcessStartInfo processStartInfo = new ProcessStartInfo("cmd", "/c " + ViewModel.Settings.CommandStartServer);
             processStartInfo.FileName = "cmd.exe";            
             //processStartInfo.RedirectStandardInput = true;
@@ -988,15 +991,15 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 using (StreamReader reader = new StreamReader(fileStream))
                 {
                     String configStr = reader.ReadToEnd();
-                    ViewModel.Config = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
+                    ViewModel.Settings.LearnerConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
 
-                    foreach (String positive in ViewModel.Config.Examples.Positives)
+                    foreach (String positive in ViewModel.Settings.LearnerConfig.Examples.Positives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(positive));
                         ViewModel.AddPositive(obj);
                     }
 
-                    foreach (String negative in ViewModel.Config.Examples.Negatives)
+                    foreach (String negative in ViewModel.Settings.LearnerConfig.Examples.Negatives)
                     {
                         CAEXObject obj = getObjectById(parseObjectID(negative));
                         ViewModel.AddNegative(obj);

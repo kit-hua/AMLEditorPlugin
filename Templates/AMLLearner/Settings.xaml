@@ -6,9 +6,10 @@
              xmlns:local="clr-namespace:Aml.Editor.PlugIn.AMLLearner"
              mc:Ignorable="d" 
              Title="Settings of AMLLearner"        
-             Height="260" Width="500">
+             Height="350" Width="500">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -25,11 +26,11 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Choose home directory: where you put your resource aml files"/>
+            <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Choose home directory: where you put your resource aml files" FontWeight="Bold" FontStyle="Italic"/>
             <Button x:Name="btnHome" Grid.Row="1" Grid.Column="0" Content="Home" Width="50" Click="BtnHome_Click"/>
             <TextBox x:Name="textHome" Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="1" SnapsToDevicePixels="True" IsReadOnly="True" 
-                     Text="{Binding Path=Home, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" 
-                     TextAlignment="Justify" VerticalAlignment="Stretch"/>
+                     Text="{Binding Path=Home, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     VerticalAlignment="Stretch"/>
         </Grid>
 
         <GridSplitter Grid.Row="1"/>
@@ -40,7 +41,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Label Grid.Row="0" Content="Server configurations"/>
+            <Label Grid.Row="0" Content="Server configurations" FontWeight="Bold" FontStyle="Italic"/>
             <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -55,11 +56,137 @@
                     </Grid.ColumnDefinitions>
                     <Button x:Name="btnPath" Grid.Column="0" Content="Path" Width="50" Click="BtnPath_Click"/>
                     <TextBox x:Name="textPath" Grid.Column="1" BorderBrush="Black" BorderThickness="1" SnapsToDevicePixels="True" IsReadOnly="True" 
-                             Text="{Binding Path=Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/target/bin/server.bat}"
-                             TextAlignment="Justify" VerticalAlignment="Stretch"/>
+                             Text="{Binding Path=Path, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalAlignment="Stretch"/>
                 </Grid>
 
-                <Grid Grid.Row="1" Margin="0,5">
+                <!--<Grid Grid.Row="1" Margin="0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="port" HorizontalAlignment="Center" Margin="0,3"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="textPort" SnapsToDevicePixels="True" Width="50" Margin="0,3"
+                             Text="{Binding Path=Port, Mode=OneWay}"
+                             TextAlignment="Center" HorizontalAlignment="Stretch"/>
+
+                    <Label Grid.Row="0" Grid.Column="2" Content="number results" HorizontalAlignment="Center" Margin="3,3" />
+                    <TextBox Grid.Row="0" Grid.Column="3" x:Name="textNumResults" SnapsToDevicePixels="True" Width="50"  Margin="0,3"
+                             Text="{Binding Path=NumResults, Mode=OneWay}"
+                             TextAlignment="Center" HorizontalAlignment="Stretch"/>
+                </Grid>-->
+                <StackPanel Grid.Row="1" Margin="0,5,0,5" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Label Content="port" HorizontalAlignment="Center" />
+                    <TextBox x:Name="textPort" SnapsToDevicePixels="True" Width="50"
+                             Text="{Binding Path=Port, Mode=OneWay}"
+                             TextAlignment="Center" HorizontalAlignment="Stretch"/>
+
+                    <Label Content="number results" HorizontalAlignment="Center" Margin="5,0,0,0" />
+                    <TextBox x:Name="textNumResults" SnapsToDevicePixels="True" Width="50"  
+                             Text="{Binding Path=NumResults, Mode=OneWay}"
+                             TextAlignment="Center" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- algorithm -->
+        <Grid Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Content="Algorithm configurations" FontWeight="Bold" FontStyle="Italic"/>
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="0">
+                    <Label Content="timeout (s)" VerticalAlignment="Center" />
+                    <TextBox x:Name="textTimeout" SnapsToDevicePixels="True" Width="50"  Margin="5,0,0,0"
+                             Text="{Binding Path=LearnerConfig.Algorithm.Time, Mode=OneWay}"
+                             TextAlignment="Center" VerticalAlignment="Stretch"/>
+
+                    <Label Content="num solutions" VerticalAlignment="Center" />
+                    <TextBox x:Name="textNumSolutions" SnapsToDevicePixels="True" Width="50"  Margin="5,0,0,0"
+                             Text="{Binding Path=LearnerConfig.Algorithm.Size, Mode=OneWay}"
+                             TextAlignment="Center" VerticalAlignment="Stretch"/>
+
+                    <CheckBox x:Name="cbWriteTree" Content="write tree" 
+                              Unchecked="CbWriteTree_Unchecked" 
+                              IsChecked="{Binding Path=LearnerConfig.Algorithm.Tree.Write, Mode=OneWay}" 
+                              FlowDirection="RightToLeft" IsEnabled="True" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <CheckBox.Resources>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            </Style>
+                        </CheckBox.Resources>
+                    </CheckBox>
+                </StackPanel>
+                
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Row="1" Margin="0,5,0,0">
+                    <CheckBox x:Name="cbUseNegation" Content="negation" 
+                              Unchecked="CbUseNegation_Unchecked" 
+                              IsChecked="{Binding Path=LearnerConfig.Operator.Negation, Mode=OneWay}" 
+                              FlowDirection="RightToLeft" IsEnabled="True" VerticalAlignment="Center" Margin="5,0">
+                        <CheckBox.Resources>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            </Style>
+                        </CheckBox.Resources>
+                    </CheckBox>
+
+                    <CheckBox x:Name="cbUseCardinality" Content="cardinality" 
+                              Unchecked="CbUseCardinality_Unchecked" 
+                              IsChecked="{Binding Path=LearnerConfig.Operator.Cardinality, Mode=OneWay}" 
+                              FlowDirection="RightToLeft" IsEnabled="True" VerticalAlignment="Center" Margin="5,0">
+                        <CheckBox.Resources>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            </Style>
+                        </CheckBox.Resources>
+                    </CheckBox>
+
+                    <CheckBox x:Name="cbUseNumericDatatype" Content="numerics" 
+                              Unchecked="CbUseNumericDatatype_Unchecked"
+                              IsChecked="{Binding Path=LearnerConfig.Operator.Numeric, Mode=OneWay}" 
+                              FlowDirection="RightToLeft" IsEnabled="True" VerticalAlignment="Center" Margin="5,0">
+                        <CheckBox.Resources>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            </Style>
+                        </CheckBox.Resources>
+                    </CheckBox>
+
+                    <CheckBox x:Name="cbUseAll" Content="owl:allValuesFrom" 
+                              Unchecked="CbUseAll_Unchecked" 
+                              IsChecked="{Binding Path=LearnerConfig.Operator.All, Mode=OneWay}" 
+                              FlowDirection="RightToLeft" IsEnabled="True" VerticalAlignment="Center" Margin="5,0">
+                        <CheckBox.Resources>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            </Style>
+                        </CheckBox.Resources>
+                    </CheckBox>
+
+                    <CheckBox x:Name="cbUseDataHasValue" Content="owl:dataHasValue" 
+                              Unchecked="CbUseDataHasValue_Unchecked"
+                              IsChecked="{Binding Path=LearnerConfig.Operator.DataHasValue, Mode=OneWay}" 
+                              FlowDirection="RightToLeft" IsEnabled="True" VerticalAlignment="Center" Margin="5,0">
+                        <CheckBox.Resources>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="FlowDirection" Value="LeftToRight"/>
+                            </Style>
+                        </CheckBox.Resources>
+                    </CheckBox>
+                </StackPanel>
+
+                <Grid Grid.Row="2" VerticalAlignment="Center" Margin="0,5,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -67,24 +194,37 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Grid.Row="0" Grid.Column="0" Content="port" HorizontalAlignment="Center" Margin="0,5"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="textPort" SnapsToDevicePixels="True" Width="50" Margin="0,5"
-                             Text="{Binding Path=Port, Mode=OneWay, TargetNullValue=4343}"
-                             TextAlignment="Justify" HorizontalAlignment="Stretch"/>
+                    <Label Grid.Row="0" Grid.Column="0" Content="expansion penalty (0 - 0.5)" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,5,0,0"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="textExpansionPenalty" SnapsToDevicePixels="True" Width="50"  Margin="0,5,0,0"
+                             Text="{Binding Path=LearnerConfig.Heuristic.ExpansionPenalty, Mode=OneWay}"
+                             TextAlignment="Center" VerticalAlignment="Stretch"/>
 
-                    <Label Grid.Row="1" Grid.Column="0" Content="number results" HorizontalAlignment="Center" />
-                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="textNumResults" SnapsToDevicePixels="True" Width="50" 
-                             Text="{Binding Path=NumResults, Mode=OneWay, TargetNullValue=5}"
-                             TextAlignment="Justify" HorizontalAlignment="Stretch"/>
+                    <Label Grid.Row="0" Grid.Column="2" Content="refinement penalty (0 - 0.5)" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,5,0,0" />
+                    <TextBox Grid.Row="0" Grid.Column="3" x:Name="textRefinementPenalty" SnapsToDevicePixels="True" Width="50"  Margin="0,5,0,0"
+                             Text="{Binding Path=LearnerConfig.Heuristic.RefinementPenalty, Mode=OneWay}"
+                             TextAlignment="Center" VerticalAlignment="Stretch"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="start bonus (0 - 0.5)" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,5,0,0" />
+                    <TextBox Grid.Row="1" Grid.Column="1" x:Name="textStartBonus" SnapsToDevicePixels="True" Width="50"  Margin="0,5,0,0"
+                             Text="{Binding Path=LearnerConfig.Heuristic.StartBonus, Mode=OneWay}"
+                             TextAlignment="Center" VerticalAlignment="Stretch"/>
+
+                    <Label Grid.Row="1" Grid.Column="2" Content="gain bonus (0 - 0.5)" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,5,0,0" />
+                    <TextBox Grid.Row="1" Grid.Column="3" x:Name="textGainBonus" SnapsToDevicePixels="True" Width="50"  Margin="0,5,0,0"
+                             Text="{Binding Path=LearnerConfig.Heuristic.GainBonus, Mode=OneWay}"
+                             TextAlignment="Center" VerticalAlignment="Stretch"/>
                 </Grid>
+                
             </Grid>
         </Grid>
 
         <!-- save -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button x:Name="btnOk" Content="ok" Width="50"  Click="BtnOk_Click" />
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
+            <Button x:Name="btnSave" Content="save" Width="50"  Click="BtnSave_Click" />
             <Button x:Name="btnCancel" Content="cancel" Width="50" Margin="20,0,0,0"  Click="BtnCancel_Click" />
         </StackPanel>
     </Grid>

@@ -1,4 +1,5 @@
-﻿using GalaSoft.MvvmLight;
+﻿using Aml.Editor.PlugIn.AMLLearner.json;
+using GalaSoft.MvvmLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         public static SettingsViewModel Instance { get; private set; }
 
+        public AMLLearnerConfig LearnerConfig { get; set; }
+        public AMLLearnerConfig PrevisouLearnerConfig { get; set; }
+
         static SettingsViewModel()
         {
             Instance = new SettingsViewModel();
@@ -25,6 +29,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private SettingsViewModel ()
         {
+            LearnerConfig = new AMLLearnerConfig();
+
             Home = "D:/repositories/aml/aml_framework/src/test/resources/demo";
             Path = "D:/repositories/aml/aml_framework/target/bin";
             Port = 4343;
@@ -32,18 +38,23 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
             PreviousHome = Home;
             PreviousPath = Path;
+            
+            LearnerConfig.Home = Home;
+            PrevisouLearnerConfig = LearnerConfig;
         }
 
         public void Backup()
         {
             PreviousHome = Home;
             PreviousPath = Path;
+            PrevisouLearnerConfig = LearnerConfig;
         }
 
         public void Reset()
         {
             Home = PreviousHome;
             Path = PreviousPath;
+            LearnerConfig = PrevisouLearnerConfig;
         }
 
         private string _home;
@@ -53,6 +64,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
             set
             {                
                 _home = value;
+                LearnerConfig.Home = Home;
                 DirTmp = Home + "/tmp/";
                 Console.WriteLine("setting home to: " + value);
                 RaisePropertyChanged("Home");

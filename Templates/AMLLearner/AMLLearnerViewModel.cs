@@ -33,8 +33,9 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         private AMLTreeViewModel _aMLDocumentTreeViewModelAcm;
 
         public readonly string AcmFile = "learned_acm.aml";
-        public readonly String AmlFile = "data_3.0_SRC.aml";
-        public AMLLearnerConfig Config { get; set; }
+        //public readonly String AmlFile = "data_3.0_SRC.aml";
+        public string AmlFile { get; set; }
+        //public AMLLearnerConfig Config { get; set; }
         public AMLLearnerACMConfig Acm { get; set; }
 
         /// <summary>
@@ -648,12 +649,14 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             else
                 return;
 
-            Config = new AMLLearnerConfig(Settings.Home, AmlFile, objType, examples);
+            //Config = new AMLLearnerConfig(Settings.Home, AmlFile, objType, examples);
+            //Settings.LearnerConfig.Aml = AmlFile;
+            Settings.LearnerConfig.reinitialize(Settings.Home, AmlFile, objType, examples);
 
             if (Acm.Id != null)
             {
                 //UpdateAcm();
-                Config.Algorithm.Acm = Acm;                
+                Settings.LearnerConfig.Algorithm.Acm = Acm;        
             }
         }
 
