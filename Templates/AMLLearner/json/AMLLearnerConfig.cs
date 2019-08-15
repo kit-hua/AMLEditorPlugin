@@ -13,29 +13,29 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
         [JsonProperty("type")]
         public String Type { get; set; }
 
-        [JsonProperty("useNegation")]
-        public bool UseNegation { get; set; }
+        [JsonProperty("negation")]
+        public bool Negation { get; set; }
 
-        [JsonProperty("useAllConstructor")]
-        public bool UseAll { get; set; }
+        [JsonProperty("all")]
+        public bool All { get; set; }
 
-        [JsonProperty("useCardinalityRestriction")]
-        public bool UseCardinality { get; set; }
+        [JsonProperty("cardinality")]
+        public bool Cardinality { get; set; }
 
-        [JsonProperty("useDataHasValueConstructor")]
-        public bool UseDataHasValue { get; set; }
+        [JsonProperty("dataHasValue")]
+        public bool DataHasValue { get; set; }
 
-        [JsonProperty("useNumericcDatatypes")]
-        public bool UseNumeric { get; set; }
+        [JsonProperty("numeric")]
+        public bool Numeric { get; set; }
 
         public AMLLearnerOperatorConfig()
         {
             this.Type = "aml";
-            this.UseNegation = false;
-            this.UseAll = false;
-            this.UseCardinality = true;
-            this.UseDataHasValue = true;
-            this.UseNumeric = true;
+            this.Negation = false;
+            this.All = false;
+            this.Cardinality = true;
+            this.DataHasValue = true;
+            this.Numeric = true;
         }
     }
 
@@ -44,25 +44,25 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
         [JsonProperty("type")]
         public String Type { get; set; }
 
-        [JsonProperty("expansionPenaltyFactor")]
-        public double ExpansionPenaltyFactor { get; set; }
+        [JsonProperty("expansionPenalty")]
+        public double ExpansionPenalty { get; set; }
 
-        [JsonProperty("nodeRefinementPenalty")]
-        public double NodeRefinementPenalty { get; set; }
+        [JsonProperty("refinementPenalty")]
+        public double RefinementPenalty { get; set; }
 
-        [JsonProperty("startNodeBonus")]
-        public double StartNodeBonus { get; set; }
+        [JsonProperty("startBonus")]
+        public double StartBonus { get; set; }
 
-        [JsonProperty("gainBonusFactor")]
-        public double GainBonusFactor { get; set; }
+        [JsonProperty("gainBonus")]
+        public double GainBonus { get; set; }
 
         public AMLLearnerHeuristicConfig()
         {
             this.Type = "celoe_heuristic_lw";
-            this.ExpansionPenaltyFactor = 0.02;
-            this.NodeRefinementPenalty = 0;
-            this.StartNodeBonus = 0;
-            this.GainBonusFactor = 0.2;
+            this.ExpansionPenalty = 0.02;
+            this.RefinementPenalty = 0;
+            this.StartBonus = 0;
+            this.GainBonus = 0.2;
         }
     }
 
@@ -178,15 +178,27 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
         [JsonProperty("examples")]
         public AMLLearnerExamplesConfig Examples { get; set; }
 
-        public AMLLearnerConfig(String home, String aml, String type, AMLLearnerExamplesConfig examples)
+        public AMLLearnerConfig()
         {
-            this.Home = home;
-            this.Aml = aml;
-            this.Reasoner = "closed world reasoner";
-            this.Type = type;
             this.Operator = new AMLLearnerOperatorConfig();
             this.Heuristic = new AMLLearnerHeuristicConfig();
             this.Algorithm = new AMLLearnerAlgConfig();
+            this.Reasoner = "closed world reasoner";
+        }
+
+        public AMLLearnerConfig(String home, String aml, String type, AMLLearnerExamplesConfig examples) : this()
+        {
+            this.Home = home;
+            this.Aml = aml;            
+            this.Type = type;            
+            this.Examples = examples;
+        }
+
+        public void reinitialize(String home, String aml, String type, AMLLearnerExamplesConfig examples)
+        {
+            this.Home = home;
+            this.Aml = aml;
+            this.Type = type;
             this.Examples = examples;
         }
 
