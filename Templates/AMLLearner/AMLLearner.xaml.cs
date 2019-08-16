@@ -430,7 +430,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     btnNeg.IsEnabled = false;
                     btnPos.IsEnabled = false;
                     btnRm.IsEnabled = false;
+
                     btnSetAcm.IsEnabled = true;
+                    btnRmAcm.IsEnabled = true;
 
                     cbPrimary.IsEnabled = true;
                     cbId.IsEnabled = true;
@@ -858,7 +860,6 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnRm_Click(object sender, RoutedEventArgs e)
         {
-
             ViewModel.RemoveObj(this._selectedObj);
             ResetUI();
         }
@@ -955,7 +956,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             ViewModel.loadACM();
             btnSaveAcm.IsEnabled = true;
-            btnClearAcm.IsEnabled = true;
+            //btnClearAcm.IsEnabled = true;
         }
 
         private void BtnStartServer_Click(object sender, RoutedEventArgs e)
@@ -1031,7 +1032,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             ViewModel.ClearAcm();
             btnSaveAcm.IsEnabled = false;
-            btnClearAcm.IsEnabled = false;
+            //btnClearAcm.IsEnabled = false;
         }
 
         private void SlMax_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -1119,6 +1120,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
             if (!ViewModel.IsAcm(_selectedObj))
             {
                 ViewModel.AddAcm(_selectedObj);
+                btnSaveAcm.IsEnabled = true;
             }
         }
 
