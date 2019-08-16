@@ -1111,5 +1111,21 @@ namespace Aml.Editor.PlugIn.AMLLearner
             Window settings = new Settings();
             settings.Show();
         }
+
+        private void BtnAddAcm_Click(object sender, RoutedEventArgs e)
+        {
+            if (!ViewModel.IsAcm(_selectedObj))
+            {
+                ViewModel.AddAcm(_selectedObj);
+            }
+        }
+
+        private void BtnRmAcm_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.IsAcm(_selectedObj))
+            {
+                ViewModel.RemoveAcm(_selectedObj);
+            }
+        }
     }
 }

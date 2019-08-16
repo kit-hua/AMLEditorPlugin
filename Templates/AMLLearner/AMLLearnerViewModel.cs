@@ -290,7 +290,13 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
             UpdateTreeViewModel(TreeType.POSITIVE);
             UpdateTreeViewModel(TreeType.NEGATIVE);
-        }        
+        }
+
+        public void RemoveAcm(CAEXObject obj)
+        {
+            TreeAcm.RemoveObject(obj);
+            UpdateTreeViewModel(TreeType.ACM);
+        }
 
         public void ClearPositives()
         {
@@ -333,6 +339,13 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 return false;
 
             return TreeAcm.Document.FindByID(obj.ID) != null;
+        }
+
+        public void AddAcm(CAEXObject obj)
+        {
+            //TODO: need to equip the object with default acm config
+            TreeAcm.AddObjectToIh(TreeAcm.Ihs[0], obj);
+            UpdateTreeViewModel(TreeType.ACM);
         }
 
         public bool ContainsExample(CAEXObject obj)

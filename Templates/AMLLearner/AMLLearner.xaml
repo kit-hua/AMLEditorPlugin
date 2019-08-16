@@ -122,6 +122,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- The acm tree area -->
@@ -166,13 +167,38 @@
                 </DockPanel>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,3" HorizontalAlignment="Center">
+            <Grid Grid.Row="3" Margin="0,3" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Button x:Name="btnAddAcm"  Grid.Row="0" Grid.Column="0" Content="add acm" Width="70" Margin="0,0,0,0" IsEnabled="False" Click="BtnAddAcm_Click"/>
+                <Button x:Name="btnRmAcm"  Grid.Row="0" Grid.Column="1" Content="remove acm" Width="70" Margin="5,0,0,0" IsEnabled="False" Click="BtnRmAcm_Click"/>
+                <Button x:Name="btnSetAcm"  Grid.Row="0" Grid.Column="2" Content="set acm" Width="70" Margin="5,0,0,0" IsEnabled="False" Click="BtnSetAcm_Click"/>
+
+                <Button x:Name="btnClearAcm"  Grid.Row="1" Grid.Column="0" Content="clear acm" Width="70" Margin="0,5,0,0" IsEnabled="False" Click="BtnClearAcm_Click"/>
+                <Button x:Name="btnSaveAcm"  Grid.Row="1" Grid.Column="1" Content="save acm" Width="70" Margin="5,5,0,0" IsEnabled="False"  Click="BtnSaveAcm_Click"/>
+                <Button x:Name="btnLoadACMFile" Grid.Row="1" Grid.Column="2" Content="load acm" Width="70" Margin="5,5,0,0" IsEnabled="True" Click="BtnLoadACMFile_Click"/>
+            </Grid>
+
+            <!--<StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,3" HorizontalAlignment="Center">
+                <Button x:Name="btnAddAcm"  Content="add acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnAddAcm_Click"/>
+                <Button x:Name="btnRmAcm"  Content="remove acm" Width="70" Margin="3,0"  IsEnabled="False" Click="BtnRmAcm_Click"/>
                 <Button x:Name="btnSetAcm"  Content="set acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnSetAcm_Click"/>
+            </StackPanel>-->
+
+            <!--<StackPanel Orientation="Horizontal" Grid.Row="4" Margin="0,3" HorizontalAlignment="Center">
                 <Button x:Name="btnClearAcm"  Content="clear acm" Width="70" Margin="3,0"  IsEnabled="False" Click="BtnClearAcm_Click"/>
                 <Button x:Name="btnSaveAcm"  Content="save acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnSaveAcm_Click"/>
                 <Button x:Name="btnLoadACMFile" Content="load ACM file" Margin="3,0" Width="80" Click="BtnLoadACMFile_Click"  IsEnabled="True"/>
-                <!--<TextBox x:Name="textAcm" Text="{Binding Path=AcmId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>-->
-            </StackPanel>
+                --><!--<TextBox x:Name="textAcm" Text="{Binding Path=AcmId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>--><!--
+            </StackPanel>-->
         </Grid>
 
     </Grid>
