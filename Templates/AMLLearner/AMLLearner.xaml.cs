@@ -1108,8 +1108,10 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnSettings_Click(object sender, RoutedEventArgs e)
         {
-            Window settings = new Settings();
-            settings.Show();
+            //Window settings = new Settings();
+            //Window settings = SettingsWindow.Instance;
+            SettingsWindow window = new SettingsWindow();
+            window.Show();
         }
 
         private void BtnAddAcm_Click(object sender, RoutedEventArgs e)

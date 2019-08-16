@@ -65,7 +65,7 @@ namespace Aml.Editor.Plugin.Sandbox.ViewModel
         {
             Plugins = new ObservableCollection<IAMLEditorPlugin>();
 
-            Open("D:/repositories/aml/aml_framework/src/test/resources/demo/data_3.0_SRC.aml");
+            //Open("D:/repositories/aml/aml_framework/src/test/resources/demo/data_3.0_SRC.aml");
             //GenerateSomeAutomationMLTestData("My test hierarchy");
             //BuildTreeViewModel();
         }

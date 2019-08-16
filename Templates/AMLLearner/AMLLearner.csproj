@@ -89,8 +89,8 @@
     <Compile Include="AMLLearner.xaml.cs">
       <DependentUpon>AMLLearner.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings.xaml.cs">
-      <DependentUpon>Settings.xaml</DependentUpon>
+    <Compile Include="SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SettingsViewModel.cs" />
   </ItemGroup>
@@ -103,7 +103,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Settings.xaml">
+    <Page Include="SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

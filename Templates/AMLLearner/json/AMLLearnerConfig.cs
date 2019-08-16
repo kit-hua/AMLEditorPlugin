@@ -184,14 +184,11 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
             this.Heuristic = new AMLLearnerHeuristicConfig();
             this.Algorithm = new AMLLearnerAlgConfig();
             this.Reasoner = "closed world reasoner";
-        }
+        }        
 
         public AMLLearnerConfig(String home, String aml, String type, AMLLearnerExamplesConfig examples) : this()
         {
-            this.Home = home;
-            this.Aml = aml;            
-            this.Type = type;            
-            this.Examples = examples;
+            reinitialize(home, aml, type, examples);
         }
 
         public void reinitialize(String home, String aml, String type, AMLLearnerExamplesConfig examples)
@@ -200,6 +197,11 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
             this.Aml = aml;
             this.Type = type;
             this.Examples = examples;
+        }
+
+        public static AMLLearnerConfig FromJsonString (String jsonStr)
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(jsonStr);
         }
 
     }
