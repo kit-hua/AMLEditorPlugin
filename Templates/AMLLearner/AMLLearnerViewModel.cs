@@ -342,7 +342,12 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             if (TreeAcm is null)
                 return false;
 
-            return TreeAcm.Document.FindByID(obj.ID) != null;
+            //if (TreeAcm.Ihs[0].Ih.InternalElement.Exists)
+            //    MessageBox.Show("obj: " + obj.ID + ", last:" + TreeAcm.Ihs[0].Ih.InternalElement.Last.ID);
+            //else
+            //    MessageBox.Show("obj: " + obj.ID + ", empty tree");
+
+            return TreeAcm.ContainsDataObject(obj);
         }
 
         public void AddAcm(CAEXObject obj)
@@ -362,6 +367,13 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             }
 
             TreeAcm.AddObjectToIh(TreeAcm.Ihs[0], obj);
+            //MessageBox.Show("obj: " + obj.ID + ", added: " + TreeAcm.Ihs[0].Ih.InternalElement.Last.ID);
+
+            //if (TreeAcm.Ihs[0].Ih.InternalElement.Exists)
+            //    MessageBox.Show("obj: " + obj.ID + ", last:" + TreeAcm.Ihs[0].Ih.InternalElement.Last.ID);
+            //else
+            //    MessageBox.Show("obj: " + obj.ID + ", empty tree");
+
             UpdateTreeViewModel(TreeType.ACM);
         }
 
@@ -434,7 +446,12 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         public List<CAEXObject> GetAllSelectedNegatives()
         {
             return TreeNeg.Ihs[0].GetAllObjects();
-        }                
+        }
+
+        public List<CAEXObject> GetAllLoadedAcms()
+        {
+            return TreeAcm.Ihs[0].GetAllObjects();
+        }
 
         public AttributeType GetConfigParameter(AttributeType attr, String config)
         {

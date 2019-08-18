@@ -379,7 +379,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         btnPos.IsEnabled = false;
                         btnNeg.IsEnabled = false;
                         btnRm.IsEnabled = false;
-                        btnSetAcm.IsEnabled = false;
+                        //btnSetAcm.IsEnabled = false;
 
                         cbPrimary.IsEnabled = false;
                         cbId.IsEnabled = false;
@@ -398,7 +398,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         btnPos.IsEnabled = false;
                         btnNeg.IsEnabled = false;
                         btnRm.IsEnabled = true;
-                        btnSetAcm.IsEnabled = false;
+                        //btnSetAcm.IsEnabled = false;
 
                         cbPrimary.IsEnabled = false;
                         cbId.IsEnabled = false;
@@ -417,7 +417,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         btnPos.IsEnabled = false;
                         btnNeg.IsEnabled = true;
                         btnRm.IsEnabled = true;
-                        btnSetAcm.IsEnabled = false;
+                        //btnSetAcm.IsEnabled = false;
 
                         cbPrimary.IsEnabled = false;
                         cbId.IsEnabled = false;
@@ -435,7 +435,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         btnNeg.IsEnabled = false;
                         btnPos.IsEnabled = true;
                         btnRm.IsEnabled = true;
-                        btnSetAcm.IsEnabled = false;
+                        //btnSetAcm.IsEnabled = false;
 
                         cbPrimary.IsEnabled = false;
                         cbId.IsEnabled = false;
@@ -454,7 +454,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         btnPos.IsEnabled = false;
                         btnRm.IsEnabled = false;
 
-                        btnSetAcm.IsEnabled = true;
+                        //btnSetAcm.IsEnabled = true;
                         btnRmAcm.IsEnabled = true;
 
                         cbPrimary.IsEnabled = true;
@@ -507,7 +507,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         btnPos.IsEnabled = true;
                         btnNeg.IsEnabled = true;
                         btnRm.IsEnabled = true;
-                        btnSetAcm.IsEnabled = false;
+                        //btnSetAcm.IsEnabled = false;
 
                         cbPrimary.IsEnabled = false;
                         cbId.IsEnabled = false;
@@ -526,7 +526,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     btnPos.IsEnabled = true;
                     btnNeg.IsEnabled = true;
                     btnRm.IsEnabled = true;
-                    btnSetAcm.IsEnabled = false;
+                    //btnSetAcm.IsEnabled = false;
 
                     cbPrimary.IsEnabled = false;
                     cbId.IsEnabled = false;
@@ -922,7 +922,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
             btnNeg.IsEnabled = false;
             btnPos.IsEnabled = false;
             btnRm.IsEnabled = false;
-            btnSetAcm.IsEnabled = false;
+            //btnSetAcm.IsEnabled = false;
         }       
 
         private void BtnRest_Click(object sender, RoutedEventArgs e)
@@ -1006,7 +1006,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private void BtnLoadACM_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.loadACM();
-            btnSaveAcm.IsEnabled = true;
+            //btnSaveAcm.IsEnabled = true;
             //btnClearAcm.IsEnabled = true;
         }
 
@@ -1076,19 +1076,26 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         CAEXObject obj = getObjectById(parseObjectID(negative));
                         ViewModel.AddNegative(obj);
                     }
-                }                
-            }
 
-            MessageBox.Show("config successively loaded");
+                    MessageBox.Show("config successively loaded");
+                }                
+            }            
         }        
 
         private void BtnSetAcm_Click(object sender, RoutedEventArgs e)
         {
+            if (!ViewModel.IsAcm(_selectedObj))
+            {
+                MessageBox.Show("the selected obj is not an ACM object!");
+                return;
+            }
+
             if (!ViewModel.GetAllSelectedPositives().Any() || !ViewModel.GetAllSelectedNegatives().Any())
             {
                 MessageBox.Show("Select a configuration first: either load a config or select some examples!");
                 return;
             }
+            
             ViewModel.UpdateAcm();            
         }        
 
@@ -1096,7 +1103,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private void BtnClearAcm_Click(object sender, RoutedEventArgs e)
         {
             ViewModel.ClearAcm();
-            btnSaveAcm.IsEnabled = false;
+            //btnSaveAcm.IsEnabled = false;
             //btnClearAcm.IsEnabled = false;
         }
 
@@ -1143,6 +1150,13 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnSaveAcm_Click(object sender, RoutedEventArgs e)
         {
+
+            if (!ViewModel.GetAllLoadedAcms().Any())
+            {
+                MessageBox.Show("add or load some ACMs first!");
+                return;
+            }
+
             System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
             sfd.Filter = "ACM file|*.aml";
             sfd.Title = "save the ACM file";
@@ -1183,8 +1197,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 ViewModel.loadACM(ofd.FileName);
-                btnSaveAcm.IsEnabled = true;
-                btnSetAcm.IsEnabled = true;
+                //btnSaveAcm.IsEnabled = true;
+                //btnSetAcm.IsEnabled = true;
             }
         }
 
@@ -1201,7 +1215,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
             if (!ViewModel.IsAcm(_selectedObj))
             {
                 ViewModel.AddAcm(_selectedObj);
-                btnSaveAcm.IsEnabled = true;
+                //btnSaveAcm.IsEnabled = true;
             }
         }
 
@@ -1210,6 +1224,10 @@ namespace Aml.Editor.PlugIn.AMLLearner
             if (ViewModel.IsAcm(_selectedObj))
             {
                 ViewModel.RemoveAcm(_selectedObj);
+            }
+            else
+            {
+                MessageBox.Show("the selected obj is not an ACM object!");
             }
         }
     }
