@@ -83,6 +83,7 @@
     <Compile Include="AMLConceptConfig.cs" />
     <Compile Include="AMLLearnerTree.cs" />
     <Compile Include="AMLLearnerViewModel.cs" />
+    <Compile Include="CaexToAcm.cs" />
     <Compile Include="json\AMLLearnerConfig.cs" />
     <Compile Include="json\AMLLearnerProtocol.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

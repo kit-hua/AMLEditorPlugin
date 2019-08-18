@@ -1,16 +1,39 @@
 ﻿using Aml.Editor.PlugIn.AMLLearner.json;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
 namespace Aml.Editor.PlugIn.AMLLearner
 {
+    public class ShouldSerializeContractResolver : DefaultContractResolver
+    {
+        public new static readonly ShouldSerializeContractResolver Instance = new ShouldSerializeContractResolver();
+
+        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        {
+            JsonProperty property = base.CreateProperty(member, memberSerialization);
+
+            if (property.DeclaringType == typeof(ViewModelBase) && property.PropertyName == "IsInDesignMode")
+            {
+                property.ShouldSerialize =
+                    instance =>
+                    {
+                        return false;
+                    };
+            }
+
+            return property;
+        }
+    }
+
     public class SettingsViewModel : ViewModelBase
     {
 
@@ -49,6 +72,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
         [JsonIgnore]
         public readonly string FileLocalBackup = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/AMLLearner/settings.json";
 
+        [JsonIgnore]
+        public bool IsInitializedFromFile { get; set; } = false;
+
         static SettingsViewModel()
         {
             Instance = new SettingsViewModel();
@@ -80,7 +106,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     this.copy(defaultConfig);
                 }
 
-                return true;
+                IsInitializedFromFile = true;
+                return true;                
             }
 
             return false;
@@ -89,17 +116,17 @@ namespace Aml.Editor.PlugIn.AMLLearner
         public void init()
         {
             LearnerConfig = new AMLLearnerConfig();
-            Home = "D:/repositories/aml/aml_framework/src/test/resources/demo";
-            _path = "D:/repositories/aml/aml_framework/target/bin";
-            Port = 4343;
-            NumResults = 5;
+            //Home = "D:/repositories/aml/aml_framework/src/test/resources/demo";
+            //_path = "D:/repositories/aml/aml_framework/target/bin";
+            //CommandStartServer = _path + "/server.bat";
+            //Port = 4343;
+            //NumResults = 5;
 
-            LearnerConfig.Home = Home;
+            //LearnerConfig.Home = Home;
+            //PreviousHome = Home;
+            //PreviousPath = Path;
 
-            PreviousHome = Home;
-            PreviousPath = Path;
-
-            PrevisouLearnerConfig = LearnerConfig;
+            PrevisouLearnerConfig = LearnerConfig;                       
         }
 
         public void Backup()
@@ -140,15 +167,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
             get { return _path; }
             set
             {
-                CommandStartServer = value + "/server.bat";
-                //if (!System.IO.File.Exists(serverFile))
-                //{
-                //    System.Windows.MessageBox.Show("Can not find the server.bat program in the path!");
-                //}
+                String server = value + "/server.bat";                
 
-                if (System.IO.File.Exists(CommandStartServer))
+                if (System.IO.File.Exists(server))
                 {
                     _path = value;
+                    CommandStartServer = server;
                     Console.WriteLine("setting aml learner path to: " + value);
                     RaisePropertyChanged("Path");
                 }                
@@ -181,6 +205,18 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 _numResults = value;
                 Console.WriteLine("setting num results to: " + value);
             }
+        }
+
+        public string toJsonString()
+        {
+            return JsonConvert.SerializeObject(
+                                            this,
+                                            Formatting.Indented,
+                                            new JsonSerializerSettings
+                                            {
+                                                ContractResolver = new ShouldSerializeContractResolver(),
+                                                NullValueHandling = NullValueHandling.Ignore
+                                            });
         }
     }
 }

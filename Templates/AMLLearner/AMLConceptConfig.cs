@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Aml.Engine.CAEX;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         public Boolean IsDescendant { get; set; } = false;
 
         public int MinCardinality { get; set; } = 1;
-        public int MaxCardinality { get; set; } = -1;        
-
+        public int MaxCardinality { get; set; } = -1;            
+       
     }
 }

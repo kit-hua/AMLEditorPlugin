@@ -30,7 +30,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
         public SettingsWindow()
         {
             //ViewModel = new SettingsViewModel();
-            ViewModel.initFromFile();
+            if(!ViewModel.IsInitializedFromFile)
+                ViewModel.initFromFile();
             DataContext = ViewModel;
             InitializeComponent();
         }
@@ -174,11 +175,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 using (StreamWriter file = File.CreateText(sfd.FileName))
                 {
                     setConfig();
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.NullValueHandling = NullValueHandling.Ignore;
-                    serializer.Formatting = Formatting.Indented;
-                    //serialize object directly into file stream
-                    serializer.Serialize(file, ViewModel);
+                    string json = ViewModel.toJsonString();
+                    file.Write(json);
                 }
             }
         }
@@ -192,12 +190,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
             using (StreamWriter file = File.CreateText(ViewModel.FileLocalBackup))
             {
-                setConfig();
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.NullValueHandling = NullValueHandling.Ignore;
-                serializer.Formatting = Formatting.Indented;
-                //serialize object directly into file stream
-                serializer.Serialize(file, ViewModel);
+                setConfig();                
+                string json = ViewModel.toJsonString();
+                file.Write(json);
             }
 
             MessageBox.Show("successively saved current config as default!");

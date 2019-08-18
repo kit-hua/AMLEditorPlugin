@@ -344,6 +344,19 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         public void AddAcm(CAEXObject obj)
         {
             //TODO: need to equip the object with default acm config
+
+            if (obj is InternalElementType)
+            {                
+                InternalElementType ie = (InternalElementType)obj;
+                CaexToAcm.toAcm(ref ie, true);
+            }
+
+            else if (obj is ExternalInterfaceType)
+            {
+                ExternalInterfaceType ei = (ExternalInterfaceType)obj;
+                CaexToAcm.toAcm(ref ei, true);
+            }
+
             TreeAcm.AddObjectToIh(TreeAcm.Ihs[0], obj);
             UpdateTreeViewModel(TreeType.ACM);
         }
@@ -417,12 +430,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         public List<CAEXObject> GetAllSelectedNegatives()
         {
             return TreeNeg.Ihs[0].GetAllObjects();
-        }
-
-        private Boolean IsConfigAttribute(AttributeType attr)
-        {
-            return attr.Name.Equals("queryConfig");
-        }
+        }                
 
         public AttributeType GetConfigParameter(AttributeType attr, String config)
         {
@@ -439,49 +447,9 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 return parameter;
         }
 
-        public AttributeType GetConfigAttribute(CAEXObject obj)
-        {
-            if (obj is InternalElementType)
-            {
-                InternalElementType ie = (InternalElementType)obj;
-                foreach (AttributeType attr in ie.Attribute)
-                {
-                    if (IsConfigAttribute(attr)) {
-                        return attr;
-                    }
-                }
-            }
-
-            else if (obj is ExternalInterfaceType)
-            {
-                ExternalInterfaceType ei = (ExternalInterfaceType)obj;
-                foreach (AttributeType attr in ei.Attribute)
-                {
-                    if (IsConfigAttribute(attr))
-                    {
-                        return attr;
-                    }
-                }
-            }
-
-            else if (obj is AttributeType)
-            {
-                AttributeType attribute = (AttributeType)obj;
-                foreach (AttributeType attr in attribute.Attribute)
-                {
-                    if (IsConfigAttribute(attr))
-                    {
-                        return attr;
-                    }
-                }
-            }
-
-            return null;
-        }
-
         public void AdaptQueryConfig(CAEXObject obj, String config, String value)
         {            
-            AttributeType configAttr = GetConfigAttribute(obj);
+            AttributeType configAttr = CaexToAcm.GetConfigAttribute(obj);
             AttributeType configParam = GetConfigParameter(configAttr, config);
             configParam.Value = value;
         }

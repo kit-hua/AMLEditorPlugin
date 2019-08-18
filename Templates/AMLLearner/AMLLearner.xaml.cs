@@ -322,9 +322,17 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         public void ChangeAMLFilePath(string amlFilePath)
         {
-            this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
-            ViewModel.AmlFile = System.IO.Path.GetFileName(amlFilePath);
-            Document = CAEXDocument.LoadFromFile(System.IO.Path.GetFullPath(amlFilePath));
+            // Editor could pass an invalid parameter, so a test is necessary
+            if (amlFilePath != null && amlFilePath.Length>0)
+            {
+                string filename = System.IO.Path.GetFileName(amlFilePath);
+                if (filename != null && filename != String.Empty)
+                {
+                    this.HelloText.Text = filename;
+                    ViewModel.AmlFile = filename;
+                    Document = CAEXDocument.LoadFromFile(System.IO.Path.GetFullPath(amlFilePath));
+                }                                
+            }            
         }
 
         public CAEXDocument Document { get; private set; }
@@ -446,7 +454,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
                     ViewModel.AcmId = ((CAEXObject)_selectedObj).ID;
 
-                    AttributeType config = ViewModel.GetConfigAttribute(this._selectedObj);
+                    AttributeType config = CaexToAcm.GetConfigAttribute(this._selectedObj);
 
                     AttributeType primary = ViewModel.GetConfigParameter(config, "distinguished");
                     ViewModel.ConfigPrimary = bool.Parse(primary.Value);
