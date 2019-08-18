@@ -2,6 +2,7 @@
 using Aml.Editor.PlugIn.AMLLearner.json;
 using Aml.Engine.CAEX;
 using Aml.Engine.CAEX.Extensions;
+using Aml.Engine.Services;
 using Aml.Toolkit.ViewModel;
 using GalaSoft.MvvmLight;
 using System;
@@ -34,7 +35,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
         public readonly string AcmFile = "learned_acm.aml";
         //public readonly String AmlFile = "data_3.0_SRC.aml";
-        public string AmlFile { get; set; }
+        //public string AmlFile { get; set; }
         //public AMLLearnerConfig Config { get; set; }
         public AMLLearnerACMConfig Acm { get; set; }
 
@@ -76,6 +77,9 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             UpdateTreeViewModel(TreeType.ACM);
 
             //Home = "D:/repositories/aml/aml_framework/src/test/resources/demo";            
+
+            if (!Settings.IsInitializedFromFile)
+                Settings.initFromFile();
 
             Acm = new AMLLearnerACMConfig();
             Acm.File = Settings.DirTmp + AcmFile;
@@ -632,7 +636,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
             //Config = new AMLLearnerConfig(Settings.Home, AmlFile, objType, examples);
             //Settings.LearnerConfig.Aml = AmlFile;
-            Settings.LearnerConfig.reinitialize(Settings.Home, AmlFile, objType, examples);
+            Settings.LearnerConfig.reinitialize(Settings.Home, Settings.LearnerConfig.Aml, objType, examples);
 
             if (Acm.Id != null)
             {
@@ -667,6 +671,25 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         public void SaveAcm(String filename)
         {
             TreeAcm.Document.SaveToFile(filename, true);            
+        }
+
+
+        private CAEXDocument Open(string filePath)
+        {
+            CAEXDocument document = CAEXDocument.LoadFromFile(filePath);
+
+            // register the transformation service. After registration of the service, the AMLEngine
+            // communicates with the transformation service via event notification.
+            var transformer = CAEXSchemaTransformer.Register();
+
+            // transform the document to AutomationML 2.1 and CAEX 3.0
+            document = transformer.TransformTo(document, CAEXDocument.CAEXSchema.CAEX3_0);
+
+            // unregister the transformation service. The communication channel between the AMLEngine and
+            // the transformation service is closed.
+            CAEXSchemaTransformer.UnRegister();
+
+            return document;
         }
     }
 }

@@ -4,6 +4,7 @@ using Aml.Editor.PlugIn.AMLLearner.json;
 using Aml.Editor.PlugIn.AMLLearner.ViewModel;
 using Aml.Engine.CAEX;
 using Aml.Engine.CAEX.Extensions;
+using Aml.Engine.Services;
 using Aml.Toolkit.ViewModel;
 using GalaSoft.MvvmLight;
 using Newtonsoft.Json;
@@ -49,7 +50,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
         public AMLLearnerGUI()
         {
 
-            InitializeComponent();                        
+            InitializeComponent();
 
             DataContext = ViewModel;
             ViewModel.Plugin = this;
@@ -329,17 +330,29 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 if (filename != null && filename != String.Empty)
                 {
                     this.HelloText.Text = filename;
-                    ViewModel.AmlFile = filename;
-                    Document = CAEXDocument.LoadFromFile(System.IO.Path.GetFullPath(amlFilePath));
+                    ViewModel.Settings.LearnerConfig.Aml = filename;
+                    //Document = CAEXDocument.LoadFromFile(System.IO.Path.GetFullPath(amlFilePath));
+                    Open(System.IO.Path.GetFullPath(amlFilePath));
                 }                                
             }            
         }
 
         public CAEXDocument Document { get; private set; }
 
-        internal CAEXDocument Open(string filePath)
+        private void Open(string filePath)
         {                        
-            return CAEXDocument.LoadFromFile(filePath);
+            Document = CAEXDocument.LoadFromFile(filePath);
+
+            // register the transformation service. After registration of the service, the AMLEngine
+            // communicates with the transformation service via event notification.
+            var transformer = CAEXSchemaTransformer.Register();
+
+            // transform the document to AutomationML 2.1 and CAEX 3.0
+            Document = transformer.TransformTo(Document, CAEXDocument.CAEXSchema.CAEX3_0);
+
+            // unregister the transformation service. The communication channel between the AMLEngine and
+            // the transformation service is closed.
+            CAEXSchemaTransformer.UnRegister();
         }
 
         private CAEXObject _selectedObj;
@@ -353,138 +366,159 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {            
             if (selectedObject != null)
             {
-                String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
-                if (selectedObject is CAEXObject)
-                    this._selectedObj = (CAEXObject)selectedObject;
+                String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);                
                 this.HelloText.Text = prefix + s;
 
-                if (selectedObject is InstanceHierarchyType)
+                if (selectedObject is CAEXObject)
                 {
-                    btnRest.IsEnabled = true;
-                    btnPos.IsEnabled = false;
-                    btnNeg.IsEnabled = false;
-                    btnRm.IsEnabled = false;
-                    btnSetAcm.IsEnabled = false;
+                    this._selectedObj = (CAEXObject)selectedObject;
 
-                    cbPrimary.IsEnabled = false;
-                    cbId.IsEnabled = false;
-                    cbDesendant.IsEnabled = false;
-                    cbName.IsEnabled = false;
-                    cbNegated.IsEnabled = false;
-                    slMin.IsEnabled = false;
-                    slMax.IsEnabled = false;
-                    textMin.IsEnabled = false;
-                    textMax.IsEnabled = false;
-                }
+                    if (selectedObject is InstanceHierarchyType)
+                    {
+                        btnRest.IsEnabled = true;
+                        btnPos.IsEnabled = false;
+                        btnNeg.IsEnabled = false;
+                        btnRm.IsEnabled = false;
+                        btnSetAcm.IsEnabled = false;
 
-                else if (isPlaceHolder(selectedObject))
-                {
-                    btnRest.IsEnabled = false;
-                    btnPos.IsEnabled = false;
-                    btnNeg.IsEnabled = false;
-                    btnRm.IsEnabled = true;
-                    btnSetAcm.IsEnabled = false;
+                        cbPrimary.IsEnabled = false;
+                        cbId.IsEnabled = false;
+                        cbDesendant.IsEnabled = false;
+                        cbName.IsEnabled = false;
+                        cbNegated.IsEnabled = false;
+                        slMin.IsEnabled = false;
+                        slMax.IsEnabled = false;
+                        textMin.IsEnabled = false;
+                        textMax.IsEnabled = false;
+                    }
 
-                    cbPrimary.IsEnabled = false;
-                    cbId.IsEnabled = false;
-                    cbDesendant.IsEnabled = false;
-                    cbName.IsEnabled = false;
-                    cbNegated.IsEnabled = false;
-                    slMin.IsEnabled = false;
-                    slMax.IsEnabled = false;
-                    textMin.IsEnabled = false;
-                    textMax.IsEnabled = false;
-                }
+                    else if (isPlaceHolder(selectedObject))
+                    {
+                        btnRest.IsEnabled = false;
+                        btnPos.IsEnabled = false;
+                        btnNeg.IsEnabled = false;
+                        btnRm.IsEnabled = true;
+                        btnSetAcm.IsEnabled = false;
 
-                else if (ViewModel.ContainsPositiveExample(this._selectedObj))
-                {
-                    btnRest.IsEnabled = false;
-                    btnPos.IsEnabled = false;
-                    btnNeg.IsEnabled = true;
-                    btnRm.IsEnabled = true;
-                    btnSetAcm.IsEnabled = false;
+                        cbPrimary.IsEnabled = false;
+                        cbId.IsEnabled = false;
+                        cbDesendant.IsEnabled = false;
+                        cbName.IsEnabled = false;
+                        cbNegated.IsEnabled = false;
+                        slMin.IsEnabled = false;
+                        slMax.IsEnabled = false;
+                        textMin.IsEnabled = false;
+                        textMax.IsEnabled = false;
+                    }
 
-                    cbPrimary.IsEnabled = false;
-                    cbId.IsEnabled = false;
-                    cbDesendant.IsEnabled = false;
-                    cbName.IsEnabled = false;
-                    cbNegated.IsEnabled = false;
-                    slMin.IsEnabled = false;
-                    slMax.IsEnabled = false;
-                    textMin.IsEnabled = false;
-                    textMax.IsEnabled = false;
-                }
-                else if (ViewModel.ContainsNegativeExample(this._selectedObj))
-                {
-                    btnRest.IsEnabled = false;
-                    btnNeg.IsEnabled = false;
-                    btnPos.IsEnabled = true;
-                    btnRm.IsEnabled = true;
-                    btnSetAcm.IsEnabled = false;
+                    else if (ViewModel.ContainsPositiveExample(this._selectedObj))
+                    {
+                        btnRest.IsEnabled = false;
+                        btnPos.IsEnabled = false;
+                        btnNeg.IsEnabled = true;
+                        btnRm.IsEnabled = true;
+                        btnSetAcm.IsEnabled = false;
 
-                    cbPrimary.IsEnabled = false;
-                    cbId.IsEnabled = false;
-                    cbDesendant.IsEnabled = false;
-                    cbName.IsEnabled = false;
-                    cbNegated.IsEnabled = false;
-                    slMin.IsEnabled = false;
-                    slMax.IsEnabled = false;
-                    textMin.IsEnabled = false;
-                    textMax.IsEnabled = false;
-                }
-                else if (ViewModel.IsAcm(this._selectedObj))
-                {
-                    btnRest.IsEnabled = false;
-                    btnNeg.IsEnabled = false;
-                    btnPos.IsEnabled = false;
-                    btnRm.IsEnabled = false;
+                        cbPrimary.IsEnabled = false;
+                        cbId.IsEnabled = false;
+                        cbDesendant.IsEnabled = false;
+                        cbName.IsEnabled = false;
+                        cbNegated.IsEnabled = false;
+                        slMin.IsEnabled = false;
+                        slMax.IsEnabled = false;
+                        textMin.IsEnabled = false;
+                        textMax.IsEnabled = false;
+                    }
+                    else if (ViewModel.ContainsNegativeExample(this._selectedObj))
+                    {
+                        btnRest.IsEnabled = false;
+                        btnNeg.IsEnabled = false;
+                        btnPos.IsEnabled = true;
+                        btnRm.IsEnabled = true;
+                        btnSetAcm.IsEnabled = false;
 
-                    btnSetAcm.IsEnabled = true;
-                    btnRmAcm.IsEnabled = true;
+                        cbPrimary.IsEnabled = false;
+                        cbId.IsEnabled = false;
+                        cbDesendant.IsEnabled = false;
+                        cbName.IsEnabled = false;
+                        cbNegated.IsEnabled = false;
+                        slMin.IsEnabled = false;
+                        slMax.IsEnabled = false;
+                        textMin.IsEnabled = false;
+                        textMax.IsEnabled = false;
+                    }
+                    else if (ViewModel.IsAcm(this._selectedObj))
+                    {
+                        btnRest.IsEnabled = false;
+                        btnNeg.IsEnabled = false;
+                        btnPos.IsEnabled = false;
+                        btnRm.IsEnabled = false;
 
-                    cbPrimary.IsEnabled = true;
-                    cbId.IsEnabled = true;
-                    cbDesendant.IsEnabled = true;
-                    cbName.IsEnabled = true;
-                    cbNegated.IsEnabled = true;
-                    slMin.IsEnabled = true;
-                    slMax.IsEnabled = true;
-                    textMin.IsEnabled = true;
-                    textMax.IsEnabled = true;
+                        btnSetAcm.IsEnabled = true;
+                        btnRmAcm.IsEnabled = true;
 
-                    ViewModel.AcmId = ((CAEXObject)_selectedObj).ID;
+                        cbPrimary.IsEnabled = true;
+                        cbId.IsEnabled = true;
+                        cbDesendant.IsEnabled = true;
+                        cbName.IsEnabled = true;
+                        cbNegated.IsEnabled = true;
+                        slMin.IsEnabled = true;
+                        slMax.IsEnabled = true;
+                        textMin.IsEnabled = true;
+                        textMax.IsEnabled = true;
 
-                    AttributeType config = CaexToAcm.GetConfigAttribute(this._selectedObj);
+                        ViewModel.AcmId = ((CAEXObject)_selectedObj).ID;
 
-                    AttributeType primary = ViewModel.GetConfigParameter(config, "distinguished");
-                    ViewModel.ConfigPrimary = bool.Parse(primary.Value);
-                    //cbPrimary.IsChecked = bool.Parse(ConfigPrimary);
+                        AttributeType config = CaexToAcm.GetConfigAttribute(this._selectedObj);
 
-                    AttributeType id = ViewModel.GetConfigParameter(config, "identifiedById");
-                    ViewModel.ConfigId = bool.Parse(id.Value);
-                    //cbId.IsChecked = bool.Parse(ConfigId);
+                        AttributeType primary = ViewModel.GetConfigParameter(config, "distinguished");
+                        ViewModel.ConfigPrimary = bool.Parse(primary.Value);
+                        //cbPrimary.IsChecked = bool.Parse(ConfigPrimary);
 
-                    AttributeType name = ViewModel.GetConfigParameter(config, "identifiedByName");
-                    ViewModel.ConfigName = bool.Parse(name.Value);
-                    //cbName.IsChecked = bool.Parse(ConfigName);
+                        AttributeType id = ViewModel.GetConfigParameter(config, "identifiedById");
+                        ViewModel.ConfigId = bool.Parse(id.Value);
+                        //cbId.IsChecked = bool.Parse(ConfigId);
 
-                    AttributeType negated = ViewModel.GetConfigParameter(config, "negated");
-                    ViewModel.ConfigNegated = bool.Parse(negated.Value);
-                    //cbNegated.IsChecked = bool.Parse(ConfigNegated);
+                        AttributeType name = ViewModel.GetConfigParameter(config, "identifiedByName");
+                        ViewModel.ConfigName = bool.Parse(name.Value);
+                        //cbName.IsChecked = bool.Parse(ConfigName);
 
-                    AttributeType descendant = ViewModel.GetConfigParameter(config, "descendant");
-                    ViewModel.ConfigDescendant = bool.Parse(descendant.Value);
-                    //cbDesendant.IsChecked = bool.Parse(ConfigDescendant);
+                        AttributeType negated = ViewModel.GetConfigParameter(config, "negated");
+                        ViewModel.ConfigNegated = bool.Parse(negated.Value);
+                        //cbNegated.IsChecked = bool.Parse(ConfigNegated);
 
-                    AttributeType min = ViewModel.GetConfigParameter(config, "minCardinality");
-                    ViewModel.ConfigMinCardinality = int.Parse(min.Value);
-                    //slMin.Value = ConfigMinCardinality;
-                    //textMin.Text = ConfigMinCardinality.ToString();
+                        AttributeType descendant = ViewModel.GetConfigParameter(config, "descendant");
+                        ViewModel.ConfigDescendant = bool.Parse(descendant.Value);
+                        //cbDesendant.IsChecked = bool.Parse(ConfigDescendant);
 
-                    AttributeType max = ViewModel.GetConfigParameter(config, "maxCardinality");
-                    ViewModel.ConfigMaxCardinality = int.Parse(max.Value);
-                    //slMax.Value = ConfigMaxCardinality;
-                    //textMax.Text = ConfigMaxCardinality.ToString();
+                        AttributeType min = ViewModel.GetConfigParameter(config, "minCardinality");
+                        ViewModel.ConfigMinCardinality = int.Parse(min.Value);
+                        //slMin.Value = ConfigMinCardinality;
+                        //textMin.Text = ConfigMinCardinality.ToString();
+
+                        AttributeType max = ViewModel.GetConfigParameter(config, "maxCardinality");
+                        ViewModel.ConfigMaxCardinality = int.Parse(max.Value);
+                        //slMax.Value = ConfigMaxCardinality;
+                        //textMax.Text = ConfigMaxCardinality.ToString();
+                    }
+                    else
+                    {
+                        btnRest.IsEnabled = false;
+                        btnPos.IsEnabled = true;
+                        btnNeg.IsEnabled = true;
+                        btnRm.IsEnabled = true;
+                        btnSetAcm.IsEnabled = false;
+
+                        cbPrimary.IsEnabled = false;
+                        cbId.IsEnabled = false;
+                        cbDesendant.IsEnabled = false;
+                        cbName.IsEnabled = false;
+                        cbNegated.IsEnabled = false;
+                        slMin.IsEnabled = false;
+                        slMax.IsEnabled = false;
+                        textMin.IsEnabled = false;
+                        textMax.IsEnabled = false;
+                    }
                 }
                 else
                 {
@@ -518,8 +552,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
             if (!string.IsNullOrEmpty(amlFilePath))
             {
                 this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
-                ViewModel.AmlFile = System.IO.Path.GetFileName(amlFilePath);
-                Document = Open(amlFilePath);
+                ViewModel.Settings.LearnerConfig.Aml = System.IO.Path.GetFileName(amlFilePath);
+                //Document = Open(amlFilePath);
+                Open(amlFilePath);
             }
             else
                 this.HelloText.Text = "Nobody to say hello to!";
@@ -557,7 +592,15 @@ namespace Aml.Editor.PlugIn.AMLLearner
             System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
             sfd.Filter = "Config|*.json";
             sfd.Title = "save the AMLLearner config file";
-            sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            //sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            try
+            {
+                sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            }
+            catch
+            {
+                sfd.InitialDirectory = Environment.SpecialFolder.MyDocuments.ToString();
+            }
             sfd.RestoreDirectory = true;
             sfd.ShowDialog();
 
@@ -996,7 +1039,16 @@ namespace Aml.Editor.PlugIn.AMLLearner
             System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog();
             ofd.Filter = "Config|*.json";
             ofd.Title = "load the AMLLearner config file";
-            ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+
+            try
+            {
+                ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            }
+            catch
+            {
+                ofd.InitialDirectory = Environment.SpecialFolder.MyDocuments.ToString();
+            }
+            
             ofd.RestoreDirectory = true;
             
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -1009,6 +1061,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 {
                     String configStr = reader.ReadToEnd();
                     ViewModel.Settings.LearnerConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<AMLLearnerConfig>(configStr);
+                    String amlfile = System.IO.Path.GetFullPath(ViewModel.Settings.LearnerConfig.Home + "/" + ViewModel.Settings.LearnerConfig.Aml);
+                    //Document = CAEXDocument.LoadFromFile(amlfile);
+                    Open(amlfile);
 
                     foreach (String positive in ViewModel.Settings.LearnerConfig.Examples.Positives)
                     {
@@ -1021,8 +1076,10 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         CAEXObject obj = getObjectById(parseObjectID(negative));
                         ViewModel.AddNegative(obj);
                     }
-                }
+                }                
             }
+
+            MessageBox.Show("config successively loaded");
         }        
 
         private void BtnSetAcm_Click(object sender, RoutedEventArgs e)
@@ -1089,7 +1146,15 @@ namespace Aml.Editor.PlugIn.AMLLearner
             System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
             sfd.Filter = "ACM file|*.aml";
             sfd.Title = "save the ACM file";
-            sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            //sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            try
+            {
+                sfd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            }
+            catch
+            {
+                sfd.InitialDirectory = Environment.SpecialFolder.MyDocuments.ToString();
+            }
             sfd.RestoreDirectory = true;
             sfd.ShowDialog();
 
@@ -1104,7 +1169,15 @@ namespace Aml.Editor.PlugIn.AMLLearner
             System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog();
             ofd.Filter = "ACM file|*.aml";
             ofd.Title = "load ACM file";
-            ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            //ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            try
+            {
+                ofd.InitialDirectory = Path.GetFullPath(ViewModel.Settings.Home);
+            }
+            catch
+            {
+                ofd.InitialDirectory = Environment.SpecialFolder.MyDocuments.ToString();
+            }
             ofd.RestoreDirectory = true;
 
             if (ofd.ShowDialog() == System.Windows.Forms.DialogResult.OK)

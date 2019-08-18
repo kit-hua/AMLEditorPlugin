@@ -30,8 +30,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
         public SettingsWindow()
         {
             //ViewModel = new SettingsViewModel();
-            if(!ViewModel.IsInitializedFromFile)
-                ViewModel.initFromFile();
+            //if(!ViewModel.IsInitializedFromFile)
+            //    ViewModel.initFromFile();
             DataContext = ViewModel;
             InitializeComponent();
         }
