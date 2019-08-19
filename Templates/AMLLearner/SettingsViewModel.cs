@@ -73,6 +73,25 @@ namespace Aml.Editor.PlugIn.AMLLearner
         public readonly string FileLocalBackup = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/AMLLearner/settings.json";
 
         [JsonIgnore]
+        public readonly string FileAcmInUse = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/AMLLearner/used_acm.aml";
+
+        [JsonIgnore]
+        public readonly string FileAcmResult = "learned_acm.aml";
+
+        [JsonIgnore]
+        public readonly string FileAmlLearnerConfig = "amlleanerConfig.json";
+
+        public string getAmlLeanerCconfigFile()
+        {
+            return DirTmp + "/" + FileAmlLearnerConfig;
+        }
+
+        public string getAcmResultFile()
+        {
+            return DirTmp + "/" + FileAcmResult;
+        }
+
+        [JsonIgnore]
         public bool IsInitializedFromFile { get; set; } = false;
 
         static SettingsViewModel()

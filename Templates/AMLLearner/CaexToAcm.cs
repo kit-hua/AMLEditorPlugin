@@ -49,6 +49,57 @@ namespace Aml.Editor.PlugIn.AMLLearner
             descendant.Value = config.IsDescendant.ToString();
         }
 
+
+        public static AMLConceptConfig toAcmConfig(AttributeType attr)
+        {
+            if (IsConfigAttribute(attr))
+            {
+                AMLConceptConfig config = new AMLConceptConfig();
+
+                foreach (AttributeType child in attr.Attribute)
+                {
+                    if (child.Name.Equals(AMLConceptConfig.CONFIG_DISTINGUISHED))
+                    {
+                        config.IsDistinguished = bool.Parse(child.Value);
+                    }
+
+                    else if (child.Name.Equals(AMLConceptConfig.CONFIG_DESCENDANT))
+                    {
+                        config.IsDescendant = bool.Parse(child.Value);
+                    }
+
+                    else if(child.Name.Equals(AMLConceptConfig.CONFIG_ID))
+                    {
+                        config.IsIdentifiedById = bool.Parse(child.Value);
+                    }
+
+                    else if(child.Name.Equals(AMLConceptConfig.CONFIG_NAME))
+                    {
+                        config.IsIdentifiedByName = bool.Parse(child.Value);
+                    }
+
+                    else if(child.Name.Equals(AMLConceptConfig.CONFIG_MIN))
+                    {
+                        config.MinCardinality = int.Parse(child.Value);
+                    }
+
+                    else if(child.Name.Equals(AMLConceptConfig.CONFIG_MAX))
+                    {
+                        config.MaxCardinality = int.Parse(child.Value);
+                    }
+
+                    else if(child.Name.Equals(AMLConceptConfig.CONFIG_NEGATED))
+                    {
+                        config.IsNegated = bool.Parse(child.Value);
+                    }
+                }
+
+                return config;
+            }
+
+            return null;
+        }
+
         public static Boolean IsConfigAttribute(AttributeType attr)
         {
             return attr.Name.Equals("queryConfig");

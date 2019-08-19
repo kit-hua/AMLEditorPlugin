@@ -96,6 +96,18 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
         }
     }
 
+    public class AMLLearnerIgnoredFeaturesConfig
+    {
+        [JsonProperty("concepts")]
+        public String[] Concepts { get; set; }
+
+        [JsonProperty("dataProperties")]
+        public String[] DataProperties { get; set; }
+
+        [JsonProperty("objectProperties")]
+        public String[] ObjectProperties { get; set; }
+    }
+
     public class AMLLearnerAlgConfig
     {
         [JsonProperty("type")]
@@ -112,6 +124,9 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
 
         [JsonProperty("acm")]
         public AMLLearnerACMConfig Acm { get; set; }
+
+        [JsonProperty("ignored")]
+        public AMLLearnerIgnoredFeaturesConfig Ignored { get; set; }
 
         public AMLLearnerAlgConfig()
         {

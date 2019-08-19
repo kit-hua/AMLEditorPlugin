@@ -54,6 +54,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
             DataContext = ViewModel;
             ViewModel.Plugin = this;
+            //lbAcmFeatures.ItemsSource = ViewModel.AcmFeatures;
 
             // Defines the Command list, which will contain user commands, which a user can select
             // via the PlugIn Menu.
@@ -322,19 +323,28 @@ namespace Aml.Editor.PlugIn.AMLLearner
         }
 
         public void ChangeAMLFilePath(string amlFilePath)
-        {
+        { 
             // Editor could pass an invalid parameter, so a test is necessary
-            if (amlFilePath != null && amlFilePath.Length>0)
+            if (amlFilePath != null && amlFilePath.Length > 0)
             {
                 string filename = System.IO.Path.GetFileName(amlFilePath);
                 if (filename != null && filename != String.Empty)
                 {
                     this.HelloText.Text = filename;
-                    ViewModel.Settings.LearnerConfig.Aml = filename;
-                    //Document = CAEXDocument.LoadFromFile(System.IO.Path.GetFullPath(amlFilePath));
+
+                    MessageBoxResult result = MessageBox.Show("Do you want to swtich the working AML file to the selected one?", "Change working AML file", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                    // change home and aml file if yes
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        ViewModel.Settings.LearnerConfig.Aml = filename;
+                        ViewModel.Settings.Home = System.IO.Path.GetDirectoryName(amlFilePath);
+                    }
+                    
+                    // otherwise, only open the file
                     Open(System.IO.Path.GetFullPath(amlFilePath));
-                }                                
-            }            
+                }
+            }
         }
 
         public CAEXDocument Document { get; private set; }
@@ -390,6 +400,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         slMax.IsEnabled = false;
                         textMin.IsEnabled = false;
                         textMax.IsEnabled = false;
+
+                        ViewModel.AcmFeatures.Clear();
                     }
 
                     else if (isPlaceHolder(selectedObject))
@@ -409,6 +421,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         slMax.IsEnabled = false;
                         textMin.IsEnabled = false;
                         textMax.IsEnabled = false;
+
+                        ViewModel.AcmFeatures.Clear();
                     }
 
                     else if (ViewModel.ContainsPositiveExample(this._selectedObj))
@@ -428,6 +442,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         slMax.IsEnabled = false;
                         textMin.IsEnabled = false;
                         textMax.IsEnabled = false;
+
+                        ViewModel.AcmFeatures.Clear();
                     }
                     else if (ViewModel.ContainsNegativeExample(this._selectedObj))
                     {
@@ -446,8 +462,10 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         slMax.IsEnabled = false;
                         textMin.IsEnabled = false;
                         textMax.IsEnabled = false;
+
+                        ViewModel.AcmFeatures.Clear();
                     }
-                    else if (ViewModel.IsAcm(this._selectedObj))
+                    else if (ViewModel.IsAcm(this._selectedObj, false))
                     {
                         btnRest.IsEnabled = false;
                         btnNeg.IsEnabled = false;
@@ -500,6 +518,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         ViewModel.ConfigMaxCardinality = int.Parse(max.Value);
                         //slMax.Value = ConfigMaxCardinality;
                         //textMax.Text = ConfigMaxCardinality.ToString();
+
+                        ViewModel.AcmFeatures = ViewModel.GetAcmFeatures((CAEXObject)_selectedObj);
                     }
                     else
                     {
@@ -518,6 +538,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                         slMax.IsEnabled = false;
                         textMin.IsEnabled = false;
                         textMax.IsEnabled = false;
+
+                        ViewModel.AcmFeatures.Clear();
                     }
                 }
                 else
@@ -537,6 +559,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     slMax.IsEnabled = false;
                     textMin.IsEnabled = false;
                     textMax.IsEnabled = false;
+
+                    ViewModel.AcmFeatures.Clear();
                 }
 
             }
@@ -747,6 +771,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     ViewModel.UpdateAMLLearnerConfig();
                     //String start = AMLLearnerProtocol.MakeStartRequest(Home + "/" + json, 5);
                     String start = AMLLearnerProtocol.MakeStartRequest(ViewModel.Settings.LearnerConfig, 5);
+                    // save the amllearner config file to tmp directory
+                    using (StreamWriter file = File.CreateText(ViewModel.Settings.getAmlLeanerCconfigFile()))
+                    {
+                        file.Write(start);
+                    }
+
                     OutputQueue.Enqueue(start);
                     //if (!write(start)) {
                     //    Console.WriteLine("failed to send start signal!");
@@ -1084,7 +1114,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnSetAcm_Click(object sender, RoutedEventArgs e)
         {
-            if (!ViewModel.IsAcm(_selectedObj))
+            if (!ViewModel.IsAcm(_selectedObj, false))
             {
                 MessageBox.Show("the selected obj is not an ACM object!");
                 return;
@@ -1212,7 +1242,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnAddAcm_Click(object sender, RoutedEventArgs e)
         {
-            if (!ViewModel.IsAcm(_selectedObj))
+            if (!ViewModel.IsAcm(_selectedObj, false))
             {
                 ViewModel.AddAcm(_selectedObj);
                 //btnSaveAcm.IsEnabled = true;
@@ -1221,7 +1251,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
         private void BtnRmAcm_Click(object sender, RoutedEventArgs e)
         {
-            if (ViewModel.IsAcm(_selectedObj))
+            if (ViewModel.IsAcm(_selectedObj, false))
             {
                 ViewModel.RemoveAcm(_selectedObj);
             }
@@ -1230,5 +1260,24 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 MessageBox.Show("the selected obj is not an ACM object!");
             }
         }
+
+        private void BtnClearPos_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ClearPositives();
+        }
+
+        private void BtnClearNeg_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ClearNegatives();
+        }
+
+        private void BtnRmAcmFeature_Click(object sender, RoutedEventArgs e)
+        {            
+            if (lbAcmFeatures.SelectedItem != null)
+            {
+                ViewModel.RemoveAcmFeature(lbAcmFeatures.SelectedItem as AcmFeature);
+            }
+        }
+
     }
 }

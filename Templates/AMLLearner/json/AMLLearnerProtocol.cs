@@ -68,7 +68,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.json
                 NumResults = numResults
             };
 
-            return Newtonsoft.Json.JsonConvert.SerializeObject(start);
+            return Newtonsoft.Json.JsonConvert.SerializeObject(start, Formatting.Indented);
         }
 
         public static String MakeStopRequest()
