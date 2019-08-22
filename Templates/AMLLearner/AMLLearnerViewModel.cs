@@ -20,7 +20,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
     public enum ExampleCollectionType { SELECTED, DEDUCED };
     public enum TreeType { POSITIVE, NEGATIVE, ACM};
 
-    public class AcmFeature
+    public class AcmFeature : IEqualityComparer<AcmFeature>, IEquatable<AcmFeature>
     {
         public string Type { get; set; }
         public string Name { get; set; }
@@ -32,7 +32,22 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             Fullname = Type + ":" + Name;
         }
 
-        public string Fullname { get; set; }        
+        public string Fullname { get; set; }
+
+        public bool Equals(AcmFeature x, AcmFeature y)
+        {
+            return x.Type.Equals(y.Type) && x.Name.Equals(y.Name);
+        }
+
+        public int GetHashCode(AcmFeature obj)
+        {
+            return (Type + Name).GetHashCode();
+        }
+
+        public bool Equals(AcmFeature other)
+        {
+            return this.Type.Equals(other.Type) && this.Name.Equals(other.Name);
+        }
     }
 
     public class AMLLearnerViewModel : ViewModelBase, INotifyPropertyChanged
@@ -103,6 +118,20 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         //public List<CAEXObject> Negatives { get; private set; }
 
         public ObjectType ObjType { get; private set; } = ObjectType.UNKNOWN;
+
+        public string _indicationText;
+        public string IndicationText
+        {
+            get
+            {
+                return _indicationText;
+            }
+            set
+            {
+                _indicationText = value;
+                RaisePropertyChanged(() => IndicationText);
+            }
+        }
 
         static AMLLearnerViewModel()
         {
@@ -977,7 +1006,9 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         public void RemoveActiveAcmFeature(AcmFeature feature)
         {
             SelectedAcmFeatures.Remove(feature);
-            IgnoredAcmFeatures.Add(feature);
+
+            if(!IgnoredAcmFeatures.Contains(feature))
+                IgnoredAcmFeatures.Add(feature);
 
             CAEXObject obj = RemoveActiveAcmFeature(feature, (CAEXObject)CurrentSelectedObject);
 

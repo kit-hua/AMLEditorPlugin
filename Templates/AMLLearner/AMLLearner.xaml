@@ -24,7 +24,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- The meta info area -->
-                    <TextBlock Grid.ColumnSpan="3" Grid.Row="0" x:Name="HelloText" FontSize="20" FontWeight="Bold" Foreground="Black" Text="Selecting Object ABC" HorizontalAlignment="Center" Margin="100,0,99,0"/>
+                    <TextBlock Grid.ColumnSpan="3" Grid.Row="0" FontSize="20" FontWeight="Bold" Foreground="Black" Text="{Binding Path=IndicationText}" HorizontalAlignment="Center" Margin="100,0,99,0"/>
 
                     <!-- The positive examples area -->
                     <Grid Grid.Row ="1" Grid.Column="0" Grid.ColumnSpan="1" Margin="5,5" >
@@ -120,8 +120,15 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.ColumnSpan="2" Grid.Row="0" FontSize="20" FontWeight="Bold" Foreground="Black" Text="{Binding Path=IndicationText}" HorizontalAlignment="Center" Margin="100,0,99,0"/>
+
                     <!-- The ACM area -->
-                    <Grid Grid.Row="0" Grid.Column="0" >
+                    <Grid Grid.Row="1" Grid.Column="0" >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
@@ -195,7 +202,7 @@
                         </Grid>
                     </Grid> <!--The Acm editing area-->
 
-                    <Grid Grid.Column="1">
+                    <Grid Grid.Column="1" Grid.Row="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="*"/>

@@ -330,7 +330,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
                 string filename = System.IO.Path.GetFileName(amlFilePath);
                 if (filename != null && filename != String.Empty)
                 {
-                    this.HelloText.Text = filename;
+                    //this.HelloText.Text = filename;
+                    ViewModel.IndicationText = filename;
 
                     if (ViewModel.GetAllSelectedPositives().Any() || ViewModel.GetAllSelectedNegatives().Any() || IsLoadedConfig)
                     {
@@ -378,8 +379,9 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {            
             if (selectedObject != null)
             {
-                String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);                
-                this.HelloText.Text = prefix + s;
+                String s = ((selectedObject is CAEXObject caex) ? caex.Name : selectedObject.Node.Name.LocalName);
+                //this.HelloText.Text = prefix + s;
+                ViewModel.IndicationText = prefix + s;
 
                 if (selectedObject is CAEXObject)
                 {
@@ -577,13 +579,12 @@ namespace Aml.Editor.PlugIn.AMLLearner
         {
             if (!string.IsNullOrEmpty(amlFilePath))
             {
-                this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
+                //this.HelloText.Text = System.IO.Path.GetFileName(amlFilePath);
+                ViewModel.IndicationText = System.IO.Path.GetFileName(amlFilePath);
                 ViewModel.Settings.LearnerConfig.Aml = System.IO.Path.GetFileName(amlFilePath);
                 //Document = Open(amlFilePath);
                 Open(amlFilePath);
             }
-            else
-                this.HelloText.Text = "Nobody to say hello to!";
 
             if (selectedObject != null)
             {
@@ -950,7 +951,8 @@ namespace Aml.Editor.PlugIn.AMLLearner
         private void ResetUI()
         {
             this._selectedObj = null;
-            this.HelloText.Text = "";
+            //this.HelloText.Text = "";
+            ViewModel.IndicationText = "";
             btnNeg.IsEnabled = false;
             btnPos.IsEnabled = false;
             btnRm.IsEnabled = false;
