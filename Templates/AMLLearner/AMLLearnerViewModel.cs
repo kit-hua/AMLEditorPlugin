@@ -60,18 +60,18 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         //public readonly String AmlFile = "data_3.0_SRC.aml";
         //public string AmlFile { get; set; }
         //public AMLLearnerConfig Config { get; set; }
-        public AMLLearnerACMConfig Acm { get; set; }
+        public AMLLearnerACMConfig SelectedAcm { get; set; }
 
-        private ObservableCollection<AcmFeature> _acmFeatures;
-        public ObservableCollection<AcmFeature> AcmFeatures {
+        private ObservableCollection<AcmFeature> _selectedAcmFeatures;
+        public ObservableCollection<AcmFeature> SelectedAcmFeatures {
             get
             {
-                return _acmFeatures;
+                return _selectedAcmFeatures;
             }
             set
             {
-                _acmFeatures = value;
-                RaisePropertyChanged(() => AcmFeatures);
+                _selectedAcmFeatures = value;
+                RaisePropertyChanged(() => SelectedAcmFeatures);
             }
         }
         public List<AcmFeature> IgnoredAcmFeatures { get; set; }
@@ -118,15 +118,15 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             if (!Settings.IsInitializedFromFile)
                 Settings.initFromFile();
 
-            Acm = new AMLLearnerACMConfig();
+            SelectedAcm = new AMLLearnerACMConfig();
             //Acm.File = Settings.getAcmResultFile();
-            Acm.File = Settings.FileAcmInUse;
+            SelectedAcm.File = Settings.FileAcmInUse;
 
-            AcmFeatures = new ObservableCollection<AcmFeature>();
-            AcmFeatures.Add(new AcmFeature("class", "Robot"));
-            AcmFeatures.Add(new AcmFeature("class", "Structure"));
-            AcmFeatures.Add(new AcmFeature("attribute", "weight"));
-            AcmFeatures.Add(new AcmFeature("attribtue", "payload"));
+            SelectedAcmFeatures = new ObservableCollection<AcmFeature>();
+            SelectedAcmFeatures.Add(new AcmFeature("class", "Robot"));
+            SelectedAcmFeatures.Add(new AcmFeature("class", "Structure"));
+            SelectedAcmFeatures.Add(new AcmFeature("attribute", "weight"));
+            SelectedAcmFeatures.Add(new AcmFeature("attribtue", "payload"));
 
             IgnoredAcmFeatures = new List<AcmFeature>();
 
@@ -370,7 +370,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         {
             //Negatives.Clear();
             TreeAcm.Clear();
-            Acm.Id = null;
+            SelectedAcm.Id = null;
             UpdateTreeViewModel(TreeType.ACM);
         }
 
@@ -382,47 +382,54 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         //    }
 
         //    return false;
-        //}
+        //}        
 
-        public bool IsAcm(CAEXObject obj, bool needsToBeDistinguished)
+
+        public bool IsDistinguishedSelectedAcm(CAEXObject obj)
         {
             if (TreeAcm is null)
                 return false;
-
-            if(!needsToBeDistinguished)
-                return TreeAcm.ContainsDataObject(obj);
 
             // since ACM can be nested, and the first level object can be a placeholder, we need to find the one with "distinguished=true"
             foreach (InternalElementType ie in TreeAcm.Ihs[0].Ih.Descendants<InternalElementType>())
             {
                 if (ie.ID.Equals(obj.ID))
                 {
-                    AttributeType config = CaexToAcm.GetConfigAttribute(ie);
+                    AttributeType config = AcmUtilities.GetConfigAttribute(ie);
                     if (config != null)
                     {
-                        AMLConceptConfig acm = CaexToAcm.toAcmConfig(config);
+                        AMLConceptConfig acm = AcmUtilities.toAcmConfig(config);
                         if (acm.IsDistinguished)
                             return true;
-                    }               
-                }                
+                    }
+                }
             }
 
             foreach (ExternalInterfaceType ei in TreeAcm.Ihs[0].Ih.Descendants<ExternalInterfaceType>())
             {
                 if (ei.ID.Equals(obj.ID))
                 {
-                    AttributeType config = CaexToAcm.GetConfigAttribute(ei);
+                    AttributeType config = AcmUtilities.GetConfigAttribute(ei);
                     if (config != null)
                     {
-                        AMLConceptConfig acm = CaexToAcm.toAcmConfig(config);
+                        AMLConceptConfig acm = AcmUtilities.toAcmConfig(config);
                         if (acm.IsDistinguished)
                             return true;
                     }
-                }                
+                }
             }
 
             return false;
+        }
+        
 
+        public bool IsSelectedAcm(CAEXObject obj)
+        {
+            if (TreeAcm is null)
+                return false;
+            else
+                //return TreeAcm.ContainsDataObject(obj);            
+                return TreeAcm.ContainsObject(obj);
         }
 
         public void AddAcm(CAEXObject obj)
@@ -432,13 +439,13 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             if (obj is InternalElementType)
             {                
                 InternalElementType ie = (InternalElementType)obj;
-                CaexToAcm.toAcm(ref ie, true);
+                AcmUtilities.toAcm(ref ie, true);
             }
 
             else if (obj is ExternalInterfaceType)
             {
                 ExternalInterfaceType ei = (ExternalInterfaceType)obj;
-                CaexToAcm.toAcm(ref ei, true);
+                AcmUtilities.toAcm(ref ei, true);
             }
 
             TreeAcm.AddObjectToIh(TreeAcm.Ihs[0], obj);
@@ -545,7 +552,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
         public void AdaptQueryConfig(CAEXObject obj, String config, String value)
         {            
-            AttributeType configAttr = CaexToAcm.GetConfigAttribute(obj);
+            AttributeType configAttr = AcmUtilities.GetConfigAttribute(obj);
             AttributeType configParam = GetConfigParameter(configAttr, config);
             configParam.Value = value;
         }
@@ -558,7 +565,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             set
             {
                 _configPriamry = value;
-                if(IsAcm((CAEXObject) CurrentSelectedObject, false))
+                if(IsSelectedAcm((CAEXObject) CurrentSelectedObject))
                     AdaptQueryConfig((CAEXObject) CurrentSelectedObject, "distinguished", value.ToString());
 
                 RaisePropertyChanged("ConfigPrimary");
@@ -573,7 +580,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             set
             {
                 _configId = value;
-                if (IsAcm((CAEXObject)CurrentSelectedObject, false))
+                if (IsSelectedAcm((CAEXObject)CurrentSelectedObject))
                     AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "identifiedById", value.ToString());
 
                 RaisePropertyChanged("ConfigId");
@@ -589,7 +596,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             {
                 _configName = value;
 
-                if (IsAcm((CAEXObject)CurrentSelectedObject, false))
+                if (IsSelectedAcm((CAEXObject)CurrentSelectedObject))
                     AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "identifiedByName", value.ToString());
 
                 RaisePropertyChanged("ConfigName");
@@ -605,7 +612,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             {
                 _configNegated = value;
 
-                if (IsAcm((CAEXObject)CurrentSelectedObject, false))
+                if (IsSelectedAcm((CAEXObject)CurrentSelectedObject))
                     AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "negated", value.ToString());
 
                 RaisePropertyChanged("ConfigNegated");
@@ -621,7 +628,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             {
                 _configDescendant = value;
 
-                if (IsAcm((CAEXObject)CurrentSelectedObject, false))
+                if (IsSelectedAcm((CAEXObject)CurrentSelectedObject))
                     AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "descendant", value.ToString());
 
                 RaisePropertyChanged("ConfigDescendant");
@@ -637,7 +644,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             {
                 _configMincardinalitiy = value;
 
-                if (IsAcm((CAEXObject)CurrentSelectedObject, false))
+                if (IsSelectedAcm((CAEXObject)CurrentSelectedObject))
                     AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "minCardinality", value.ToString());
 
                 RaisePropertyChanged("ConfigMinCardinality");
@@ -653,7 +660,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             {
                 _configMaxcardinalitiy = value;
 
-                if (IsAcm((CAEXObject)CurrentSelectedObject, false))
+                if (IsSelectedAcm((CAEXObject)CurrentSelectedObject))
                     AdaptQueryConfig((CAEXObject)CurrentSelectedObject, "maxCardinality", value.ToString());
 
                 RaisePropertyChanged("ConfigMaxCardinality");
@@ -732,10 +739,10 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             //Settings.LearnerConfig.Aml = AmlFile;
             Settings.LearnerConfig.reinitialize(Settings.Home, Settings.LearnerConfig.Aml, objType, examples);
 
-            if (Acm.Id != null)
+            if (SelectedAcm.Id != null)
             {
                 //UpdateAcm();
-                Settings.LearnerConfig.Algorithm.Acm = Acm;        
+                Settings.LearnerConfig.Algorithm.Acm = SelectedAcm;        
             }
         }
 
@@ -772,9 +779,12 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         /// </summary>
         public void UpdateAcm()
         {
-            if (IsAcm((CAEXObject)CurrentSelectedObject, false))
+            if (IsSelectedAcm((CAEXObject)CurrentSelectedObject))
             {
-                Acm.Id = ((CAEXObject)CurrentSelectedObject).ID;
+                // update the selected ACM
+                SelectedAcm.Id = ((CAEXObject)CurrentSelectedObject).ID;
+
+                // create an AML file to store the selected ACM for future learning
                 CAEXDocument acm = CAEXDocument.New_CAEXDocument();
                 InstanceHierarchyType ih = acm.CAEXFile.InstanceHierarchy.Append("acm");
 
@@ -787,8 +797,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                     InternalElementType placeholder = ih.InternalElement.Append("PlaceHolder");
                     placeholder.Insert((ExternalInterfaceType)CurrentSelectedObject);
                 }
-
-                //TreeAcm.Document.SaveToFile(Settings.getAcmResultFile(), true);
+                
                 acm.SaveToFile(Settings.FileAcmInUse, true);
                 MessageBox.Show("successfully set the acm [" + ((CAEXObject) CurrentSelectedObject).Name + "] for learning!");
             }
@@ -825,7 +834,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             return document;
         }
 
-        private bool isAcmFeature(AttributeType attr)
+        private bool IsAcmFeature(AttributeType attr)
         {
             if (attr.Value != null && attr.Value != "")
                 return true;
@@ -836,17 +845,24 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             return false;
         }
 
+
+        /// <summary>
+        /// Get the Acm features of the CAEX attribute: attributes, class references
+        /// </summary>
+        /// <param name="attr"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
         private ObservableCollection<AcmFeature> GetAcmFeatures(AttributeType attr, String prefix)
         {
             ObservableCollection<AcmFeature> features = new ObservableCollection<AcmFeature>();
-            if (!CaexToAcm.IsConfigAttribute(attr))
+            if (!AcmUtilities.IsConfigAttribute(attr))
             {                
                 if (prefix != "")
                 {
                     prefix += "_";
                 }
 
-                if (isAcmFeature(attr))
+                if (IsAcmFeature(attr))
                 {
                     features.Add(new AcmFeature("attribute", prefix + attr.Name));
                 }
@@ -866,10 +882,15 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             return features;
         }
 
+        /// <summary>
+        /// Get the Acm features of the CAEX object: attributes, class references       
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public ObservableCollection<AcmFeature> GetAcmFeatures(CAEXObject obj)
         {
             ObservableCollection<AcmFeature> features = new ObservableCollection<AcmFeature>();
-            if (IsAcm(obj, false))
+            if (IsSelectedAcm(obj))
             {                
                 if (obj is InternalElementType)
                 {
@@ -886,7 +907,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
                     foreach (AttributeType attr in ie.Attribute)
                     {
-                        if (!CaexToAcm.IsConfigAttribute(attr))
+                        if (!AcmUtilities.IsConfigAttribute(attr))
                         {
                             foreach (AcmFeature childFeature in GetAcmFeatures(attr, ""))
                             {
@@ -925,7 +946,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
                     foreach (AttributeType attr in ei.Attribute)
                     {
-                        if (!CaexToAcm.IsConfigAttribute(attr))
+                        if (!AcmUtilities.IsConfigAttribute(attr))
                         {
                             foreach (AcmFeature childFeature in GetAcmFeatures(attr, ""))
                             {
@@ -940,18 +961,30 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             return features;
         }
 
+
+        /// <summary>
+        /// Remove the given Acm feature from the current learning session:
+        /// it will not be used for learning of any examples
+        /// </summary>
+        /// <param name="feature"></param>
         public void RemoveAcmFeature(AcmFeature feature)
         {
-            AcmFeatures.Remove(feature);
+            SelectedAcmFeatures.Remove(feature);
             IgnoredAcmFeatures.Add(feature);
 
             CAEXObject obj = RemoveAcmFeature(feature, (CAEXObject)CurrentSelectedObject);
 
-            TreeAcm.RemoveObject((CAEXObject)CurrentSelectedObject);
-            TreeAcm.AddObjectToIh(TreeAcm.Ihs[0], obj);
+            //TreeAcm.RemoveObject((CAEXObject)CurrentSelectedObject);
+            //TreeAcm.AddObjectToIh(TreeAcm.Ihs[0], obj);
             UpdateTreeViewModel(TreeType.ACM);
         }
 
+        /// <summary>
+        /// Remove the given Acm feature from the given caex object: remove it from the XML data object
+        /// </summary>
+        /// <param name="feature"></param>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private CAEXObject RemoveAcmFeature(AcmFeature feature, CAEXObject obj)
         {            
             if (feature.Type.Equals("class"))
@@ -1002,21 +1035,37 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 if (obj is AttributeType)
                 {
                     AttributeType attr = (AttributeType)obj;
+                    string featureName = feature.Name;
+                    string[] tokens = featureName.Split('_');
 
-                    if (ShouldRemoveAttribute(feature, attr))
+                    // if the attribute is the same as the last token of the feature name
+                    // remove
+                    if (tokens[tokens.Length - 1].Equals(attr.Name))
                     {
                         attr.Remove();
                     }
-                    else
+
+                    // if the attribute is not the same as the last token of the feature name
+                    // but is part of the feature name: check its children
+                    else if(tokens.Contains(attr.Name))
                     {
                         foreach (AttributeType child in attr.Attribute.ToList())
                         {
-                            if (ShouldRemoveAttribute(feature, child))
-                            {
+                            if(!AcmUtilities.IsConfigAttribute(child))
                                 RemoveAcmFeature(feature, child);
-                            }
                         }
-                    }                    
+
+                        // if the attribute has neither value nor constraints: it is a nested attribute
+                        // if the nested attribute has no sub attributes: all sub attributes are removed
+                        // then we remove the nested attribute also
+                        if (attr.Value == null && !attr.Constraint.Exists && attr.Attribute.Exists)
+                        {
+                            attr.Remove();
+                        }
+                    }
+
+                    // if the attribute is not part of the feature name
+                    // it shall not be removed
                 }
 
                 else if (obj is ExternalInterfaceType)
@@ -1025,7 +1074,8 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
                     foreach (AttributeType attr in ei.Attribute.ToList())
                     {
-                        RemoveAcmFeature(feature, attr);
+                        if(!AcmUtilities.IsConfigAttribute(attr))
+                            RemoveAcmFeature(feature, attr);
                     }
                 }
 
@@ -1035,7 +1085,8 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
                     foreach (AttributeType attr in ie.Attribute.ToList())
                     {
-                        RemoveAcmFeature(feature, attr);
+                        if (!AcmUtilities.IsConfigAttribute(attr))
+                            RemoveAcmFeature(feature, attr);
                     }
                 }                
             }
@@ -1043,13 +1094,26 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             return obj;
         }
 
-        private Boolean ShouldRemoveAttribute(AcmFeature feature, AttributeType attr)
+
+        /// <summary>
+        /// Whether a caex attribute is considered to be an Acm feature to be removed
+        /// - for example, if the caex attribtue has name "frame", and "featureToBeRemoved" has name "frame_x"
+        /// then the caex attribute "frame" shall be removed from its owner CAEX object
+        /// - for example, if the caex attribtue has name "x", and "featureToBeRemoved" has name "frame_x"
+        /// then the caex attribute "x" shall be removed from its owner CAEX object
+        /// </summary>
+        /// <param name="featureToBeRemoved"></param>
+        /// <param name="attr"></param>
+        /// <returns></returns>
+        private Boolean ShouldRemoveAttribute(AcmFeature featureToBeRemoved, AttributeType attr)
         {
-            if (feature.Name.Contains(attr.Name))
+            if (featureToBeRemoved.Name.Contains(attr.Name))
             {
                 return true;
             }
             return false;
         }
+
+
     }
 }

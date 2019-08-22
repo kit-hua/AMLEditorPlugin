@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Aml.Editor.PlugIn.AMLLearner
 {
-    public class CaexToAcm
+    public class AcmUtilities
     {
         public static void setAcmConfigToCaexAttribute(AttributeType attr, AMLConceptConfig config)
         {
@@ -269,6 +269,36 @@ namespace Aml.Editor.PlugIn.AMLLearner
                     toAcm(ref ieChild, false);
                 }
             }
+        }
+
+
+        /// <summary>
+        /// get the composed Acm feature name of a nested caex attribute
+        /// for example, the caex attribute "frame.x" will be converted to "frame_x"
+        /// </summary>
+        /// <param name="attr"></param>
+        /// <returns></returns>
+        public static List<string> GetAcmFeatureNames(AttributeType attr, string prefix)
+        {
+            string name = prefix + attr.Name;
+            List<string> names = new List<string>();
+            if (attr.Attribute.Exists)
+            {
+                foreach (AttributeType child in attr.Attribute)
+                {
+                    List<string> childNames = GetAcmFeatureNames(child, name);
+                    foreach (string childName in childNames)
+                    {
+                        names.Add(childName);
+                    }
+                }
+            }
+            else
+            {
+                names.Add(name);                
+            }
+
+            return names;
         }
 
     }
