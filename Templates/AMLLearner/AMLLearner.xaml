@@ -9,242 +9,235 @@
              d:DesignHeight="450" 
              d:DesignWidth="800">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <TabControl x:Name="tabControl">
+            <TabItem Header="AMLLearner">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-        <!-- The menu bar -->
-        <!--<DockPanel Grid.Row="0" Grid.ColumnSpan="5">
-            <Menu DockPanel.Dock="Top">
-                <MenuItem Header="_File">
-                    <MenuItem Header="_New" />
-                    <MenuItem Header="_Open" />
-                    <MenuItem Header="_Save" />
-                    <MenuItem x:Name="menuSetting" Header="S_ettings" Click="MenuSetting_Click"/>
-                    <Separator />
-                    <MenuItem Header="_Exit" />
-                </MenuItem>
-            </Menu>
-        </DockPanel>-->
+                    <!-- The meta info area -->
+                    <TextBlock Grid.ColumnSpan="3" Grid.Row="0" x:Name="HelloText" FontSize="20" FontWeight="Bold" Foreground="Black" Text="Selecting Object ABC" HorizontalAlignment="Center" Margin="100,0,99,0"/>
 
-        <!-- The meta info area -->
-        <TextBlock Grid.ColumnSpan="5" Grid.Row="1" x:Name="HelloText" FontSize="20" FontWeight="Bold" Foreground="Black" Text="Selecting Object ABC" HorizontalAlignment="Center"/>
-        <!--<Grid Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="3" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="btnSettings" Grid.Column="0" Content="Settings" Width="50" Click="BtnSettings_Click"/>
-            <Button x:Name="btnHome" Grid.Column="1" Content="Home" Width="50" Click="BtnHome_Click"/>
-            <TextBox x:Name="textHome" Grid.Column="2" BorderBrush="Black" BorderThickness="1" SnapsToDevicePixels="True" IsReadOnly="True" 
-                     Text="{Binding Path=Home, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=D:/repositories/aml/aml_framework/src/test/resources/demo}" 
-                     Margin="5,0,5,0" TextAlignment="Justify" VerticalAlignment="Stretch"/>
-        </Grid>-->
+                    <!-- The positive examples area -->
+                    <Grid Grid.Row ="1" Grid.Column="0" Grid.ColumnSpan="1" Margin="5,5" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Content="positive examples" HorizontalAlignment="Center"/>
+                        <aml:AMLTreeView x:Name="AMLDocumentTreePos" Grid.Row="1" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" 
+                                         VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelPos}"/>
+                    </Grid>
 
-        <!-- The positive examples area -->
-        <Grid Grid.Row ="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <aml:AMLTreeView x:Name="AMLDocumentTreePos" Grid.Row="0" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelPos}"/>
-            <!--<Label Grid.Row="1" Content="positive examples" HorizontalAlignment="Center"/>-->
-        </Grid>
+                    <!-- The negative examples area -->
+                    <Grid Grid.Row ="1" Grid.Column="1" Grid.ColumnSpan="1" Margin="5,5" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Content="negative examples" HorizontalAlignment="Center"/>
+                        <aml:AMLTreeView x:Name="AMLDocumentTreeNeg" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" Grid.Row ="1" 
+                                         VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelNeg}"/>
+                    </Grid>
 
-        <!-- The negative examples area -->
-        <Grid Grid.Row ="3" Grid.Column="2" Grid.ColumnSpan="2" Margin="5,5" >
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <aml:AMLTreeView x:Name="AMLDocumentTreeNeg" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" Grid.Row ="0" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelNeg}"/>
-            <!--<Label Grid.Row="1" Content="negative examples" HorizontalAlignment="Center"/>-->
-        </Grid>
+                    <!-- The example manipulation area -->
+                    <Grid Grid.Row="1" Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-        <!-- The example manipulation area -->
-        <Grid Grid.Row="2" Grid.Column="4" Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            
-            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
-                <Button x:Name="btnPos"  Content="add to positive" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnPos_Click"/>
-                <Button x:Name="btnNeg" Content="add to negative" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnNeg_Click"/>
-                <Button x:Name="btnRest" Content="rest to negative" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnRest_Click"/>
-                <!--<Button x:Name="btnRm" Content="remove selected" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnRm_Click"/>-->
-                <!--<Button x:Name="btnClear" Content="clear all" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClear_Click"/>-->
-                <!--<Button x:Name="btnStoreConfig" Content="store config" Margin="0,3" Width="90" IsEnabled="True" Click="BtnStoreConfig_Click"/>
-                <Button x:Name="btnLoadConfig" Content="load config" Margin="0,3" Width="90" Click="BtnLoadConfig_Click"/>
-                <Button x:Name="btnSettings" Content="settings" Margin="0,3" Width="90" Click="BtnSettings_Click"/>-->
-            </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
+                            <Button x:Name="btnPos"  Content="add to positive" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnPos_Click"/>
+                            <Button x:Name="btnNeg" Content="add to negative" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnNeg_Click"/>
+                            <Button x:Name="btnRest" Content="rest to negative" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnRest_Click"/>
+                        </StackPanel>
 
-            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
-                <Button x:Name="btnRm" Content="remove selected" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnRm_Click"/>
-                <Button x:Name="btnClearPos" Content="clear positives" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClearPos_Click"/>
-                <Button x:Name="btnClearNeg" Content="clear negatives" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClearNeg_Click"/>
-            </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
+                            <Button x:Name="btnRm" Content="remove selected" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="False" Click="BtnRm_Click"/>
+                            <Button x:Name="btnClearPos" Content="clear positives" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClearPos_Click"/>
+                            <Button x:Name="btnClearNeg" Content="clear negatives" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClearNeg_Click"/>
+                        </StackPanel>
 
-            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
-                <Button x:Name="btnLoadConfig" Content="load config" Margin="0,3" Width="90" Click="BtnLoadConfig_Click"/>
-                <Button x:Name="btnStoreConfig" Content="store config" Margin="0,3" Width="90" IsEnabled="True" Click="BtnStoreConfig_Click"/>
-                <Button x:Name="btnClear" Content="clear all" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClear_Click"/>
-            </StackPanel>
+                        <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
+                            <Button x:Name="btnLoadConfig" Content="load config" Margin="0,3" Width="90" Click="BtnLoadConfig_Click"/>
+                            <Button x:Name="btnStoreConfig" Content="store config" Margin="0,3" Width="90" IsEnabled="True" Click="BtnStoreConfig_Click"/>
+                            <Button x:Name="btnClear" Content="clear all" HorizontalAlignment="Center" Margin="0, 3" VerticalAlignment="Center" Width="90" IsEnabled="True" Click="BtnClear_Click"/>
+                        </StackPanel>
 
-            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
-                <Button x:Name="btnSettings" Content="settings" Margin="0,3" Width="90" Click="BtnSettings_Click"/>
-            </StackPanel>
-        </Grid>
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical" Margin="0,0" VerticalAlignment="Center">
+                            <Button x:Name="btnSettings" Content="settings" Margin="0,3" Width="90" Click="BtnSettings_Click"/>
+                        </StackPanel>
+                    </Grid>
 
-        <!-- The execution area -->
-        <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+                    <!-- The execution area -->
+                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-            <!-- The logger area -->
-            <ScrollViewer BorderBrush="DarkGray" BorderThickness="1" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,0,5">
-                <TextBox x:Name="Logger" IsReadOnly="True" TextWrapping="Wrap"/>
-            </ScrollViewer>
+                        <!-- The logger area -->
+                        <ScrollViewer BorderBrush="DarkGray" BorderThickness="1" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,5,0,5">
+                            <TextBox x:Name="Logger" IsReadOnly="True" TextWrapping="Wrap"/>
+                        </ScrollViewer>
 
-            <!-- The execution control area -->
-            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
-                <Button x:Name="btnStartServer" Content="start server" Margin="3,0" Width="80" Click="BtnStartServer_Click"  IsEnabled="True"/>
-                <Button x:Name="btnRun" Content="run learning" Margin="3,0" Width="80" Click="BtnRun_Click" IsEnabled="True"/>
-                <Button x:Name="btnStop" Content="stop learning" Margin="3,0" Width="80" Click="BtnStop_Click" IsEnabled="False"/>
-                <Button x:Name="btnLoadResults" Content="load results" Margin="3,0" Width="80" Click="BtnLoadResults_Click" IsEnabled="False"/>
-                <Button x:Name="btnLoadACM" Content="load ACMs" Margin="3,0" Width="80" Click="BtnLoadACM_Click"  IsEnabled="False"/>
-            </StackPanel>
-        </Grid>
+                        <!-- The execution control area -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
+                            <Button x:Name="btnStartServer" Content="start server" Margin="3,0" Width="80" Click="BtnStartServer_Click"  IsEnabled="True"/>
+                            <Button x:Name="btnRun" Content="run learning" Margin="3,0" Width="80" Click="BtnRun_Click" IsEnabled="True"/>
+                            <Button x:Name="btnStop" Content="stop learning" Margin="3,0" Width="80" Click="BtnStop_Click" IsEnabled="False"/>
+                            <Button x:Name="btnLoadResults" Content="load results" Margin="3,0" Width="80" Click="BtnLoadResults_Click" IsEnabled="False"/>
+                            <Button x:Name="btnLoadACM" Content="load ACMs" Margin="3,0" Width="80" Click="BtnLoadACM_Click"  IsEnabled="False"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </TabItem>
 
-        <!-- The ACM area -->
-        <Grid Grid.Row="4" Grid.Column="3" Grid.ColumnSpan="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <!--the acm editor window-->
+            <TabItem Header="Acm Editor">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-            <!-- The acm tree area -->
-            <aml:AMLTreeView x:Name="AMLDocumentTreeACM" Grid.Row ="0" Grid.Column="0" Margin="5,5" BorderBrush="DarkGray" BorderThickness="0.5" SnapsToDevicePixels="True" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelAcm}" />
+                    <!-- The ACM area -->
+                    <Grid Grid.Row="0" Grid.Column="0" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-            <!-- The acm control area -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
-                <CheckBox x:Name="cbPrimary" Content="primary"      
+                        <Label Content="Selected Acms" Grid.Row="0" HorizontalAlignment="Center"/>
+                        <aml:AMLTreeView x:Name="AMLDocumentTreeACM" Grid.Row="1" Margin="5,5" BorderBrush="DarkGray" BorderThickness="0.5" 
+                                     SnapsToDevicePixels="True" VerticalAlignment="Stretch" TreeViewModel="{Binding Path=AMLDocumentTreeViewModelAcm}" />
+                        
+                        <!-- The acm control area -->
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3">
+                            <CheckBox x:Name="cbPrimary" Content="primary"      
                           Unchecked="CbPrimary_Unchecked"
                           IsChecked="{Binding Path=ConfigPrimary, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="False" Margin="3,0"/>
-                <CheckBox x:Name="cbId" Content="id" 
+                            <CheckBox x:Name="cbId" Content="id" 
                           Unchecked="CbId_Unchecked"
                           IsChecked="{Binding Path=ConfigId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           IsEnabled="False" Margin="3,0"/>
-                <CheckBox x:Name="cbName" Content="name" 
+                            <CheckBox x:Name="cbName" Content="name" 
                           Unchecked="CbName_Unchecked"
                           IsChecked="{Binding Path=ConfigName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                           IsEnabled="False" Margin="3,0"/>
-                <CheckBox x:Name="cbNegated" Content="negated" 
+                            <CheckBox x:Name="cbNegated" Content="negated" 
                           Unchecked="CbNegated_Unchecked"
                           IsChecked="{Binding Path=ConfigNegated, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                           IsEnabled="False" Margin="3,0"/>
-                <CheckBox x:Name="cbDesendant" Content="descendant" 
+                            <CheckBox x:Name="cbDesendant" Content="descendant" 
                           Unchecked="CbDesendant_Unchecked"
                           IsChecked="{Binding Path=ConfigDescendant, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           IsEnabled="False" Margin="3,0"/>
-            </StackPanel>
+                        </StackPanel>
 
-            <!-- The acm control area -->
-            <StackPanel Grid.Row="2" Margin="0,3" VerticalAlignment="Center">
-                <DockPanel VerticalAlignment="Center">
-                    <Label DockPanel.Dock="Left">minCardinality:</Label>
-                    <TextBox x:Name="textMin" Text="{Binding ElementName=slMin, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40" />
-                    <Slider x:Name="slMin" Minimum="-1"  Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMin_ValueChanged" 
+                        <!-- The acm control area -->
+                        <StackPanel Grid.Row="3" Margin="0,3" VerticalAlignment="Center">
+                            <DockPanel VerticalAlignment="Center">
+                                <Label DockPanel.Dock="Left">minCardinality:</Label>
+                                <TextBox x:Name="textMin" Text="{Binding ElementName=slMin, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40" />
+                                <Slider x:Name="slMin" Minimum="-1"  Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMin_ValueChanged" 
                             Value="{Binding Path=ConfigMinCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                </DockPanel>
-                <DockPanel VerticalAlignment="Center">
-                    <Label DockPanel.Dock="Left">maxCardinality:</Label>
-                    <TextBox x:Name="textMax" Text="{Binding ElementName=slMax, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40"/>
-                    <Slider x:Name="slMax" Minimum="-1" Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMax_ValueChanged"
+                            </DockPanel>
+                            <DockPanel VerticalAlignment="Center">
+                                <Label DockPanel.Dock="Left">maxCardinality:</Label>
+                                <TextBox x:Name="textMax" Text="{Binding ElementName=slMax, Path=Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Right" TextAlignment="Right" IsEnabled="False" Width="40"/>
+                                <Slider x:Name="slMax" Minimum="-1" Maximum="10" TickPlacement="BottomRight" TickFrequency="1" IsSnapToTickEnabled="True" IsEnabled="False" ValueChanged="SlMax_ValueChanged"
                             Value="{Binding Path=ConfigMaxCardinality, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                </DockPanel>
-            </StackPanel>
+                            </DockPanel>
+                        </StackPanel>
 
-            <Grid Grid.Row="3" Margin="0,3" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                        <Grid Grid.Row="4" Margin="0,3" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                <Button x:Name="btnAddAcm"  Grid.Row="0" Grid.Column="0" Content="add acm" Width="70" Margin="0,0,0,0" IsEnabled="True" Click="BtnAddAcm_Click"/>
-                <Button x:Name="btnRmAcm"  Grid.Row="0" Grid.Column="1" Content="remove acm" Width="70" Margin="5,0,0,0" IsEnabled="True" Click="BtnRmAcm_Click"/>
-                <Button x:Name="btnSetAcm"  Grid.Row="0" Grid.Column="2" Content="set acm" Width="70" Margin="5,0,0,0" IsEnabled="True" Click="BtnSetAcm_Click"/>
+                            <Button x:Name="btnAddAcm"  Grid.Row="0" Grid.Column="0" Content="add acm" Width="70" Margin="0,0,0,0" IsEnabled="True" Click="BtnAddAcm_Click"/>
+                            <Button x:Name="btnRmAcm"  Grid.Row="0" Grid.Column="1" Content="remove acm" Width="70" Margin="5,0,0,0" IsEnabled="True" Click="BtnRmAcm_Click"/>
+                            <Button x:Name="btnSetAcm"  Grid.Row="0" Grid.Column="2" Content="set acm" Width="70" Margin="5,0,0,0" IsEnabled="True" Click="BtnSetAcm_Click"/>
 
-                <Button x:Name="btnClearAcm"  Grid.Row="1" Grid.Column="0" Content="clear acm" Width="70" Margin="0,5,0,0" IsEnabled="True" Click="BtnClearAcm_Click"/>
-                <Button x:Name="btnSaveAcm"  Grid.Row="1" Grid.Column="1" Content="save acm" Width="70" Margin="5,5,0,0" IsEnabled="True"  Click="BtnSaveAcm_Click"/>
-                <Button x:Name="btnLoadACMFile" Grid.Row="1" Grid.Column="2" Content="load acm" Width="70" Margin="5,5,0,0" IsEnabled="True" Click="BtnLoadACMFile_Click"/>
-            </Grid>
+                            <Button x:Name="btnClearAcm"  Grid.Row="1" Grid.Column="0" Content="clear acm" Width="70" Margin="0,5,0,0" IsEnabled="True" Click="BtnClearAcm_Click"/>
+                            <Button x:Name="btnSaveAcm"  Grid.Row="1" Grid.Column="1" Content="save acm" Width="70" Margin="5,5,0,0" IsEnabled="True"  Click="BtnSaveAcm_Click"/>
+                            <Button x:Name="btnLoadACMFile" Grid.Row="1" Grid.Column="2" Content="load acm" Width="70" Margin="5,5,0,0" IsEnabled="True" Click="BtnLoadACMFile_Click"/>
+                        </Grid>
+                    </Grid> <!--The Acm editing area-->
 
-            <!--<StackPanel Orientation="Horizontal" Grid.Row="3" Margin="0,3" HorizontalAlignment="Center">
-                <Button x:Name="btnAddAcm"  Content="add acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnAddAcm_Click"/>
-                <Button x:Name="btnRmAcm"  Content="remove acm" Width="70" Margin="3,0"  IsEnabled="False" Click="BtnRmAcm_Click"/>
-                <Button x:Name="btnSetAcm"  Content="set acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnSetAcm_Click"/>
-            </StackPanel>-->
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-            <!--<StackPanel Orientation="Horizontal" Grid.Row="4" Margin="0,3" HorizontalAlignment="Center">
-                <Button x:Name="btnClearAcm"  Content="clear acm" Width="70" Margin="3,0"  IsEnabled="False" Click="BtnClearAcm_Click"/>
-                <Button x:Name="btnSaveAcm"  Content="save acm" Width="70" IsEnabled="False" Margin="3,0" Click="BtnSaveAcm_Click"/>
-                <Button x:Name="btnLoadACMFile" Content="load ACM file" Margin="3,0" Width="80" Click="BtnLoadACMFile_Click"  IsEnabled="True"/>
-                --><!--<TextBox x:Name="textAcm" Text="{Binding Path=AcmId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=ID of the selected ACM}" Width="170" Margin="3,0" VerticalAlignment="Stretch"/>--><!--
-            </StackPanel>-->
-        </Grid>
+                        <StackPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Top" Margin="0,5,0,0">
+                            <Label Content="active features of the selected Acm" HorizontalAlignment="Center"/>
+                            <DockPanel>
+                                <ListBox x:Name="lbAcmFeatures" HorizontalAlignment="Stretch" Height="150" ItemsSource="{Binding Path=SelectedAcmFeatures}" 
+                                         ScrollViewer.VerticalScrollBarVisibility="Visible" DockPanel.Dock="Top" SelectionMode="Extended" >
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Fullname}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <Button x:Name="btnRmSelectedAcmFeature"  Content="remove active acm feature" Width="170" Margin="3,0"  IsEnabled="True" Click="BtnRmSelectedAcmFeature_Click"/>
+                            </DockPanel>
+                        </StackPanel>
 
-        <StackPanel Grid.Row="4" Grid.Column="5" Grid.ColumnSpan="1" Orientation="Vertical" VerticalAlignment="Top" Margin="0,5,0,0">
-            <!--<Button x:Name="btnRmAcmFeature"  Content="remove feature" Width="90" Margin="3,0"  IsEnabled="True" Click="BtnRmAcmFeature_Click"/>-->
-            <Label Content="semantic features" HorizontalAlignment="Center"/>
-            <DockPanel>
-                <ListBox x:Name="lbAcmFeatures" HorizontalAlignment="Stretch" ItemsSource="{Binding Path=AcmFeatures}" DockPanel.Dock="Top" SelectionMode="Extended" >
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Fullname}" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <StackPanel Orientation="Vertical" DockPanel.Dock="Bottom">
-                    <Button x:Name="btnRmAcmFeature"  Content="remove feature" Width="90" Margin="3,0"  IsEnabled="True" Click="BtnRmAcmFeature_Click"/>
-                </StackPanel>
-            </DockPanel>
-        </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Vertical" VerticalAlignment="Top" Margin="5,5,0,0">
+                            <Label Content="ignored Acm features" HorizontalAlignment="Center"/>
+                            <DockPanel>
+                                <ListBox x:Name="lbIgnoredAcmFeatures" HorizontalAlignment="Stretch" Height="150" ItemsSource="{Binding Path=IgnoredAcmFeatures}" 
+                                         ScrollViewer.VerticalScrollBarVisibility="Visible" DockPanel.Dock="Top" SelectionMode="Extended" >
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Fullname}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                                <Button x:Name="btnRmIgnoredAcmFeature"  Content="remove ignored acm feature" Width="170" Margin="3,0"  IsEnabled="True" Click="BtnRmIgnoredAcmFeature_Click"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </Grid> <!--acm feature editing area-->
+                </Grid>
+            </TabItem>
+        </TabControl>
 
     </Grid>
 </UserControl>

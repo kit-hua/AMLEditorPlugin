@@ -63,7 +63,8 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         public AMLLearnerACMConfig SelectedAcm { get; set; }
 
         private ObservableCollection<AcmFeature> _selectedAcmFeatures;
-        public ObservableCollection<AcmFeature> SelectedAcmFeatures {
+        public ObservableCollection<AcmFeature> SelectedAcmFeatures
+        {
             get
             {
                 return _selectedAcmFeatures;
@@ -74,7 +75,19 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                 RaisePropertyChanged(() => SelectedAcmFeatures);
             }
         }
-        public List<AcmFeature> IgnoredAcmFeatures { get; set; }
+        private ObservableCollection<AcmFeature> _ignoredAcmFeatures;
+        public ObservableCollection<AcmFeature> IgnoredAcmFeatures
+        {
+            get
+            {
+                return _ignoredAcmFeatures;
+            }
+            set
+            {
+                _ignoredAcmFeatures = value;
+                RaisePropertyChanged(() => IgnoredAcmFeatures);
+            }
+        }
 
         /// <summary>
         /// Gets the singleton instance of the view model
@@ -122,14 +135,8 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
             //Acm.File = Settings.getAcmResultFile();
             SelectedAcm.File = Settings.FileAcmInUse;
 
-            SelectedAcmFeatures = new ObservableCollection<AcmFeature>();
-            SelectedAcmFeatures.Add(new AcmFeature("class", "Robot"));
-            SelectedAcmFeatures.Add(new AcmFeature("class", "Structure"));
-            SelectedAcmFeatures.Add(new AcmFeature("attribute", "weight"));
-            SelectedAcmFeatures.Add(new AcmFeature("attribtue", "payload"));
-
-            IgnoredAcmFeatures = new List<AcmFeature>();
-
+            SelectedAcmFeatures = new ObservableCollection<AcmFeature>();            
+            IgnoredAcmFeatures = new ObservableCollection<AcmFeature>();
         }
 
         public void loadACM()
@@ -967,12 +974,12 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         /// it will not be used for learning of any examples
         /// </summary>
         /// <param name="feature"></param>
-        public void RemoveAcmFeature(AcmFeature feature)
+        public void RemoveActiveAcmFeature(AcmFeature feature)
         {
             SelectedAcmFeatures.Remove(feature);
             IgnoredAcmFeatures.Add(feature);
 
-            CAEXObject obj = RemoveAcmFeature(feature, (CAEXObject)CurrentSelectedObject);
+            CAEXObject obj = RemoveActiveAcmFeature(feature, (CAEXObject)CurrentSelectedObject);
 
             //TreeAcm.RemoveObject((CAEXObject)CurrentSelectedObject);
             //TreeAcm.AddObjectToIh(TreeAcm.Ihs[0], obj);
@@ -985,7 +992,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
         /// <param name="feature"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        private CAEXObject RemoveAcmFeature(AcmFeature feature, CAEXObject obj)
+        private CAEXObject RemoveActiveAcmFeature(AcmFeature feature, CAEXObject obj)
         {            
             if (feature.Type.Equals("class"))
             {
@@ -1019,12 +1026,12 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
                     foreach (InternalElementType child in ie.InternalElement.ToList())
                     {
-                        RemoveAcmFeature(feature, child);
+                        RemoveActiveAcmFeature(feature, child);
                     }
 
                     foreach (ExternalInterfaceType child in ie.ExternalInterface.ToList())
                     {
-                        RemoveAcmFeature(feature, child);
+                        RemoveActiveAcmFeature(feature, child);
                     }
                 }
             }
@@ -1052,7 +1059,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                         foreach (AttributeType child in attr.Attribute.ToList())
                         {
                             if(!AcmUtilities.IsConfigAttribute(child))
-                                RemoveAcmFeature(feature, child);
+                                RemoveActiveAcmFeature(feature, child);
                         }
 
                         // if the attribute has neither value nor constraints: it is a nested attribute
@@ -1075,7 +1082,7 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                     foreach (AttributeType attr in ei.Attribute.ToList())
                     {
                         if(!AcmUtilities.IsConfigAttribute(attr))
-                            RemoveAcmFeature(feature, attr);
+                            RemoveActiveAcmFeature(feature, attr);
                     }
                 }
 
@@ -1086,12 +1093,17 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
                     foreach (AttributeType attr in ie.Attribute.ToList())
                     {
                         if (!AcmUtilities.IsConfigAttribute(attr))
-                            RemoveAcmFeature(feature, attr);
+                            RemoveActiveAcmFeature(feature, attr);
                     }
                 }                
             }
 
             return obj;
+        }
+
+        public void RemoveIgnoredAcmFeature(AcmFeature feature)
+        {
+            IgnoredAcmFeatures.Remove(feature);
         }
 
 

@@ -1040,6 +1040,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
             ViewModel.loadACM();
             //btnSaveAcm.IsEnabled = true;
             //btnClearAcm.IsEnabled = true;
+            tabControl.SelectedIndex = 1;
         }
 
         private void BtnStartServer_Click(object sender, RoutedEventArgs e)
@@ -1276,13 +1277,20 @@ namespace Aml.Editor.PlugIn.AMLLearner
             ViewModel.ClearNegatives();
         }
 
-        private void BtnRmAcmFeature_Click(object sender, RoutedEventArgs e)
+        private void BtnRmSelectedAcmFeature_Click(object sender, RoutedEventArgs e)
         {            
             if (lbAcmFeatures.SelectedItem != null)
             {
-                ViewModel.RemoveAcmFeature(lbAcmFeatures.SelectedItem as AcmFeature);
+                ViewModel.RemoveActiveAcmFeature(lbAcmFeatures.SelectedItem as AcmFeature);
             }
         }
 
+        private void BtnRmIgnoredAcmFeature_Click(object sender, RoutedEventArgs e)
+        {
+            if (lbIgnoredAcmFeatures.SelectedItem != null)
+            {
+                ViewModel.RemoveIgnoredAcmFeature(lbIgnoredAcmFeatures.SelectedItem as AcmFeature);
+            }
+        }
     }
 }
