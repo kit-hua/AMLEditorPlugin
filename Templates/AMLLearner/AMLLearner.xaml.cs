@@ -469,7 +469,28 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
                         ViewModel.SelectedAcmFeatures.Clear();
                     }
-                    else if (ViewModel.IsSelectedAcm(this._selectedObj))
+                    else
+                    {
+                        btnRest.IsEnabled = false;
+                        btnPos.IsEnabled = true;
+                        btnNeg.IsEnabled = true;
+                        btnRm.IsEnabled = true;
+                        //btnSetAcm.IsEnabled = false;
+
+                        cbPrimary.IsEnabled = false;
+                        cbId.IsEnabled = false;
+                        cbDesendant.IsEnabled = false;
+                        cbName.IsEnabled = false;
+                        cbNegated.IsEnabled = false;
+                        slMin.IsEnabled = false;
+                        slMax.IsEnabled = false;
+                        textMin.IsEnabled = false;
+                        textMax.IsEnabled = false;
+
+                        ViewModel.SelectedAcmFeatures.Clear();
+                    }
+
+                    if (ViewModel.IsSelectedAcm(this._selectedObj))
                     {
                         btnRest.IsEnabled = false;
                         btnNeg.IsEnabled = false;
@@ -525,27 +546,7 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
                         ViewModel.SelectedAcmFeatures = ViewModel.GetAcmFeatures((CAEXObject)_selectedObj);
                     }
-                    else
-                    {
-                        btnRest.IsEnabled = false;
-                        btnPos.IsEnabled = true;
-                        btnNeg.IsEnabled = true;
-                        btnRm.IsEnabled = true;
-                        //btnSetAcm.IsEnabled = false;
-
-                        cbPrimary.IsEnabled = false;
-                        cbId.IsEnabled = false;
-                        cbDesendant.IsEnabled = false;
-                        cbName.IsEnabled = false;
-                        cbNegated.IsEnabled = false;
-                        slMin.IsEnabled = false;
-                        slMax.IsEnabled = false;
-                        textMin.IsEnabled = false;
-                        textMax.IsEnabled = false;
-
-                        ViewModel.SelectedAcmFeatures.Clear();
-                    }
-                }
+                } // not a CAEX object
                 else
                 {
                     btnRest.IsEnabled = false;

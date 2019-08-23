@@ -461,11 +461,14 @@ namespace Aml.Editor.PlugIn.AMLLearner.ViewModel
 
         public bool IsSelectedAcm(CAEXObject obj)
         {
-            if (TreeAcm is null)
+            if (TreeAcm.IsEmpty())
+            {
                 return false;
+            }
             else
-                //return TreeAcm.ContainsDataObject(obj);            
+            {               
                 return TreeAcm.ContainsObject(obj);
+            }
         }
 
         public void AddAcm(CAEXObject obj)

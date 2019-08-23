@@ -160,6 +160,11 @@ namespace Aml.Editor.PlugIn.AMLLearner
             return all;
         }
 
+        public bool IsEmpty()
+        {
+            return !(this.Ih.InternalElement.Exists && this.Ih.InternalElement.Count > 0);
+        }
+
     }
 
     public class AMLLearnerTree
@@ -279,7 +284,22 @@ namespace Aml.Editor.PlugIn.AMLLearner
 
             if (obj is CAEXObject)
             {
-                return Document.FindByID(((CAEXObject)obj).ID) != null;
+                List<InternalElementType> ies = Document.CAEXFile.Descendants<InternalElementType>().ToList();
+                List<ExternalInterfaceType> eis = Document.CAEXFile.Descendants<ExternalInterfaceType>().ToList();
+
+                foreach (InternalElementType ie in ies)
+                {
+                    if (ie.ID.Equals(((CAEXObject)obj).ID))
+                        return true;
+                }
+
+                foreach (ExternalInterfaceType ei in eis)
+                {
+                    if (ei.ID.Equals(((CAEXObject)obj).ID))
+                        return true;
+                }
+
+                //return Document.FindByID(((CAEXObject)obj).ID) != null;
             }
 
             return false;
@@ -294,7 +314,17 @@ namespace Aml.Editor.PlugIn.AMLLearner
             }
 
             return false;
-        }        
+        }
+
+        public bool IsEmpty()
+        {
+            foreach (AMLLearnerInstanceHierarchy ih in Ihs)
+            {
+                if (!ih.IsEmpty())
+                    return false;
+            }
+            return true;
+        }
 
         //private void Update()
         //{            
